@@ -4,8 +4,8 @@ import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.register.dto.RegisterForm;
-import com.capstone.rentit.register.dto.RegisterVerifyCodeDto;
-import com.capstone.rentit.register.dto.RegisterVerifyRequestDto;
+import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
+import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +43,12 @@ public class RegisterController {
     }
 
     @PostMapping("/verify-request")
-    public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestDto requestDto) {
-        boolean isValidUniv = univCertService.checkUniversity(requestDto.getUniversity());
+    public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm requestForm) {
+        boolean isValidUniv = univCertService.checkUniversity(requestForm.getUniversity());
         if (!isValidUniv) {
             return CommonResponse.failure("유효하지 않은 대학명 또는 상위 150개 대학에 포함되지 않습니다.");
         }
-        boolean certifySent = univCertService.certify(requestDto.getEmail(), requestDto.getUniversity(), false);
+        boolean certifySent = univCertService.certify(requestForm.getEmail(), requestForm.getUniversity(), false);
         if (!certifySent) {
             return CommonResponse.failure("인증 코드 발송에 실패했습니다.");
         }
@@ -56,12 +56,12 @@ public class RegisterController {
     }
 
     @PostMapping("/verify-code")
-    public CommonResponse<Boolean> verifyCode(@RequestBody RegisterVerifyCodeDto codeDto) {
-        boolean isValidUniv = univCertService.checkUniversity(codeDto.getUniversity());
+    public CommonResponse<Boolean> verifyCode(@RequestBody RegisterVerifyCodeForm codeForm) {
+        boolean isValidUniv = univCertService.checkUniversity(codeForm.getUniversity());
         if (!isValidUniv) {
             return CommonResponse.failure("유효하지 않은 대학명 또는 상위 150개 대학에 포함되지 않습니다.");
         }
-        boolean isVerified = univCertService.certifyCode(codeDto.getEmail(), codeDto.getUniversity(), codeDto.getCode());
+        boolean isVerified = univCertService.certifyCode(codeForm.getEmail(), codeForm.getUniversity(), codeForm.getCode());
         if (isVerified) {
             return CommonResponse.success(true);
         } else {
