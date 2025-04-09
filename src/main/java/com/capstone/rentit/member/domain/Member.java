@@ -35,5 +35,5 @@ public abstract class Member {
     private LocalDate createdAt;
 
     @Column
-    private boolean isLocked;
+    private boolean locked;
 }
