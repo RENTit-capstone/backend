@@ -1,35 +1,39 @@
 package com.capstone.rentit.member.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.capstone.rentit.common.MemberRoleEnum;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import java.nio.file.FileStore;
 import java.time.LocalDate;
 
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Member {
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "member_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String nickname;
-    private Integer role;
-    private String university;
-    private String studentId;
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
-    private Integer gender;
-    private String phone;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private MemberRoleEnum role;
+
+    @Column
     private LocalDate createdAt;
+
+    @Column
     private boolean isLocked;
 }
