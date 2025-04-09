@@ -32,6 +32,9 @@ public abstract class Member {
     private MemberRoleEnum role;
 
     @Column
+    private String profileImg;
+
+    @Column
     private LocalDate createdAt;
 
     @Column
