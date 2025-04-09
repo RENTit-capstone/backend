@@ -2,7 +2,7 @@ package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.repository.MemberRepository;
-import com.capstone.rentit.register.dto.RegisterForm;
+import com.capstone.rentit.register.dto.StudentRegisterForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Long createUser(RegisterForm form) {
+    public Long createUser(StudentRegisterForm form) {
         Member member = Member.builder()
                 .name(form.getName())
                 .phone(form.getPhone())

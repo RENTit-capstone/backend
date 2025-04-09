@@ -2,7 +2,7 @@ package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.repository.MemberRepository;
-import com.capstone.rentit.register.dto.RegisterForm;
+import com.capstone.rentit.register.dto.StudentRegisterForm;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,8 @@ public class MemberServiceTest {
     private PasswordEncoder passwordEncoder;
 
     // 더미 RegisterForm 생성 메서드
-    private RegisterForm createDummyRegisterForm() {
-        RegisterForm form = new RegisterForm();
+    private StudentRegisterForm createDummyRegisterForm() {
+        StudentRegisterForm form = new StudentRegisterForm();
         form.setName("Test User");
         form.setPhone("010-1234-5678");
         form.setRole(1);
@@ -75,7 +75,7 @@ public class MemberServiceTest {
         // 두 명의 사용자를 생성 후 전체 조회
         Long id = memberService.createUser(createDummyRegisterForm());
 
-        RegisterForm form2 = createDummyRegisterForm();
+        StudentRegisterForm form2 = createDummyRegisterForm();
         form2.setEmail("another@example.com");
         form2.setName("Another User");
         memberService.createUser(form2);
