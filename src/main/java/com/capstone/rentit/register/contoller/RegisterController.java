@@ -16,13 +16,13 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth/signup")
 @Slf4j
 public class RegisterController {
     private final MemberService memberService;
     private final UnivCertService univCertService;
 
-    @PostMapping("/register")
+    @PostMapping("")
     public CommonResponse<Long> registerMember(@RequestBody RegisterForm form) {
         Optional<Member> existingUser = memberService.findByEmail(form.getEmail());
         if (existingUser.isPresent()) {
@@ -42,7 +42,7 @@ public class RegisterController {
         return CommonResponse.success(users);
     }
 
-    @PostMapping("/verify-request")
+    @PostMapping("/verify-email")
     public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm requestForm) {
         boolean isValidUniv = univCertService.checkUniversity(requestForm.getUniversity());
         if (!isValidUniv) {
