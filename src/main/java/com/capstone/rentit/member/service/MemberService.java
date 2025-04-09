@@ -1,6 +1,8 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.common.MemberRoleConverter;
 import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.register.dto.StudentRegisterForm;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +20,19 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Long createUser(StudentRegisterForm form) {
-        Member member = Member.builder()
+    public Long createStudent(StudentRegisterForm form) {
+        Member member = Student.builder()
                 .name(form.getName())
-                .phone(form.getPhone())
-                .role(form.getRole())
+                .role(MemberRoleConverter.fromInteger(form.getRole()))
                 .email(form.getEmail())
-                .gender(form.getGender())
                 .password(passwordEncoder.encode(form.getPassword()))
+                .locked(false)
+                .gender(form.getGender())
                 .studentId(form.getStudentId())
                 .university(form.getUniversity())
                 .nickname(form.getNickname())
                 .createdAt(LocalDate.now())
-                .isLocked(false)
+                .phone(form.getPhone())
                 .build();
         return memberRepository.save(member).getId();
     }

@@ -42,8 +42,8 @@ public class MemberServiceTest {
     }
 
     @Test
-    void testCreateUser() {
-        Long id = memberService.createUser(createDummyRegisterForm());
+    void testCreateStudent() {
+        Long id = memberService.createStudent(createDummyRegisterForm());
         assertNotNull(id);
 
         // 저장된 엔티티 검증
@@ -57,7 +57,7 @@ public class MemberServiceTest {
 
     @Test
     void testGetUser() {
-        Long id = memberService.createUser(createDummyRegisterForm());
+        Long id = memberService.createStudent(createDummyRegisterForm());
         Optional<Member> optionalMember = memberService.getUser(id);
         assertTrue(optionalMember.isPresent());
         assertEquals("test@example.com", optionalMember.get().getEmail());
@@ -65,7 +65,7 @@ public class MemberServiceTest {
 
     @Test
     void testFindByEmail() {
-        Long id = memberService.createUser(createDummyRegisterForm());
+        Long id = memberService.createStudent(createDummyRegisterForm());
         Optional<Member> optionalMember = memberService.findByEmail("test@example.com");
         assertTrue(optionalMember.isPresent());
     }
@@ -73,12 +73,12 @@ public class MemberServiceTest {
     @Test
     void testGetAllUsers() {
         // 두 명의 사용자를 생성 후 전체 조회
-        Long id = memberService.createUser(createDummyRegisterForm());
+        Long id = memberService.createStudent(createDummyRegisterForm());
 
         StudentRegisterForm form2 = createDummyRegisterForm();
         form2.setEmail("another@example.com");
         form2.setName("Another User");
-        memberService.createUser(form2);
+        memberService.createStudent(form2);
 
         List<Member> members = memberService.getAllUsers();
         assertEquals(2, members.size());
@@ -86,7 +86,7 @@ public class MemberServiceTest {
 
     @Test
     void testUpdateUser() {
-        Long id = memberService.createUser(createDummyRegisterForm());
+        Long id = memberService.createStudent(createDummyRegisterForm());
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -99,7 +99,7 @@ public class MemberServiceTest {
 
     @Test
     void testDeleteUser() {
-        Long id = memberService.createUser(createDummyRegisterForm());
+        Long id = memberService.createStudent(createDummyRegisterForm());
         memberService.deleteUser(id);
         Optional<Member> deletedMember = memberRepository.findById(id);
         assertFalse(deletedMember.isPresent());

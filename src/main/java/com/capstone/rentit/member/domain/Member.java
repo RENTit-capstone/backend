@@ -29,6 +29,7 @@ public abstract class Member {
     private String name;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private MemberRoleEnum role;
 
     @Column
