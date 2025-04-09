@@ -32,7 +32,7 @@ public class RegisterController {
             return CommonResponse.failure("미인증 이메일입니다.");
         }
 
-        Long memberId = memberService.createUser(form);
+        Long memberId = memberService.createStudent(form);
         return CommonResponse.success(memberId);
     }
 
