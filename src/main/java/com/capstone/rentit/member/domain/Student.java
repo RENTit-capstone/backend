@@ -25,7 +25,7 @@ public class Student extends Member {
     private String studentId;
 
     @Column
-    private Integer gender;
+    private String gender;
 
     @Column
     private String phone;

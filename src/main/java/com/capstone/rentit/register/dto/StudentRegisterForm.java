@@ -14,6 +14,6 @@ public class StudentRegisterForm {
     private String nickname;
     private String university;
     private String studentId;
-    private Integer gender;
+    private String gender;
     private String phone;
 }
