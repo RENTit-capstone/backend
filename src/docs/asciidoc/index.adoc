@@ -1,0 +1,20 @@
+= API Documentation
+RENTit
+v1.0, {date}
+
+== 회원가입 API
+
+=== 회원 가입 성공 케이스
+
+include::{snippets}/register-member-success/http-request.adoc[]
+include::{snippets}/register-member-success/http-response.adoc[]
+
+=== 이메일 중복 회원 가입 실패 케이스
+
+include::{snippets}/register-member-email-exists/http-request.adoc[]
+include::{snippets}/register-member-email-exists/http-response.adoc[]
+
+=== 미인증 이메일 회원 가입 실패 케이스
+
+include::{snippets}/register-member-email-not-certified/http-request.adoc[]
+include::{snippets}/register-member-email-not-certified/http-response.adoc[]

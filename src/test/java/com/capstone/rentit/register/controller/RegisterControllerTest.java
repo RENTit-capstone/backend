@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
+@AutoConfigureRestDocs
 public class RegisterControllerTest {
 
     @Autowired
@@ -50,7 +50,7 @@ public class RegisterControllerTest {
      * 회원 가입 성공 케이스 테스트
      */
     @Test
-    public void registerMember_success() throws Exception {
+    public void register_member_success() throws Exception {
         // 요청 데이터 준비
         StudentRegisterForm form = new StudentRegisterForm();
         form.setName("Test User");
@@ -104,7 +104,7 @@ public class RegisterControllerTest {
      * 이미 등록된 이메일인 경우의 회원 가입 실패 테스트
      */
     @Test
-    public void registerMember_emailAlreadyExists() throws Exception {
+    public void register_member_email_already_exists() throws Exception {
         // 요청 데이터 준비
         StudentRegisterForm form = new StudentRegisterForm();
         form.setName("Test User");
@@ -167,7 +167,7 @@ public class RegisterControllerTest {
      * 인증되지 않은 이메일의 경우의 회원 가입 실패 테스트
      */
     @Test
-    public void registerMember_emailNotCertified() throws Exception {
+    public void register_member_email_not_certified() throws Exception {
         // 요청 데이터 준비
         StudentRegisterForm form = new StudentRegisterForm();
         form.setName("Test User");

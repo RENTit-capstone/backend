@@ -54,7 +54,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-//rest docs
+////rest docs
 tasks.register('copyApiDocument', Copy) { // 자동으로 생성된 문서를 옮겨주는 copyApiDocument task 선언
 	dependsOn asciidoctor // copyApiDocument를 수행하기전 asciidoctor를 수행하도록 선언
 	doFirst { // 작업이 실행되기전 수행하는 작업 선언
