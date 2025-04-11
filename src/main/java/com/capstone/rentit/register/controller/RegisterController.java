@@ -1,4 +1,4 @@
-package com.capstone.rentit.register.contoller;
+package com.capstone.rentit.register.controller;
 
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.domain.Member;
@@ -16,13 +16,13 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth/signup")
+@RequestMapping("/api/v1")
 @Slf4j
 public class RegisterController {
     private final MemberService memberService;
     private final UnivCertService univCertService;
 
-    @PostMapping("")
+    @PostMapping("/auth/signup")
     public CommonResponse<Long> registerMember(@RequestBody StudentRegisterForm form) {
         Optional<Member> existingUser = memberService.findByEmail(form.getEmail());
         if (existingUser.isPresent()) {
@@ -36,13 +36,7 @@ public class RegisterController {
         return CommonResponse.success(memberId);
     }
 
-    @GetMapping("/members")
-    public CommonResponse<List<Member>> getAllUsers() {
-        List<Member> users = memberService.getAllUsers();
-        return CommonResponse.success(users);
-    }
-
-    @PostMapping("/verify-email")
+    @PostMapping("/auth/signup/verify-email")
     public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm requestForm) {
         boolean isValidUniv = univCertService.checkUniversity(requestForm.getUniversity());
         if (!isValidUniv) {
@@ -55,7 +49,7 @@ public class RegisterController {
         return CommonResponse.success("이메일로 발송된 인증 코드를 확인하세요.");
     }
 
-    @PostMapping("/verify-code")
+    @PostMapping("/auth/signup/verify-code")
     public CommonResponse<Boolean> verifyCode(@RequestBody RegisterVerifyCodeForm codeForm) {
         boolean isValidUniv = univCertService.checkUniversity(codeForm.getUniversity());
         if (!isValidUniv) {
@@ -69,7 +63,7 @@ public class RegisterController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/auth/signup/{id}")
     public CommonResponse<Boolean> deleteUser(@PathVariable("id") Long id) {
         try {
             memberService.deleteUser(id);
@@ -79,7 +73,7 @@ public class RegisterController {
         }
     }
 
-    @PostMapping("/clear")
+    @PostMapping("/admin/auth/signup/clear")
     public CommonResponse<Boolean> clearAll() {
         if (univCertService.clearAll()) {
             return CommonResponse.success(true);
@@ -88,7 +82,7 @@ public class RegisterController {
         }
     }
 
-    @PostMapping("/show")
+    @PostMapping("/admin/auth/signup/show")
     public CommonResponse<Object> showAll() {
         Object data = univCertService.showAll();
         if ("error".equals(data)) {
