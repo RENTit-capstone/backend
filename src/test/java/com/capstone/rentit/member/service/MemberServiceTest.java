@@ -33,7 +33,7 @@ public class MemberServiceTest {
         form.setPhone("010-1234-5678");
         form.setRole(1);
         form.setEmail("test@example.com");
-        form.setGender(1);
+        form.setGender("M");
         form.setPassword("password");
         form.setStudentId("12345678");
         form.setUniversity("Test University");
