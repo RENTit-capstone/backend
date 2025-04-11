@@ -17,4 +17,6 @@ operation::verify-email-success[snippets='request-fields,http-request,response-f
 === 인증 코드 검증 요청
 operation::verify-code-success[snippets='request-fields,http-request,response-fields,http-response']
 
-
+== 로그인 API
+=== 로그인 요청
+operation::login_success[snippets='request-fields,http-request,response-fields,http-response']
