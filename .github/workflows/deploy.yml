@@ -63,8 +63,8 @@ jobs:
             docker pull ${{ secrets.DOCKER_REPO }}:latest
   
             echo "Stopping old container..."
-            docker stop  ${{ secrets.DOCKER_REPO }} || true
-            docker rm  ${{ secrets.DOCKER_REPO }} || true
+            docker stop  rentit || true
+            docker rm  rentit || true
   
             echo "Starting new container..."
-            docker run -d --name ${{ secrets.DOCKER_REPO }} -p 8080:8080 ${{ secrets.DOCKER_REPO }}:latest
+            docker run -d --name rentit -p 8080:8080 ${{ secrets.DOCKER_REPO }}:latest
