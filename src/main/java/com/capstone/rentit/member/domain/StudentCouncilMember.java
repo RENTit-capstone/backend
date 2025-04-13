@@ -15,4 +15,8 @@ public class StudentCouncilMember extends Member {
 
     @Column
     private String university;
+
+    public void updateCouncilMember(String name, String profileImg) {
+        super.update(name, profileImg);
+    }
 }

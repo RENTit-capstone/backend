@@ -40,4 +40,13 @@ public abstract class Member {
 
     @Column
     private boolean locked;
+
+    public void update(String name, String profileImg) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (profileImg != null) {
+            this.profileImg = profileImg;
+        }
+    }
 }

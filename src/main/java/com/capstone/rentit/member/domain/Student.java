@@ -29,4 +29,14 @@ public class Student extends Member {
 
     @Column
     private String phone;
+
+    public void updateStudent(String name, String profileImg, String nickname, String phone) {
+        super.update(name, profileImg);
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (phone != null) {
+            this.phone = phone;
+        }
+    }
 }
