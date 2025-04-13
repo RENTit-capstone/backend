@@ -1,8 +1,14 @@
 package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.common.MemberRoleConverter;
+import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
+import com.capstone.rentit.member.dto.CompanyUpdateForm;
+import com.capstone.rentit.member.dto.MemberUpdateForm;
+import com.capstone.rentit.member.dto.StudentCouncilMemberUpdateForm;
+import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.register.dto.StudentRegisterForm;
 import lombok.RequiredArgsConstructor;
@@ -49,9 +55,32 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Member updateUser(Long id, Member userDetails) {
+    public Member updateUser(Long id, MemberUpdateForm updateForm) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 역할에 따른 업데이트
+        if (member instanceof Student student && updateForm instanceof StudentUpdateForm stuForm) {
+            student.updateStudent(
+                    stuForm.getName(),
+                    stuForm.getProfileImg(),
+                    stuForm.getNickname(),
+                    stuForm.getPhone()
+            );
+        }
+        else if (member instanceof StudentCouncilMember scm && updateForm instanceof StudentCouncilMemberUpdateForm scmForm) {
+            scm.updateCouncilMember(
+                    scmForm.getName(),
+                    scmForm.getProfileImg()
+            );
+        }
+        else if (member instanceof Company company && updateForm instanceof CompanyUpdateForm companyForm) {
+            company.updateCompany(
+                    companyForm.getName(),
+                    companyForm.getProfileImg(),
+                    companyForm.getCompanyName()
+            );
+        }
         return memberRepository.save(member);
     }
 
