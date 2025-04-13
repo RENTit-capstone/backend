@@ -1,8 +1,8 @@
 package com.capstone.rentit.login.controller;
 
 import com.capstone.rentit.login.dto.LoginRequest;
+import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.service.MemberService;
-import com.capstone.rentit.register.dto.StudentRegisterForm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,18 +46,17 @@ public class LoginControllerTest {
     @Test
     public void login_success() throws Exception {
         // 더미 계정 등록
-        StudentRegisterForm form = new StudentRegisterForm();
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setEmail("test@example.com");
         form.setPassword("password");
-        form.setRole(1);
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
         form.setGender("M");
         form.setPhone("010-1234-5678");
 
-        memberService.createStudent(form);
+        memberService.createMember(form);
 
         // (1) 로그인 요청
         LoginRequest loginRequest = new LoginRequest();
@@ -114,18 +113,17 @@ public class LoginControllerTest {
     @Test
     public void login_wrong_password() throws Exception {
         // 더미 계정 등록
-        StudentRegisterForm form = new StudentRegisterForm();
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User2");
         form.setEmail("test2@example.com");
         form.setPassword("password2");
-        form.setRole(1);
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
         form.setGender("M");
         form.setPhone("010-1234-5678");
 
-        memberService.createStudent(form);
+        memberService.createMember(form);
 
         // (1) 로그인 요청
         LoginRequest loginRequest = new LoginRequest();

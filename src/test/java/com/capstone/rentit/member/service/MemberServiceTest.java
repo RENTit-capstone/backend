@@ -32,7 +32,6 @@ public class MemberServiceTest {
         StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setPhone("010-1234-5678");
-        form.setRole(1);
         form.setEmail("test@example.com");
         form.setGender("M");
         form.setPassword("password");
