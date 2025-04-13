@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class StudentCouncilMember extends Member {
 
     @Column
-    private String position;
+    private String university;
 }
