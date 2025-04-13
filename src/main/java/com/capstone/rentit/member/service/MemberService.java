@@ -1,6 +1,7 @@
 package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.common.MemberRoleConverter;
+import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
@@ -27,7 +28,7 @@ public class MemberService {
         if (form instanceof StudentCreateForm stuForm) {
             member = Student.builder()
                     .name(stuForm.getName())
-                    .role(MemberRoleConverter.fromInteger(stuForm.getRole()))
+                    .role(MemberRoleEnum.STUDENT)
                     .email(stuForm.getEmail())
                     .password(passwordEncoder.encode(stuForm.getPassword()))
                     .locked(false)
@@ -42,7 +43,7 @@ public class MemberService {
         else if (form instanceof StudentCouncilMemberCreateForm scmForm) {
             member = Student.builder()
                     .name(scmForm.getName())
-                    .role(MemberRoleConverter.fromInteger(scmForm.getRole()))
+                    .role(MemberRoleEnum.COUNCIL)
                     .email(scmForm.getEmail())
                     .password(passwordEncoder.encode(scmForm.getPassword()))
                     .locked(false)
@@ -53,7 +54,7 @@ public class MemberService {
         else if (form instanceof CompanyCreateForm comForm) {
             member = Student.builder()
                     .name(comForm.getName())
-                    .role(MemberRoleConverter.fromInteger(comForm.getRole()))
+                    .role(MemberRoleEnum.COMPANY)
                     .email(comForm.getEmail())
                     .password(passwordEncoder.encode(comForm.getPassword()))
                     .locked(false)
