@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.dto;
 
+import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
@@ -7,8 +8,9 @@ import com.capstone.rentit.member.domain.StudentCouncilMember;
 
 public class MemberDtoFactory {
     public static MemberDto toDto(Member member) {
-        return switch (member) {
-            case Student student -> StudentDto.builder()
+        if (member.getRole().equals(MemberRoleEnum.STUDENT)) {
+            Student student = (Student) member;
+            return StudentDto.builder()
                     .id(student.getId())
                     .email(student.getEmail())
                     .role(student.getRole())
@@ -22,7 +24,9 @@ public class MemberDtoFactory {
                     .university(student.getUniversity())
                     .phone(student.getPhone())
                     .build();
-            case StudentCouncilMember scm -> StudentCouncilMemberDto.builder()
+        } else if (member.getRole().equals(MemberRoleEnum.COUNCIL)) {
+            StudentCouncilMember scm = (StudentCouncilMember) member;
+            return StudentCouncilMemberDto.builder()
                     .id(scm.getId())
                     .email(scm.getEmail())
                     .role(scm.getRole())
@@ -31,7 +35,9 @@ public class MemberDtoFactory {
                     .createdAt(scm.getCreatedAt())
                     .university(scm.getUniversity())
                     .build();
-            case Company company -> CompanyDto.builder()
+        } else if (member.getRole().equals(MemberRoleEnum.COMPANY)) {
+            Company company = (Company) member;
+            return CompanyDto.builder()
                     .id(company.getId())
                     .email(company.getEmail())
                     .role(company.getRole())
@@ -40,7 +46,8 @@ public class MemberDtoFactory {
                     .createdAt(company.getCreatedAt())
                     .companyName(company.getCompanyName())
                     .build();
-            case null, default -> throw new IllegalArgumentException("Unknown member type: " + member.getClass());
-        };
+        } else {
+            throw new IllegalArgumentException("Unknown member type: " + member.getClass());
+        }
     }
 }
