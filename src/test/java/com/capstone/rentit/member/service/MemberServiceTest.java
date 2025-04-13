@@ -1,8 +1,9 @@
 package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.member.dto.MemberCreateForm;
+import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.repository.MemberRepository;
-import com.capstone.rentit.register.dto.StudentRegisterForm;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class MemberServiceTest {
     private PasswordEncoder passwordEncoder;
 
     // 더미 RegisterForm 생성 메서드
-    private StudentRegisterForm createDummyRegisterForm() {
-        StudentRegisterForm form = new StudentRegisterForm();
+    private MemberCreateForm createDummyRegisterForm() {
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setPhone("010-1234-5678");
         form.setRole(1);
@@ -43,7 +44,7 @@ public class MemberServiceTest {
 
     @Test
     void testCreateStudent() {
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
         assertNotNull(id);
 
         // 저장된 엔티티 검증
@@ -57,7 +58,7 @@ public class MemberServiceTest {
 
     @Test
     void testGetUser() {
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
         Optional<Member> optionalMember = memberService.getUser(id);
         assertTrue(optionalMember.isPresent());
         assertEquals("test@example.com", optionalMember.get().getEmail());
@@ -65,7 +66,7 @@ public class MemberServiceTest {
 
     @Test
     void testFindByEmail() {
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
         Optional<Member> optionalMember = memberService.findByEmail("test@example.com");
         assertTrue(optionalMember.isPresent());
     }
@@ -73,12 +74,12 @@ public class MemberServiceTest {
     @Test
     void testGetAllUsers() {
         // 두 명의 사용자를 생성 후 전체 조회
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
 
-        StudentRegisterForm form2 = createDummyRegisterForm();
+        MemberCreateForm form2 = createDummyRegisterForm();
         form2.setEmail("another@example.com");
         form2.setName("Another User");
-        memberService.createStudent(form2);
+        memberService.createMember(form2);
 
         List<Member> members = memberService.getAllUsers();
         assertEquals(2, members.size());
@@ -86,7 +87,7 @@ public class MemberServiceTest {
 
     @Test
     void testUpdateUser() {
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -99,7 +100,7 @@ public class MemberServiceTest {
 
     @Test
     void testDeleteUser() {
-        Long id = memberService.createStudent(createDummyRegisterForm());
+        Long id = memberService.createMember(createDummyRegisterForm());
         memberService.deleteUser(id);
         Optional<Member> deletedMember = memberRepository.findById(id);
         assertFalse(deletedMember.isPresent());
