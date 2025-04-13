@@ -72,6 +72,9 @@ public class MemberServiceTest {
 
     @Test
     void testGetAllUsers() {
+        //현재 사용자 조회
+        List<Member> curMembers = memberService.getAllUsers();
+        
         // 두 명의 사용자를 생성 후 전체 조회
         Long id = memberService.createMember(createDummyRegisterForm());
 
@@ -81,7 +84,7 @@ public class MemberServiceTest {
         memberService.createMember(form2);
 
         List<Member> members = memberService.getAllUsers();
-        assertEquals(2, members.size());
+        assertEquals(2 + curMembers.size(), members.size());
     }
 
     @Test
