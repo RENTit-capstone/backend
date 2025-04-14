@@ -1,6 +1,5 @@
 package com.capstone.rentit.member.service;
 
-import com.capstone.rentit.common.MemberRoleConverter;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
@@ -65,7 +64,7 @@ public class MemberService {
         else {
             throw new IllegalArgumentException("CreateMember: Unsupported member type");
         }
-        return memberRepository.save(member).getId();
+        return memberRepository.save(member).getMemberId();
     }
 
     public Optional<Member> getUser(Long id) {

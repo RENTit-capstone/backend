@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.nio.file.FileStore;
 import java.time.LocalDate;
 
 @Entity
@@ -17,7 +16,7 @@ import java.time.LocalDate;
 public abstract class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long memberId;
 
     @Column(nullable = false, unique = true)
     private String email;
