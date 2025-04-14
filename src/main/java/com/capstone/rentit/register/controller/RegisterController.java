@@ -36,12 +36,6 @@ public class RegisterController {
         return CommonResponse.success(memberId);
     }
 
-    @GetMapping("/members")
-    public CommonResponse<List<Member>> getAllUsers() {
-        List<Member> users = memberService.getAllUsers();
-        return CommonResponse.success(users);
-    }
-
     @PostMapping("/verify-email")
     public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm requestForm) {
         boolean isValidUniv = univCertService.checkUniversity(requestForm.getUniversity());
