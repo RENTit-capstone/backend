@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.controller;
 
+import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -21,46 +22,47 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 신규 회원 생성 (DTO만 입력 받음)
+    // 관리자용 신규 회원 생성
     @PostMapping("/admin/members")
-    public MemberDto createMember(@RequestBody MemberCreateForm createForm) {
+    public CommonResponse<?> createMember(@RequestBody MemberCreateForm createForm) {
         Long id = memberService.createMember(createForm);
-        return memberService.getUser(id)
-                .map(MemberDtoFactory::toDto)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return new CommonResponse<>(true, id, "");
     }
 
     // 전체 회원 조회 (DTO 목록 반환)
     @GetMapping("/admin/members")
-    public List<MemberDto> getAllMembers() {
-        return memberService.getAllUsers().stream()
+    public CommonResponse<List<MemberDto>> getAllMembers() {
+        List<MemberDto> list = memberService.getAllUsers().stream()
                 .map(MemberDtoFactory::toDto)
                 .collect(Collectors.toList());
+        return new CommonResponse<>(true, list, "");
     }
 
     // 특정 회원 조회
     @GetMapping("/members/{id}")
-    public MemberDto getMember(@PathVariable Long id) {
-        return memberService.getUser(id)
+    public CommonResponse<MemberDto> getMember(@PathVariable("id") Long id) {
+        MemberDto memberDto = memberService.getUser(id)
                 .map(MemberDtoFactory::toDto)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        return new CommonResponse<>(true, memberDto, "");
     }
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
     @PutMapping("/members/{id}")
-    public MemberDto updateMember(@PathVariable Long id, @RequestBody MemberUpdateForm updateForm) {
-        return MemberDtoFactory.toDto(memberService.updateUser(id, updateForm));
+    public CommonResponse<?> updateMember(@PathVariable("id") Long id, @RequestBody MemberUpdateForm updateForm) {
+        MemberDtoFactory.toDto(memberService.updateUser(id, updateForm)).getId();
+        return new CommonResponse<>(true, id, "");
     }
 
     // 회원 삭제
     @DeleteMapping("/admin/members/{id}")
-    public void deleteMember(@PathVariable Long id) {
+    public CommonResponse<?> deleteMember(@PathVariable("id") Long id) {
         memberService.deleteUser(id);
+        return new CommonResponse<>(true, id, "");
     }
 
     @GetMapping("/members/me")
-    public MemberDto getLoginMember(@Login MemberDto memberDto) {
-        // 로그인된 사용자의 타입에 따라 StudentDto, CompanyDto, StudentCouncilMemberDto 중 하나가 주입
-        return memberDto;
+    public CommonResponse<MemberDto> getLoginMember(@Login MemberDto memberDto) {
+        return new CommonResponse<>(true, memberDto, "");
     }
 }
