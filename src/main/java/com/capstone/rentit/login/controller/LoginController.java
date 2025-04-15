@@ -1,6 +1,7 @@
 package com.capstone.rentit.login.controller;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.login.dto.JwtToken;
 import com.capstone.rentit.login.dto.LoginRequest;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.service.MemberService;
@@ -20,7 +21,7 @@ public class LoginController {
     private final MemberService memberService;
 
     @PostMapping("/auth/login")
-    public CommonResponse<String> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public CommonResponse<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         if (memberService.findByEmail(loginRequest.getEmail()).isEmpty()) {
             return new CommonResponse<>(false, null, "등록되지 않은 이메일입니다.");
         }
@@ -32,7 +33,7 @@ public class LoginController {
                             loginRequest.getPassword()
                     )
             );
-            String jwt = tokenProvider.generateToken(authentication);
+            JwtToken jwt = tokenProvider.generateToken(authentication);
             return new CommonResponse<>(true, jwt, "");
         } catch (Exception ex) {
             return new CommonResponse<>(false, null, "비밀번호가 일치하지 않습니다.");

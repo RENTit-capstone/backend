@@ -6,6 +6,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.MemberDtoFactory;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
@@ -60,6 +62,8 @@ public class MemberController {
 
     @GetMapping("/members/me")
     public MemberDto getLoginMember(@Login MemberDto memberDto) {
+        log.info("/members/me start");
+        log.info("member dto : {}", memberDto.getEmail() + " " + memberDto.toString());
         // 로그인된 사용자의 타입에 따라 StudentDto, CompanyDto, StudentCouncilMemberDto 중 하나가 주입
         return memberDto;
     }
