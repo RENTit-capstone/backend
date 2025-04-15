@@ -1,5 +1,6 @@
 package com.capstone.rentit.config;
 
+import com.capstone.rentit.common.MemberRoleConverter;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.repository.MemberRepository;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -31,6 +33,7 @@ public class DummyDataLoader {
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
                             .locked(false)
+                            .roles(List.of(MemberRoleConverter.fromEnum(MemberRoleEnum.STUDENT), "USER"))
                             .build(),
                     Student.builder()
                             .email("dummy2@student.com")
@@ -44,6 +47,7 @@ public class DummyDataLoader {
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
                             .locked(false)
+                            .roles(List.of(MemberRoleConverter.fromEnum(MemberRoleEnum.STUDENT), "USER"))
                             .build(),
                     Student.builder()
                             .email("dummy3@student.com")
@@ -57,6 +61,7 @@ public class DummyDataLoader {
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
                             .locked(false)
+                            .roles(List.of(MemberRoleConverter.fromEnum(MemberRoleEnum.STUDENT), "USER"))
                             .build()
             );
 

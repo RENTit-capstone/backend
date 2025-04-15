@@ -14,4 +14,13 @@ public class MemberRoleConverter {
                     MemberRoleEnum.STUDENT;
         };
     }
+
+    public static String fromEnum(MemberRoleEnum role){
+        return switch (role) {
+            case MemberRoleEnum.ADMIN -> "ADMIN";
+            case MemberRoleEnum.COMPANY -> "COMPANY";
+            case MemberRoleEnum.COUNCIL -> "COUNCIL";
+            default -> "STUDENT";
+        };
+    }
 }
