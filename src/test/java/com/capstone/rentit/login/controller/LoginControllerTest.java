@@ -186,7 +186,7 @@ public class LoginControllerTest {
         refreshRequest.setRefreshToken(refreshToken);
         String refreshJson = objectMapper.writeValueAsString(refreshRequest);
 
-        mockMvc.perform(post("/api/v1/login/refresh")
+        mockMvc.perform(post("/api/v1/auth/login/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(refreshJson))
                 .andExpect(status().isOk())
@@ -219,7 +219,7 @@ public class LoginControllerTest {
         refreshRequest.setRefreshToken("invalid-token");
         String refreshJson = objectMapper.writeValueAsString(refreshRequest);
 
-        mockMvc.perform(post("/api/v1/login/refresh")
+        mockMvc.perform(post("/api/v1/auth/login/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(refreshJson))
                 .andExpect(status().isOk())

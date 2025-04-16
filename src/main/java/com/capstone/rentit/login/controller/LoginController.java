@@ -46,7 +46,7 @@ public class LoginController {
         }
     }
 
-    @PostMapping("/login/refresh")
+    @PostMapping("/auth/login/refresh")
     public CommonResponse<?> refreshToken(@RequestBody JwtTokens tokens) {
         String refreshToken = tokens.getRefreshToken();
 
