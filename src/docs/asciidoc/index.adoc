@@ -36,6 +36,9 @@ operation::verify-code-success[snippets='request-fields,http-request,response-fi
 === 로그인 요청
 operation::login_success[snippets='request-fields,http-request,response-fields,http-response']
 
+=== 로그인 재요청
+operation::login_refresh_success[snippets='request-fields,http-request,response-fields,http-response']
+
 == 회원 관련 API (MemberController 기준)
 
 이 섹션은 MemberControllerTest에 기반한 최신 API 문서입니다. 아래 스니펫 파일들을 활용해 각 엔드포인트에 대한 요청/응답 정보를 자동으로 포함합니다.
