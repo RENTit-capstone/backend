@@ -9,6 +9,7 @@ import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +64,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public CommonResponse<Boolean> deleteUser(@PathVariable("id") Long id) {
         try {
@@ -73,6 +75,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/clear")
     public CommonResponse<Boolean> clearAll() {
         if (univCertService.clearAll()) {
@@ -82,6 +85,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/show")
     public CommonResponse<Object> showAll() {
         Object data = univCertService.showAll();
