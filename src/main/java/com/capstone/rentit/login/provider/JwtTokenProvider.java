@@ -39,6 +39,19 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateRefreshToken(Authentication authentication) {
+        String username = authentication.getName();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs * 3);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -46,6 +59,10 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    public String getUsernameFromRefreshToken(String refreshToken) {
+        return getUsernameFromJWT(refreshToken);
     }
 
     public boolean validateToken(String authToken) {
@@ -62,5 +79,9 @@ public class JwtTokenProvider {
             log.error("JWT claims string is empty.", ex);
         }
         return false;
+    }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        return validateToken(refreshToken);
     }
 }
