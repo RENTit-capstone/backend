@@ -14,8 +14,8 @@ Harseal API 문서
 [source,json]
 ----
 {
-  "success": API 성공 여부(true, false),
-  "data": <요청에 따라 달라짐>,
+  "success": "API 성공 여부(true, false)",
+  "data": "<요청에 따라 달라짐>",
   "message": "성공시 빈 문자열, 실패시 에러 메시지"
 }
 ----
