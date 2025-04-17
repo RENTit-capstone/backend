@@ -2,13 +2,14 @@ package com.capstone.rentit.register.controller;
 
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.service.MemberService;
-import com.capstone.rentit.register.dto.StudentRegisterForm;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class RegisterController {
             return CommonResponse.failure("미인증 이메일입니다.");
         }
 
-        Long memberId = memberService.createStudent(form);
+        Long memberId = memberService.createMember(form);
         return CommonResponse.success(memberId);
     }
 
@@ -63,6 +64,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/auth/signup/{id}")
     public CommonResponse<Boolean> deleteUser(@PathVariable("id") Long id) {
         try {
@@ -73,6 +75,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/auth/signup/clear")
     public CommonResponse<Boolean> clearAll() {
         if (univCertService.clearAll()) {
@@ -82,6 +85,7 @@ public class RegisterController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/auth/signup/show")
     public CommonResponse<Object> showAll() {
         Object data = univCertService.showAll();

@@ -1,16 +1,11 @@
-package com.capstone.rentit.register.dto;
+package com.capstone.rentit.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class StudentRegisterForm {
-    private String email;
-    private String password;
-    private String name;
-    private Integer role;
-
+public class StudentCreateForm extends MemberCreateForm {
     private String nickname;
     private String university;
     private String studentId;

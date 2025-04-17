@@ -1,10 +1,12 @@
 package com.capstone.rentit.member.service;
 
-import com.capstone.rentit.common.MemberRoleConverter;
+import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
+import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
-import com.capstone.rentit.register.dto.StudentRegisterForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,21 +22,49 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Long createStudent(StudentRegisterForm form) {
-        Member member = Student.builder()
-                .name(form.getName())
-                .role(MemberRoleConverter.fromInteger(form.getRole()))
-                .email(form.getEmail())
-                .password(passwordEncoder.encode(form.getPassword()))
-                .locked(false)
-                .gender(form.getGender())
-                .studentId(form.getStudentId())
-                .university(form.getUniversity())
-                .nickname(form.getNickname())
-                .createdAt(LocalDate.now())
-                .phone(form.getPhone())
-                .build();
-        return memberRepository.save(member).getId();
+    public Long createMember(MemberCreateForm form) {
+        Member member;
+        if (form instanceof StudentCreateForm stuForm) {
+            member = Student.builder()
+                    .name(stuForm.getName())
+                    .role(MemberRoleEnum.STUDENT)
+                    .email(stuForm.getEmail())
+                    .password(passwordEncoder.encode(stuForm.getPassword()))
+                    .locked(false)
+                    .createdAt(LocalDate.now())
+                    .gender(stuForm.getGender())
+                    .studentId(stuForm.getStudentId())
+                    .university(stuForm.getUniversity())
+                    .nickname(stuForm.getNickname())
+                    .phone(stuForm.getPhone())
+                    .build();
+        }
+        else if (form instanceof StudentCouncilMemberCreateForm scmForm) {
+            member = Student.builder()
+                    .name(scmForm.getName())
+                    .role(MemberRoleEnum.COUNCIL)
+                    .email(scmForm.getEmail())
+                    .password(passwordEncoder.encode(scmForm.getPassword()))
+                    .locked(false)
+                    .createdAt(LocalDate.now())
+                    .gender(scmForm.getUniversity())
+                    .build();
+        }
+        else if (form instanceof CompanyCreateForm comForm) {
+            member = Student.builder()
+                    .name(comForm.getName())
+                    .role(MemberRoleEnum.COMPANY)
+                    .email(comForm.getEmail())
+                    .password(passwordEncoder.encode(comForm.getPassword()))
+                    .locked(false)
+                    .createdAt(LocalDate.now())
+                    .gender(comForm.getCompanyName())
+                    .build();
+        }
+        else {
+            throw new IllegalArgumentException("CreateMember: Unsupported member type");
+        }
+        return memberRepository.save(member).getMemberId();
     }
 
     public Optional<Member> getUser(Long id) {
@@ -49,9 +79,34 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Member updateUser(Long id, Member userDetails) {
+    public Member updateUser(Long id, MemberUpdateForm updateForm) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (member instanceof Student student && updateForm instanceof StudentUpdateForm stuForm) {
+            student.updateStudent(
+                    stuForm.getName(),
+                    stuForm.getProfileImg(),
+                    stuForm.getNickname(),
+                    stuForm.getPhone()
+            );
+        }
+        else if (member instanceof StudentCouncilMember scm && updateForm instanceof StudentCouncilMemberUpdateForm scmForm) {
+            scm.updateCouncilMember(
+                    scmForm.getName(),
+                    scmForm.getProfileImg()
+            );
+        }
+        else if (member instanceof Company company && updateForm instanceof CompanyUpdateForm companyForm) {
+            company.updateCompany(
+                    companyForm.getName(),
+                    companyForm.getProfileImg(),
+                    companyForm.getCompanyName()
+            );
+        }
+        else {
+            throw new IllegalArgumentException("UpdateUser: Unsupported member type");
+        }
         return memberRepository.save(member);
     }
 

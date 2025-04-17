@@ -15,4 +15,11 @@ public class Company extends Member {
 
     @Column
     private String companyName;
+
+    public void updateCompany(String name, String profileImg, String companyName) {
+        super.update(name, profileImg);
+        if (companyName != null) {
+            this.companyName = companyName;
+        }
+    }
 }

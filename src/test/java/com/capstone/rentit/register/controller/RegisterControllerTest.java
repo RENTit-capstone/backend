@@ -1,10 +1,11 @@
 package com.capstone.rentit.register.controller;
 
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.dto.MemberCreateForm;
+import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
-import com.capstone.rentit.register.dto.StudentRegisterForm;
 import com.capstone.rentit.register.service.UnivCertService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -54,16 +55,16 @@ public class RegisterControllerTest {
     @Test
     public void register_member_success() throws Exception {
         // 요청 데이터 준비
-        StudentRegisterForm form = new StudentRegisterForm();
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setEmail("test@example.com");
         form.setPassword("password");
-        form.setRole(1);
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
         form.setGender("M");
         form.setPhone("010-1234-5678");
+        form.setProfileImg("profile_img");
 
         // 이미 등록된 이메일이 아님을 가정
         when(memberService.findByEmail("test@example.com")).thenReturn(Optional.empty());
@@ -71,7 +72,7 @@ public class RegisterControllerTest {
         when(univCertService.isCertified("test@example.com")).thenReturn(true);
         // 학생 생성 시 1번 ID가 리턴되는 것을 모킹
         Long generatedId = 1L;
-        when(memberService.createStudent(any(StudentRegisterForm.class))).thenReturn(generatedId);
+        when(memberService.createMember(any(StudentCreateForm.class))).thenReturn(generatedId);
 
         String json = objectMapper.writeValueAsString(form);
 
@@ -87,12 +88,13 @@ public class RegisterControllerTest {
                                 fieldWithPath("email").description("사용자 이메일").type(JsonFieldType.STRING),
                                 fieldWithPath("password").description("사용자 비밀번호").type(JsonFieldType.STRING),
                                 fieldWithPath("name").description("사용자 이름").type(JsonFieldType.STRING),
-                                fieldWithPath("role").description("사용자 역할 (예: 1은 학생)").type(JsonFieldType.NUMBER),
+                                fieldWithPath("memberType").description("사용자 타입(STUDENT, COUNCIL, COMPANY)").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("nickname").description("사용자 닉네임").type(JsonFieldType.STRING),
                                 fieldWithPath("university").description("사용자 소속 대학").type(JsonFieldType.STRING),
                                 fieldWithPath("studentId").description("학생 학번").type(JsonFieldType.STRING),
                                 fieldWithPath("gender").description("성별").type(JsonFieldType.STRING),
-                                fieldWithPath("phone").description("연락처").type(JsonFieldType.STRING)
+                                fieldWithPath("phone").description("연락처").type(JsonFieldType.STRING),
+                                fieldWithPath("profileImg").description("사용자 프로필 이미지 (선택)").optional().type(JsonFieldType.STRING)
                         ),
                         responseFields(
                                 fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
@@ -108,11 +110,10 @@ public class RegisterControllerTest {
     @Test
     public void register_member_email_already_exists() throws Exception {
         // 요청 데이터 준비
-        StudentRegisterForm form = new StudentRegisterForm();
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setEmail("test@example.com");
         form.setPassword("password");
-        form.setRole(1);
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
@@ -152,11 +153,10 @@ public class RegisterControllerTest {
     @Test
     public void register_member_email_not_certified() throws Exception {
         // 요청 데이터 준비
-        StudentRegisterForm form = new StudentRegisterForm();
+        StudentCreateForm form = new StudentCreateForm();
         form.setName("Test User");
         form.setEmail("test@example.com");
         form.setPassword("password");
-        form.setRole(0);
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
