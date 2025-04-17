@@ -7,6 +7,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.MemberDtoFactory;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class MemberController {
     private final MemberService memberService;
 
     // 관리자용 신규 회원 생성
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/members")
     public CommonResponse<?> createMember(@RequestBody MemberCreateForm createForm) {
         Long id = memberService.createMember(createForm);
@@ -30,6 +32,7 @@ public class MemberController {
     }
 
     // 전체 회원 조회 (DTO 목록 반환)
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/members")
     public CommonResponse<List<MemberDto>> getAllMembers() {
         List<MemberDto> list = memberService.getAllUsers().stream()
@@ -39,6 +42,7 @@ public class MemberController {
     }
 
     // 특정 회원 조회
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/{id}")
     public CommonResponse<MemberDto> getMember(@PathVariable("id") Long id) {
         MemberDto memberDto = memberService.getUser(id)
@@ -48,6 +52,7 @@ public class MemberController {
     }
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/members/{id}")
     public CommonResponse<?> updateMember(@PathVariable("id") Long id, @RequestBody MemberUpdateForm updateForm) {
         MemberDtoFactory.toDto(memberService.updateUser(id, updateForm)).getId();
@@ -55,12 +60,14 @@ public class MemberController {
     }
 
     // 회원 삭제
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/members/{id}")
     public CommonResponse<?> deleteMember(@PathVariable("id") Long id) {
         memberService.deleteUser(id);
         return new CommonResponse<>(true, id, "");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/me")
     public CommonResponse<MemberDto> getLoginMember(@Login MemberDto memberDto) {
         return new CommonResponse<>(true, memberDto, "");

@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,6 +39,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,6 +62,7 @@ public class MemberControllerTest {
     @MockitoBean
     private MemberService memberService;
 
+    @WithMockUser(roles = "ADMIN")
     @Test
     void createMember_success() throws Exception {
         // 요청: 학생 회원 생성 DTO (StudentCreateForm)
@@ -123,6 +126,7 @@ public class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "ADMIN")
     @Test
     void getAllMembers_success() throws Exception {
         // 단일 회원을 리스트로 반환
@@ -167,6 +171,7 @@ public class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "USER")
     @Test
     void getMember_success() throws Exception {
         Long id = 1L;
@@ -210,6 +215,7 @@ public class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "USER")
     @Test
     void updateMember_success() throws Exception {
         Long id = 1L;
@@ -260,6 +266,7 @@ public class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "ADMIN")
     @Test
     void deleteMember_success() throws Exception {
         Long id = 1L;
@@ -276,6 +283,7 @@ public class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "USER")
     @Test
     void getLoginMember_success() throws Exception {
         // 도메인 객체(Student) 생성
@@ -302,6 +310,7 @@ public class MemberControllerTest {
         );
 
         mockMvc.perform(get("/api/v1/members/me")
+                        .with(user(memberDetails))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
