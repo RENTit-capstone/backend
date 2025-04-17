@@ -1,10 +1,9 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.dto.MemberCreateForm;
-import com.capstone.rentit.member.dto.StudentCreateForm;
-import com.capstone.rentit.member.dto.StudentUpdateForm;
+import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
@@ -53,17 +52,64 @@ public class MemberServiceTest {
 
         assertEquals("Integration Student", student.getName());
         assertEquals("integration@student.com", student.getEmail());
-        // 비밀번호는 암호화 되었으므로 평문과는 다르지만, 매칭 여부를 확인
         assertTrue(passwordEncoder.matches("password", student.getPassword()));
         assertEquals("Integration University", student.getUniversity());
     }
 
     // --------------------------
-    // 조회 (getUser, findByEmail) 테스트
+    // 생성 - 학생회 회원 생성
     // --------------------------
     @Test
-    void getUser_and_findByEmail_success() {
-        // 회원 생성
+    void createMember_council_success() {
+        StudentCouncilMemberCreateForm form = new StudentCouncilMemberCreateForm();
+        form.setName("Council User");
+        form.setEmail("council@test.com");
+        form.setPassword("pwd");
+        form.setUniversity("Council University");
+
+        Long id = memberService.createMember(form);
+        Optional<Member> opt = memberRepository.findById(id);
+        assertTrue(opt.isPresent());
+        Member m = opt.get();
+        assertEquals(MemberRoleEnum.COUNCIL, m.getRole());
+        assertEquals("council@test.com", m.getEmail());
+    }
+
+    // --------------------------
+    // 생성 - 회사 회원 생성
+    // --------------------------
+    @Test
+    void createMember_company_success() {
+        CompanyCreateForm form = new CompanyCreateForm();
+        form.setName("Company Inc.");
+        form.setEmail("company@test.com");
+        form.setPassword("compwd");
+        form.setCompanyName("Company Inc.");
+
+        Long id = memberService.createMember(form);
+        Optional<Member> opt = memberRepository.findById(id);
+        assertTrue(opt.isPresent());
+        Member m = opt.get();
+        assertEquals(MemberRoleEnum.COMPANY, m.getRole());
+        assertEquals("company@test.com", m.getEmail());
+    }
+
+    // --------------------------
+    // 생성 - 지원되지 않는 폼
+    // --------------------------
+    @Test
+    void createMember_unsupportedForm_throws() {
+        MemberCreateForm badForm = new MemberCreateForm() {};
+        assertThrows(IllegalArgumentException.class, () -> {
+            memberService.createMember(badForm);
+        });
+    }
+
+    // --------------------------
+    // 조회 (getUser, findByEmail, getAllUsers) 테스트
+    // --------------------------
+    @Test
+    void getUser_and_findByEmail_and_getAllUsers_success() {
         StudentCreateForm form = new StudentCreateForm();
         form.setName("Bob");
         form.setEmail("bob@test.com");
@@ -75,15 +121,16 @@ public class MemberServiceTest {
         form.setGender("M");
         Long id = memberService.createMember(form);
 
-        // getUser 테스트
-        Optional<Member> memberOpt = memberService.getUser(id);
-        assertTrue(memberOpt.isPresent());
-        assertEquals("bob@test.com", memberOpt.get().getEmail());
+        Optional<Member> byId = memberService.getUser(id);
+        assertTrue(byId.isPresent());
+        assertEquals("bob@test.com", byId.get().getEmail());
 
-        // findByEmail 테스트
-        Optional<Member> emailOpt = memberService.findByEmail("bob@test.com");
-        assertTrue(emailOpt.isPresent());
-        assertEquals("Bob", emailOpt.get().getName());
+        Optional<Member> byEmail = memberService.findByEmail("bob@test.com");
+        assertTrue(byEmail.isPresent());
+        assertEquals("Bob", byEmail.get().getName());
+
+        List<Member> all = memberService.getAllUsers();
+        assertTrue(all.size() >= 1);
     }
 
     // --------------------------
@@ -91,7 +138,6 @@ public class MemberServiceTest {
     // --------------------------
     @Test
     void updateUser_student_success() {
-        // 초기 학생 회원 생성
         StudentCreateForm form = new StudentCreateForm();
         form.setName("Alice");
         form.setEmail("alice@test.com");
@@ -101,21 +147,44 @@ public class MemberServiceTest {
         form.setUniversity("Old University");
         form.setStudentId("S2020");
         form.setGender("F");
-        Long memberId = memberService.createMember(form);
+        Long id = memberService.createMember(form);
 
-        // 업데이트 요청 - StudentUpdateForm을 이용해서 이름, 프로필 이미지, 닉네임, 전화번호를 변경
-        StudentUpdateForm updateForm = new StudentUpdateForm();
-        updateForm.setName("Alice Updated");
-        updateForm.setProfileImg("newProfile.jpg");
-        updateForm.setNickname("aliceNew");
-        updateForm.setPhone("010-3333-3333");
+        StudentUpdateForm update = new StudentUpdateForm();
+        update.setName("Alice New");
+        update.setProfileImg("img.jpg");
+        update.setNickname("newNick");
+        update.setPhone("010-3333-3333");
 
-        Member updatedMember = memberService.updateUser(memberId, updateForm);
-        Student updatedStudent = (Student) updatedMember;
-        assertEquals("Alice Updated", updatedStudent.getName());
-        assertEquals("newProfile.jpg", updatedStudent.getProfileImg());
-        assertEquals("aliceNew", updatedStudent.getNickname());
-        assertEquals("010-3333-3333", updatedStudent.getPhone());
+        Member updated = memberService.updateUser(id, update);
+        Student st = (Student) updated;
+        assertEquals("Alice New", st.getName());
+        assertEquals("img.jpg", st.getProfileImg());
+    }
+
+    // --------------------------
+    // 업데이트 - 타입 불일치 예외
+    // --------------------------
+    @Test
+    void updateUser_unsupported_throws() {
+        StudentCreateForm form = new StudentCreateForm();
+        form.setName("Tom");
+        form.setEmail("tom@test.com");
+        form.setPassword("pwd");
+        form.setNickname("tomNick");
+        form.setPhone("010-5555-5555");
+        form.setUniversity("Uni");
+        form.setStudentId("S5050");
+        form.setGender("M");
+        Long id = memberService.createMember(form);
+
+        CompanyUpdateForm wrongForm = new CompanyUpdateForm();
+        wrongForm.setName("X");
+        wrongForm.setProfileImg("x.jpg");
+        wrongForm.setCompanyName("XCo");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            memberService.updateUser(id, wrongForm);
+        });
     }
 
     // --------------------------
@@ -132,16 +201,18 @@ public class MemberServiceTest {
         form.setUniversity("Test University");
         form.setStudentId("S3030");
         form.setGender("M");
-        Long memberId = memberService.createMember(form);
+        Long id = memberService.createMember(form);
 
-        // 생성된 회원이 존재하는지 확인
-        Optional<Member> beforeDelete = memberService.getUser(memberId);
-        assertTrue(beforeDelete.isPresent());
+        assertTrue(memberService.getUser(id).isPresent());
+        memberService.deleteUser(id);
+        assertFalse(memberService.getUser(id).isPresent());
+    }
 
-        // 삭제 실행
-        memberService.deleteUser(memberId);
-
-        Optional<Member> afterDelete = memberService.getUser(memberId);
-        assertFalse(afterDelete.isPresent());
+    // --------------------------
+    // 삭제 - 존재하지 않는 사용자 예외
+    // --------------------------
+    @Test
+    void deleteUser_notFound_throws() {
+        assertThrows(RuntimeException.class, () -> memberService.deleteUser(9999L));
     }
 }
