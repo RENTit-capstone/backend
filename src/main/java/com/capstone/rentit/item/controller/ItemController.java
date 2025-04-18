@@ -21,7 +21,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @PreAuthorize("hasRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/items")
     public CommonResponse<Long> createItem(@RequestBody ItemCreateForm form) {
         Long itemId = itemService.createItem(form);
@@ -40,7 +40,7 @@ public class ItemController {
         return CommonResponse.success(item);
     }
 
-    @PreAuthorize("hasRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/items/{itemId}")
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
@@ -56,7 +56,7 @@ public class ItemController {
         return CommonResponse.success(null);
     }
 
-    @PreAuthorize("hasRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/items/{itemId}")
     public CommonResponse<Void> deleteItem(
             @PathVariable("itemId") Long itemId,
