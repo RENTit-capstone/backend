@@ -21,11 +21,16 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.apache.logging.log4j.util.Lazy.value;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
@@ -239,17 +244,22 @@ public class MemberControllerTest {
                 .createdAt(LocalDate.now())
                 .build();
 
+        //로그인 사용자 설정
+        MemberDetails memberDetails = new MemberDetails(updatedStudent);
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                memberDetails, null, memberDetails.getAuthorities());
+
         when(memberService.updateUser(eq(id), any(StudentUpdateForm.class)))
                 .thenReturn(updatedStudent);
 
         String json = objectMapper.writeValueAsString(updateForm);
 
-        mockMvc.perform(put("/api/v1/members/{id}", id)
+        mockMvc.perform(put("/api/v1/members", id)
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").value(id))
                 .andDo(document("update-member",
                         requestFields(
                                 fieldWithPath("name").description("업데이트할 회원 이름").type(JsonFieldType.STRING),
@@ -260,7 +270,7 @@ public class MemberControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
-                                fieldWithPath("data").description("수정된 회원의 ID, 실패 시 null").type(JsonFieldType.NUMBER),
+                                fieldWithPath("data").description("null").type(value(nullValue())),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
                         )
                 ));
@@ -277,7 +287,7 @@ public class MemberControllerTest {
                 .andDo(document("delete-member",
                         responseFields(
                                 fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
-                                fieldWithPath("data").description("삭제된 회원의 ID, 실패 시 null").type(JsonFieldType.NUMBER),
+                                fieldWithPath("data").description("null").type(value(nullValue())),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
                         )
                 ));
