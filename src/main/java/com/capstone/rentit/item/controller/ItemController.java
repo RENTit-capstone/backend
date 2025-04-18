@@ -8,6 +8,7 @@ import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -20,6 +21,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
+    @PreAuthorize("hasRole('USER', 'ADMIN')")
     @PostMapping("/items")
     public CommonResponse<Long> createItem(@RequestBody ItemCreateForm form) {
         Long itemId = itemService.createItem(form);
@@ -38,6 +40,7 @@ public class ItemController {
         return CommonResponse.success(item);
     }
 
+    @PreAuthorize("hasRole('USER', 'ADMIN')")
     @PutMapping("/items/{itemId}")
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
@@ -53,6 +56,7 @@ public class ItemController {
         return CommonResponse.success(null);
     }
 
+    @PreAuthorize("hasRole('USER', 'ADMIN')")
     @DeleteMapping("/items/{itemId}")
     public CommonResponse<Void> deleteItem(
             @PathVariable("itemId") Long itemId,
