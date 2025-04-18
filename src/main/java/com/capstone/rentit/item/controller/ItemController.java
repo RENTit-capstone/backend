@@ -5,9 +5,12 @@ import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
+import com.capstone.rentit.login.annotation.Login;
+import com.capstone.rentit.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -20,31 +23,48 @@ public class ItemController {
     @PostMapping("/items")
     public CommonResponse<Long> createItem(@RequestBody ItemCreateForm form) {
         Long itemId = itemService.createItem(form);
-        return new CommonResponse<>(true, itemId, "");
+        return CommonResponse.success(itemId);
     }
 
     @GetMapping("/items")
     public CommonResponse<List<ItemDto>> getAllItems() {
         List<ItemDto> items = itemService.getAllItems();
-        return new CommonResponse<>(true, items, "");
+        return CommonResponse.success(items);
     }
 
     @GetMapping("/items/{itemId}")
     public CommonResponse<ItemDto> getItem(@PathVariable("itemId") Long itemId) {
         ItemDto item = itemService.getItem(itemId);
-        return new CommonResponse<>(true, item, "");
+        return CommonResponse.success(item);
     }
 
-    @PutMapping("/{itemId}")
-    public CommonResponse<ItemDto> updateItem(@PathVariable("itemId") Long itemId,
-                                                                   @RequestBody ItemUpdateForm form) {
+    @PutMapping("/items/{itemId}")
+    public CommonResponse<Void> updateItem(
+            @PathVariable("itemId") Long itemId,
+            @RequestBody ItemUpdateForm form,
+            @Login MemberDto loginMember) throws AccessDeniedException {
+
+        ItemDto existing = itemService.getItem(itemId);
+        if (!existing.getOwnerId().equals(loginMember.getId())) {
+            return CommonResponse.failure("소유자 매칭 오류");
+        }
+
         itemService.updateItem(itemId, form);
-        return new CommonResponse<>(true, null, "");
+        return CommonResponse.success(null);
     }
 
-    @DeleteMapping("/{itemId}")
-    public CommonResponse<Void> deleteItem(@PathVariable("itemId") Long itemId) {
+    @DeleteMapping("/items/{itemId}")
+    public CommonResponse<Void> deleteItem(
+            @PathVariable("itemId") Long itemId,
+            @Login MemberDto loginMember) throws AccessDeniedException {
+
+        // 소유자 확인
+        ItemDto existing = itemService.getItem(itemId);
+        if (!existing.getOwnerId().equals(loginMember.getId())) {
+            return CommonResponse.failure("소유자 매칭 오류");
+        }
+
         itemService.deleteItem(itemId);
-        return new CommonResponse<>(true, null, "");
+        return CommonResponse.success(null);
     }
 }
