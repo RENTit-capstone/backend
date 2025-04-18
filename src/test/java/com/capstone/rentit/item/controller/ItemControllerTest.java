@@ -1,8 +1,11 @@
 package com.capstone.rentit.item.controller;
 
+import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
+import com.capstone.rentit.login.dto.MemberDetails;
+import com.capstone.rentit.member.domain.Student;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -13,7 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -218,20 +225,21 @@ public class ItemControllerTest {
     /**
      * PUT /api/v1/{itemId} - 물품 정보 수정 테스트 (REST Docs 포함)
      */
+    @WithMockUser(roles = "USER")
     @Test
     public void testUpdateItem() throws Exception {
-        // 사전 등록: 물품 생성 후 수정 API 호출
+
         ItemCreateForm createForm = new ItemCreateForm();
-        createForm.setOwnerId(4L);
-        createForm.setName("Item to Update");
-        createForm.setItemImg("http://example.com/update.jpg");
-        createForm.setDescription("Original description");
-        createForm.setCategoryId(4L);
+        createForm.setOwnerId(100L);
+        createForm.setName("Owner Item");
+        createForm.setItemImg("url");
+        createForm.setDescription("desc");
+        createForm.setCategoryId(1L);
         createForm.setStatus(0);
-        createForm.setDamagedPolicy("Original policy");
-        createForm.setReturnPolicy("Original return");
+        createForm.setDamagedPolicy("policy");
+        createForm.setReturnPolicy("return");
         createForm.setStartDate(LocalDateTime.now());
-        createForm.setEndDate(LocalDateTime.now().plusDays(4));
+        createForm.setEndDate(LocalDateTime.now().plusDays(1));
 
         String createJson = objectMapper.writeValueAsString(createForm);
         String createResponse = mockMvc.perform(post("/api/v1/items")
@@ -242,22 +250,28 @@ public class ItemControllerTest {
         JsonNode createNode = objectMapper.readTree(createResponse);
         Long itemId = createNode.get("data").asLong();
 
+        //로그인 사용자 설정
+        Student student = Student.builder().memberId(100L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                md, null, md.getAuthorities());
+
         // 업데이트를 위한 폼 생성
         ItemUpdateForm updateForm = new ItemUpdateForm();
-        updateForm.setName("Updated Item Name");
-        updateForm.setItemImg("http://example.com/updated.jpg");
-        updateForm.setDescription("Updated description");
-        updateForm.setCategoryId(5L);
+        updateForm.setName("Updated");
+        updateForm.setItemImg("newUrl");
+        updateForm.setDescription("newDesc");
+        updateForm.setCategoryId(2L);
         updateForm.setStatus(1);
-        updateForm.setDamagedPolicy("Updated policy");
-        updateForm.setReturnPolicy("Updated return");
-        updateForm.setStartDate(LocalDateTime.now().plusDays(1));
-        updateForm.setEndDate(LocalDateTime.now().plusDays(5));
-
+        updateForm.setDamagedPolicy("newPolicy");
+        updateForm.setReturnPolicy("newReturn");
+        updateForm.setStartDate(LocalDateTime.now());
+        updateForm.setEndDate(LocalDateTime.now().plusDays(2));
         String updateJson = objectMapper.writeValueAsString(updateForm);
 
         // PUT 매핑은 "/api/v1/{itemId}" 로 매핑되어 있음
-        mockMvc.perform(put("/api/v1/{itemId}", itemId)
+        mockMvc.perform(put("/api/v1/items/{itemId}", itemId)
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
@@ -283,22 +297,71 @@ public class ItemControllerTest {
     }
 
     /**
+     * PUT /api/v1/{itemId} - 소유자가 아님 (403 Forbidden)
+     */
+    @WithMockUser(roles = "USER")
+    @Test
+    public void testUpdateItem_NotOwnerForbidden() throws Exception {
+
+        ItemCreateForm createForm = new ItemCreateForm();
+        createForm.setOwnerId(200L);
+        createForm.setName("Other Item");
+        createForm.setItemImg("url");
+        createForm.setDescription("desc");
+        createForm.setCategoryId(1L);
+        createForm.setStatus(0);
+        createForm.setDamagedPolicy("policy");
+        createForm.setReturnPolicy("return");
+        createForm.setStartDate(LocalDateTime.now());
+        createForm.setEndDate(LocalDateTime.now().plusDays(1));
+
+        String createJson = objectMapper.writeValueAsString(createForm);
+        String createResponse = mockMvc.perform(post("/api/v1/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        JsonNode createNode = objectMapper.readTree(createResponse);
+        Long itemId = createNode.get("data").asLong();
+
+        //로그인 사용자 설정
+        Student other = Student.builder().memberId(999L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md2 = new MemberDetails(other);
+        Authentication auth2 = new UsernamePasswordAuthenticationToken(
+                md2, null, md2.getAuthorities());
+
+        // 업데이트를 위한 폼 생성
+        ItemUpdateForm updateForm = new ItemUpdateForm();
+        updateForm.setName("Should Fail");
+        String updateJson = objectMapper.writeValueAsString(updateForm);
+
+        // PUT 매핑은 "/api/v1/{itemId}" 로 매핑되어 있음
+        mockMvc.perform(put("/api/v1/items/{itemId}", itemId)
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth2))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
      * DELETE /api/v1/{itemId} - 물품 삭제 테스트 (REST Docs 포함)
      */
+    @WithMockUser(roles = "USER")
     @Test
     public void testDeleteItem() throws Exception {
         // 사전 등록: 물품 생성 후 삭제 테스트
         ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(5L);
-        form.setName("Item to Delete");
-        form.setItemImg("http://example.com/delete.jpg");
-        form.setDescription("Delete description");
-        form.setCategoryId(5L);
+        form.setOwnerId(300L);
+        form.setName("Delete Item");
+        form.setItemImg("url");
+        form.setDescription("desc");
+        form.setCategoryId(1L);
         form.setStatus(0);
-        form.setDamagedPolicy("Delete policy");
-        form.setReturnPolicy("Delete return");
+        form.setDamagedPolicy("policy");
+        form.setReturnPolicy("return");
         form.setStartDate(LocalDateTime.now());
-        form.setEndDate(LocalDateTime.now().plusDays(2));
+        form.setEndDate(LocalDateTime.now().plusDays(1));
 
         String createJson = objectMapper.writeValueAsString(form);
         String createResponse = mockMvc.perform(post("/api/v1/items")
@@ -309,7 +372,13 @@ public class ItemControllerTest {
         JsonNode createNode = objectMapper.readTree(createResponse);
         Long itemId = createNode.get("data").asLong();
 
-        mockMvc.perform(delete("/api/v1/{itemId}", itemId)
+        Student stu300 = Student.builder().memberId(300L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md300 = new MemberDetails(stu300);
+        Authentication auth300 = new UsernamePasswordAuthenticationToken(
+                md300, null, md300.getAuthorities());
+
+        mockMvc.perform(delete("/api/v1/items/{itemId}", itemId)
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth300))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -320,5 +389,46 @@ public class ItemControllerTest {
                                 fieldWithPath("message").description("성공 시 빈 문자열, 실패 시 에러 메시지").type(JsonFieldType.STRING)
                         )
                 ));
+    }
+
+
+/**
+ * DELETE /api/v1/{itemId} - 소유자가 아님
+ */
+@WithMockUser(roles = "USER")
+@Test
+public void testDeleteItem_NotOwnerForbidden() throws Exception {
+    // 사전 등록: 물품 생성 후 삭제 테스트
+    ItemCreateForm form = new ItemCreateForm();
+    form.setOwnerId(400L);
+    form.setName("Other Delete");
+    form.setItemImg("url");
+    form.setDescription("desc");
+    form.setCategoryId(1L);
+    form.setStatus(0);
+    form.setDamagedPolicy("policy");
+    form.setReturnPolicy("return");
+    form.setStartDate(LocalDateTime.now());
+    form.setEndDate(LocalDateTime.now().plusDays(1));
+
+    String createJson = objectMapper.writeValueAsString(form);
+    String createResponse = mockMvc.perform(post("/api/v1/items")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createJson))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+    JsonNode createNode = objectMapper.readTree(createResponse);
+    Long itemId = createNode.get("data").asLong();
+
+    Student stu1234 = Student.builder().memberId(1234L).role(MemberRoleEnum.STUDENT).build();
+    MemberDetails md1234 = new MemberDetails(stu1234);
+    Authentication auth1234 = new UsernamePasswordAuthenticationToken(
+            md1234, null, md1234.getAuthorities());
+
+    mockMvc.perform(delete("/api/v1/items/{itemId}", itemId)
+                    .with(SecurityMockMvcRequestPostProcessors.authentication(auth1234))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(false));
     }
 }
