@@ -24,7 +24,7 @@ public class RegisterController {
     private final UnivCertService univCertService;
 
     @PostMapping("/auth/signup")
-    public CommonResponse<Long> registerMember(@RequestBody StudentRegisterForm form) {
+    public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
         Optional<Member> existingUser = memberService.findByEmail(form.getEmail());
         if (existingUser.isPresent()) {
             return CommonResponse.failure("이미 등록된 이메일입니다.");
