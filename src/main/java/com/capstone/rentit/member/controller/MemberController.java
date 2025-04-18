@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,7 +30,7 @@ public class MemberController {
     @PostMapping("/admin/members")
     public CommonResponse<?> createMember(@RequestBody MemberCreateForm createForm) {
         Long id = memberService.createMember(createForm);
-        return new CommonResponse<>(true, id, "");
+        return CommonResponse.success(id);
     }
 
     // 전체 회원 조회 (DTO 목록 반환)
@@ -38,25 +40,25 @@ public class MemberController {
         List<MemberDto> list = memberService.getAllUsers().stream()
                 .map(MemberDtoFactory::toDto)
                 .collect(Collectors.toList());
-        return new CommonResponse<>(true, list, "");
+        return CommonResponse.success(list);
     }
 
     // 특정 회원 조회
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/{id}")
     public CommonResponse<MemberDto> getMember(@PathVariable("id") Long id) {
-        MemberDto memberDto = memberService.getUser(id)
-                .map(MemberDtoFactory::toDto)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return new CommonResponse<>(true, memberDto, "");
+        Optional<MemberDto> optionalDto = memberService.getUser(id)
+                .map(MemberDtoFactory::toDto);
+        return optionalDto.map(CommonResponse::success).orElseGet(() -> CommonResponse.failure("존재하지 않는 사용자"));
     }
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/members/{id}")
-    public CommonResponse<?> updateMember(@PathVariable("id") Long id, @RequestBody MemberUpdateForm updateForm) {
-        MemberDtoFactory.toDto(memberService.updateUser(id, updateForm)).getId();
-        return new CommonResponse<>(true, id, "");
+    @PutMapping("/members")
+    public CommonResponse<?> updateMember(@Login MemberDto loginMember,
+                                          @RequestBody MemberUpdateForm updateForm) {
+        memberService.updateUser(loginMember.getId(), updateForm);
+        return CommonResponse.success(null);
     }
 
     // 회원 삭제
@@ -64,12 +66,12 @@ public class MemberController {
     @DeleteMapping("/admin/members/{id}")
     public CommonResponse<?> deleteMember(@PathVariable("id") Long id) {
         memberService.deleteUser(id);
-        return new CommonResponse<>(true, id, "");
+        return CommonResponse.success(null);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/me")
     public CommonResponse<MemberDto> getLoginMember(@Login MemberDto memberDto) {
-        return new CommonResponse<>(true, memberDto, "");
+        return CommonResponse.success(memberDto);
     }
 }
