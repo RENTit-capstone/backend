@@ -86,28 +86,32 @@ public class RentalService {
 
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
-    public void dropOffToLocker(Long rentalId, Long ownerId) {
+    public void dropOffToLocker(Long rentalId, Long ownerId, Long lockerId) {
         Rental r = findOrThrow(rentalId);
         if (!r.getOwnerId().equals(ownerId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+        r.assignLocker(lockerId);
         r.dropOffByOwner(LocalDateTime.now());
     }
+
     /** 8) 대여자가 사물함에서 픽업할 때 */
     public void pickUpByRenter(Long rentalId, Long renterId) {
         Rental r = findOrThrow(rentalId);
         if (!r.getRenterId().equals(renterId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+        r.clearLocker();
         r.pickUpByRenter(LocalDateTime.now());
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId) {
+    public void returnToLocker(Long rentalId, Long renterId, Long lockerId) {
         Rental r = findOrThrow(rentalId);
         if (!r.getRenterId().equals(renterId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+        r.assignLocker(lockerId);
         r.returnToLocker(LocalDateTime.now());
     }
 
@@ -117,6 +121,7 @@ public class RentalService {
         if (!r.getOwnerId().equals(ownerId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+        r.clearLocker();
         r.retrieveByOwner(LocalDateTime.now());
     }
 
