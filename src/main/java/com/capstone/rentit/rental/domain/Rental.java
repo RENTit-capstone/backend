@@ -64,6 +64,9 @@ public class Rental {
     @Column(name = "payment_id")
     private Long paymentId;
 
+    @Column(name = "return_image_url")
+    private String returnImageUrl;
+
     /** 승인 처리 */
     public void approve(LocalDateTime time) {
         this.status = RentalStatusEnum.APPROVED;
@@ -113,5 +116,10 @@ public class Rental {
     /** 사물함 회수 */
     public void clearLocker() {
         this.lockerId = null;
+    }
+
+    /** 반납 사진 URL 설정 */
+    public void uploadReturnImageUrl(String url) {
+        this.returnImageUrl = url;
     }
 }

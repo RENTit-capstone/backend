@@ -31,6 +31,8 @@ public class RentalDto {
     private Long lockerId;
     private Long paymentId;
 
+    private String returnImageUrl;
+
     public static RentalDto fromEntity(com.capstone.rentit.rental.domain.Rental r) {
         return RentalDto.builder()
                 .rentalId(r.getRentalId())
@@ -49,6 +51,7 @@ public class RentalDto {
                 .retrievedAt(r.getRetrievedAt())
                 .lockerId(r.getLockerId())
                 .paymentId(r.getPaymentId())
+                .returnImageUrl(r.getReturnImageUrl())
                 .build();
     }
 }

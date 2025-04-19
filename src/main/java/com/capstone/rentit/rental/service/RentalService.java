@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.file.FileStorageService;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -9,6 +10,7 @@ import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
+    private final FileStorageService fileStorageService;
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
@@ -106,13 +109,20 @@ public class RentalService {
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId, Long lockerId) {
+    public void returnToLocker(Long rentalId, Long renterId, Long lockerId, MultipartFile returnImage) {
         Rental r = findOrThrow(rentalId);
         if (!r.getRenterId().equals(renterId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+
         r.assignLocker(lockerId);
         r.returnToLocker(LocalDateTime.now());
+
+        if(returnImage == null) {
+            throw new IllegalArgumentException("반납 사진이 없습니다.");
+        }
+        String url = fileStorageService.store(returnImage);
+        r.uploadReturnImageUrl(url);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
