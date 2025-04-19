@@ -58,10 +58,10 @@ public class Rental {
     @Column(name = "retrieved_at")
     private LocalDateTime retrievedAt;
 
-    @Column(name = "locker_id", nullable = false)
+    @Column(name = "locker_id")
     private Long lockerId;
 
-    @Column(name = "payment_id", nullable = false)
+    @Column(name = "payment_id")
     private Long paymentId;
 
     /** 승인 처리 */
@@ -105,4 +105,13 @@ public class Rental {
         this.retrievedAt = time;
     }
 
+    /** 사물함 ID 를 갱신 */
+    public void assignLocker(Long lockerId) {
+        this.lockerId = lockerId;
+    }
+    
+    /** 사물함 회수 */
+    public void clearLocker() {
+        this.lockerId = null;
+    }
 }
