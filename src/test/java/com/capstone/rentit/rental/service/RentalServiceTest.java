@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.file.FileStorageService;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -12,6 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -19,6 +24,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -32,6 +38,9 @@ class RentalServiceTest {
     private RentalRepository rentalRepository;
 
     private RentalRequestForm baseForm;
+
+    @MockitoBean
+    private FileStorageService fileStorageService;
 
     @BeforeEach
     void setUp() {
@@ -213,17 +222,38 @@ class RentalServiceTest {
     @Test
     @DisplayName("returnToLocker: 대여자가 lockerId 재지정 후 RETURNED_TO_LOCKER, returnedAt 설정")
     void returnToLocker_assignsLockerAndSetsStatus() {
+        //given
         Long id = rentalService.requestRental(baseForm);
 
-        rentalService.returnToLocker(id, 20L, 444L);
+        MockMultipartFile returnImage = new MockMultipartFile(
+                "returnImage",
+                "photo.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy-content".getBytes()
+        );
+        given(fileStorageService.store(returnImage))
+                .willReturn("http://cdn.example.com/returned/photo.jpg");
 
-        Rental r = rentalRepository.findById(id).get();
+        //when
+        rentalService.returnToLocker(id, baseForm.getRenterId(), 444L, returnImage);
+
+        //then
+        Rental r = rentalRepository.findById(id).orElseThrow();
         assertThat(r.getLockerId()).isEqualTo(444L);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
         assertThat(r.getReturnedAt()).isNotNull();
+        assertThat(r.getReturnImageUrl())
+                .isEqualTo("http://cdn.example.com/returned/photo.jpg");
 
-        assertThrows(IllegalArgumentException.class,
-                () -> rentalService.returnToLocker(id, 999L, 123L));
+        assertThatThrownBy(() ->
+                rentalService.returnToLocker(id, 999L, 444L, returnImage)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("권한이 없습니다.");
+
+        assertThatThrownBy(() ->
+                rentalService.returnToLocker(id, baseForm.getRenterId(), 444L, null)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("반납 사진이 없습니다.");
     }
 
     @Test
@@ -231,17 +261,28 @@ class RentalServiceTest {
     void retrieveByOwner_clearsLockerAndCompletes() {
         Long id = rentalService.requestRental(baseForm);
         // 흐름: 맡기 → 반납 → 회수
-        rentalService.dropOffToLocker(id, 10L, 333L);
-        rentalService.returnToLocker(id, 20L, 333L);
+        rentalService.dropOffToLocker(id, baseForm.getOwnerId(), 333L);
 
-        rentalService.retrieveByOwner(id, 10L);
+        MockMultipartFile returnImage = new MockMultipartFile(
+                "returnImage",
+                "photo.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy".getBytes()
+        );
+        given(fileStorageService.store(returnImage))
+                .willReturn("http://cdn.example.com/returned/photo.jpg");
+        rentalService.returnToLocker(id, baseForm.getRenterId(), 333L, returnImage);
 
-        Rental r = rentalRepository.findById(id).get();
+        rentalService.retrieveByOwner(id, baseForm.getOwnerId());
+
+        Rental r = rentalRepository.findById(id).orElseThrow();
         assertThat(r.getLockerId()).isNull();
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.COMPLETED);
         assertThat(r.getRetrievedAt()).isNotNull();
 
-        assertThrows(IllegalArgumentException.class,
-                () -> rentalService.retrieveByOwner(id, 999L));
+        assertThatThrownBy(() ->
+                rentalService.retrieveByOwner(id, 999L)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("권한이 없습니다.");
     }
 }
