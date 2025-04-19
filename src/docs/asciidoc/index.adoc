@@ -133,3 +133,37 @@ operation::update_item[snippets='request-fields,http-request,response-fields,htt
 
 === 물품 삭제
 operation::delete_item[snippets='request-fields,http-request,response-fields,http-response']
+
+== 대여 관리 API
+=== POST /api/v1/rentals - 대여 요청 성공
+operation::request-rental[snippets='request-fields,http-request,response-fields,http-response']
+
+=== GET /api/v1/rentals - 내 대여 목록 조회
+operation::get-my-rentals[snippets='http-request,response-fields,http-response']
+
+=== GET /api/v1/rentals/{rentalId} - 단일 대여 조회
+operation::get-rental[snippets='http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/approve - 대여 승인
+operation::approve-rental[snippets='http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/reject - 대여 거절
+operation::reject-rental[snippets='http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/cancel - 대여 취소
+operation::cancel-rental[snippets='http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/dropoff - 소유자가 물품 맡기기
+operation::dropoff-rental[snippets='query-parameters,http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/pickup - 대여자가 사물함에서 픽업
+operation::pickup-rental[snippets='http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/return - 대여자가 사물함에 반납
+operation::return-rental[snippets='query-parameters,request-parts,http-request,response-fields,http-response']
+
+=== POST /api/v1/rentals/{id}/retrieve - 소유자가 사물함에서 회수
+operation::retrieve-rental[snippets='http-request,response-fields,http-response']
+
+=== GET /api/v1/admin/rentals/{userId} - 특정 사용자 대여 목록 조회(관리자용)
+operation::get-rentals-by-user[snippets='http-request,response-fields,http-response']
