@@ -43,7 +43,10 @@ public class RentalService {
     public List<RentalDto> getRentalsForUser(MemberDto loginMember) {
         Long userId = loginMember.getId();
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
-        return list.stream().map(RentalDto::fromEntity).collect(Collectors.toList());
+        return list.stream().map(r -> RentalDto.fromEntity(
+                r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+                )
+                .collect(Collectors.toList());
     }
 
     /** 단일 대여 조회 */
@@ -56,7 +59,7 @@ public class RentalService {
         if (!rental.getOwnerId().equals(userId) && !rental.getRenterId().equals(userId)) {
             throw new SecurityException("조회 권한이 없습니다.");
         }
-        return RentalDto.fromEntity(rental);
+        return RentalDto.fromEntity(rental, fileStorageService.generatePresignedUrl(rental.getReturnImageUrl()));
     }
 
     /** 4) 대여 승인 (소유자/관리자) */
@@ -84,7 +87,10 @@ public class RentalService {
     @Transactional(readOnly = true)
     public List<RentalDto> getRentalsByUser(Long userId) {
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
-        return list.stream().map(RentalDto::fromEntity).collect(Collectors.toList());
+        return list.stream().map(r -> RentalDto.fromEntity(
+                        r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+                )
+                .collect(Collectors.toList());
     }
 
 
@@ -121,8 +127,8 @@ public class RentalService {
         if(returnImage == null) {
             throw new IllegalArgumentException("반납 사진이 없습니다.");
         }
-        String url = fileStorageService.store(returnImage);
-        r.uploadReturnImageUrl(url);
+        String objectKey = fileStorageService.store(returnImage);
+        r.uploadReturnImageUrl(objectKey);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */

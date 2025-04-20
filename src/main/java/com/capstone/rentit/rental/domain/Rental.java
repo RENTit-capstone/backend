@@ -65,7 +65,7 @@ public class Rental {
     private Long paymentId;
 
     @Column(name = "return_image_url")
-    private String returnImageUrl;
+    private String returnImageUrl; //image object key
 
     /** 승인 처리 */
     public void approve(LocalDateTime time) {

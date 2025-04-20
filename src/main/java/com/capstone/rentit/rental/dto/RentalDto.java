@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.dto;
 
+import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,9 +32,9 @@ public class RentalDto {
     private Long lockerId;
     private Long paymentId;
 
-    private String returnImageUrl;
+    private String returnImageUrl; //pre-signed Url
 
-    public static RentalDto fromEntity(com.capstone.rentit.rental.domain.Rental r) {
+    public static RentalDto fromEntity(Rental r, String presignedUrl) {
         return RentalDto.builder()
                 .rentalId(r.getRentalId())
                 .itemId(r.getItemId())
@@ -51,7 +52,7 @@ public class RentalDto {
                 .retrievedAt(r.getRetrievedAt())
                 .lockerId(r.getLockerId())
                 .paymentId(r.getPaymentId())
-                .returnImageUrl(r.getReturnImageUrl())
+                .returnImageUrl(presignedUrl)
                 .build();
     }
 }
