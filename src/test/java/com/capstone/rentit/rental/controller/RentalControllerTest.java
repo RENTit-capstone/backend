@@ -21,11 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,6 +42,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -147,6 +144,7 @@ class RentalControllerTest {
                                 fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
@@ -199,6 +197,7 @@ class RentalControllerTest {
                                 fieldWithPath("data.retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data.lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data.paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data.returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
@@ -277,7 +276,7 @@ class RentalControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("dropoff-rental",
                         queryParameters(
-                                parameterWithName("lockerId").description("사물함 ID")
+                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
@@ -334,10 +333,10 @@ class RentalControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("return-rental",
                         requestParts(
-                                partWithName("returnImage").description("반납 시 찍은 물품 이미지")
+                                partWithName("returnImage").attributes(key("type").value("file")).description("반납 시 찍은 물품 이미지")
                         ),
                         queryParameters(
-                                parameterWithName("lockerId").description("사물함 ID")
+                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
@@ -428,6 +427,7 @@ class RentalControllerTest {
                                 fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
