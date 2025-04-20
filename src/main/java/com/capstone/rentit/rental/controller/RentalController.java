@@ -81,7 +81,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember,
             @RequestParam("lockerId") Long lockerId
-    ) {
+            ) {
         rentalService.dropOffToLocker(rentalId, loginMember.getId(), lockerId);
         return CommonResponse.success(null);
     }
