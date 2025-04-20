@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
 
-@Service("localFileStorageService")
+//@Service("localFileStorageService")
 @RequiredArgsConstructor
 public class LocalFileStorageService implements FileStorageService {
 
