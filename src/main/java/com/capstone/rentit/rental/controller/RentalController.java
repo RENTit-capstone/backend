@@ -9,6 +9,7 @@ import com.capstone.rentit.rental.service.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember,
             @RequestParam("lockerId") Long lockerId
-    ) {
+            ) {
         rentalService.dropOffToLocker(rentalId, loginMember.getId(), lockerId);
         return CommonResponse.success(null);
     }
@@ -102,9 +103,10 @@ public class RentalController {
     public CommonResponse<Void> returnToLocker(
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember,
-            @RequestParam("lockerId") Long lockerId
+            @RequestParam("lockerId") Long lockerId,
+            @RequestPart("returnImage") MultipartFile returnImage
     ) {
-        rentalService.returnToLocker(rentalId, loginMember.getId(), lockerId);
+        rentalService.returnToLocker(rentalId, loginMember.getId(), lockerId, returnImage);
         return CommonResponse.success(null);
     }
 

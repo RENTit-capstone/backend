@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -9,6 +10,7 @@ import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
+    private final FileStorageService fileStorageService;
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
@@ -40,7 +43,10 @@ public class RentalService {
     public List<RentalDto> getRentalsForUser(MemberDto loginMember) {
         Long userId = loginMember.getId();
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
-        return list.stream().map(RentalDto::fromEntity).collect(Collectors.toList());
+        return list.stream().map(r -> RentalDto.fromEntity(
+                r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+                )
+                .collect(Collectors.toList());
     }
 
     /** 단일 대여 조회 */
@@ -53,7 +59,7 @@ public class RentalService {
         if (!rental.getOwnerId().equals(userId) && !rental.getRenterId().equals(userId)) {
             throw new SecurityException("조회 권한이 없습니다.");
         }
-        return RentalDto.fromEntity(rental);
+        return RentalDto.fromEntity(rental, fileStorageService.generatePresignedUrl(rental.getReturnImageUrl()));
     }
 
     /** 4) 대여 승인 (소유자/관리자) */
@@ -81,7 +87,10 @@ public class RentalService {
     @Transactional(readOnly = true)
     public List<RentalDto> getRentalsByUser(Long userId) {
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
-        return list.stream().map(RentalDto::fromEntity).collect(Collectors.toList());
+        return list.stream().map(r -> RentalDto.fromEntity(
+                        r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+                )
+                .collect(Collectors.toList());
     }
 
 
@@ -106,13 +115,20 @@ public class RentalService {
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId, Long lockerId) {
+    public void returnToLocker(Long rentalId, Long renterId, Long lockerId, MultipartFile returnImage) {
         Rental r = findOrThrow(rentalId);
         if (!r.getRenterId().equals(renterId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+
         r.assignLocker(lockerId);
         r.returnToLocker(LocalDateTime.now());
+
+        if(returnImage == null) {
+            throw new IllegalArgumentException("반납 사진이 없습니다.");
+        }
+        String objectKey = fileStorageService.store(returnImage);
+        r.uploadReturnImageUrl(objectKey);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */

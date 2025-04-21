@@ -19,15 +19,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -43,11 +41,10 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -147,6 +144,7 @@ class RentalControllerTest {
                                 fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
@@ -199,6 +197,7 @@ class RentalControllerTest {
                                 fieldWithPath("data.retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data.lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data.paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data.returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
@@ -277,7 +276,7 @@ class RentalControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("dropoff-rental",
                         queryParameters(
-                                parameterWithName("lockerId").description("사물함 ID")
+                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
@@ -318,14 +317,26 @@ class RentalControllerTest {
         Student renter = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails details = new MemberDetails(renter);
 
-        mockMvc.perform(post("/api/v1/rentals/13/return")
+        MockMultipartFile returnImage = new MockMultipartFile(
+                "returnImage",             // @RequestPart name
+                "return.jpg",              // original filename
+                "image/jpeg",              // content type
+                "dummy-image-bytes".getBytes() // content
+        );
+
+        mockMvc.perform(multipart("/api/v1/rentals/13/return")
+                        .file(returnImage)
                         .with(user(details))
-                        .queryParam("lockerId", "55"))
+                        .queryParam("lockerId", "55")
+                            )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("return-rental",
+                        requestParts(
+                                partWithName("returnImage").attributes(key("type").value("file")).description("반납 시 찍은 물품 이미지")
+                        ),
                         queryParameters(
-                                parameterWithName("lockerId").description("사물함 ID")
+                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
@@ -334,7 +345,12 @@ class RentalControllerTest {
                         )
                 ));
 
-        verify(rentalService).returnToLocker(13L, 20L, 55L);
+        verify(rentalService).returnToLocker(
+                eq(13L),
+                eq(20L),
+                eq(55L),
+                any(MultipartFile.class)
+        );
     }
 
     @Test
@@ -411,6 +427,7 @@ class RentalControllerTest {
                                 fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
                                 fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
+                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
                                 fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
                         )
                 ));
