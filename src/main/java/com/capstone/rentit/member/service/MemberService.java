@@ -40,25 +40,25 @@ public class MemberService {
                     .build();
         }
         else if (form instanceof StudentCouncilMemberCreateForm scmForm) {
-            member = Student.builder()
+            member = StudentCouncilMember.builder()
                     .name(scmForm.getName())
                     .role(MemberRoleEnum.COUNCIL)
                     .email(scmForm.getEmail())
                     .password(passwordEncoder.encode(scmForm.getPassword()))
                     .locked(false)
                     .createdAt(LocalDate.now())
-                    .gender(scmForm.getUniversity())
+                    .university(scmForm.getUniversity())
                     .build();
         }
         else if (form instanceof CompanyCreateForm comForm) {
-            member = Student.builder()
+            member = Company.builder()
                     .name(comForm.getName())
                     .role(MemberRoleEnum.COMPANY)
                     .email(comForm.getEmail())
                     .password(passwordEncoder.encode(comForm.getPassword()))
                     .locked(false)
                     .createdAt(LocalDate.now())
-                    .gender(comForm.getCompanyName())
+                    .companyName(comForm.getCompanyName())
                     .build();
         }
         else {
