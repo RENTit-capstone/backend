@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -67,7 +68,7 @@ public class RegisterController {
     @DeleteMapping("/admin/auth/signup/{id}")
     public CommonResponse<Boolean> deleteUser(@PathVariable("id") Long id) {
         try {
-            memberService.deleteMember(id);
+            memberService.deleteUser(id);
             return CommonResponse.success(true);
         } catch (RuntimeException e) {
             return CommonResponse.failure("사용자를 찾을 수 없습니다.");

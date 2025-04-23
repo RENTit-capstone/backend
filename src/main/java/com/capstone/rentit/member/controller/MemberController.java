@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class MemberController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/members")
     public CommonResponse<List<MemberDto>> getAllMembers() {
-        List<MemberDto> list = memberService.getAllMembers().stream()
+        List<MemberDto> list = memberService.getAllUsers().stream()
                 .map(MemberDtoFactory::toDto)
                 .collect(Collectors.toList());
         return CommonResponse.success(list);
@@ -46,7 +47,7 @@ public class MemberController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/{id}")
     public CommonResponse<MemberDto> getMember(@PathVariable("id") Long id) {
-        Optional<MemberDto> optionalDto = memberService.getMember(id)
+        Optional<MemberDto> optionalDto = memberService.getUser(id)
                 .map(MemberDtoFactory::toDto);
         return optionalDto.map(CommonResponse::success).orElseGet(() -> CommonResponse.failure("존재하지 않는 사용자"));
     }
@@ -56,7 +57,7 @@ public class MemberController {
     @PutMapping("/members")
     public CommonResponse<?> updateMember(@Login MemberDto loginMember,
                                           @RequestBody MemberUpdateForm updateForm) {
-        memberService.updateMember(loginMember.getId(), updateForm);
+        memberService.updateUser(loginMember.getId(), updateForm);
         return CommonResponse.success(null);
     }
 
@@ -64,7 +65,7 @@ public class MemberController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/members/{id}")
     public CommonResponse<?> deleteMember(@PathVariable("id") Long id) {
-        memberService.deleteMember(id);
+        memberService.deleteUser(id);
         return CommonResponse.success(null);
     }
 

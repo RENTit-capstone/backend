@@ -4,7 +4,9 @@ import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.StudentCreateForm;
+import com.capstone.rentit.member.dto.StudentDto;
 import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -28,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.apache.logging.log4j.util.Lazy.value;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -95,7 +99,7 @@ public class MemberControllerTest {
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .build();
-        when(memberService.getMember(generatedId)).thenReturn(Optional.of(student));
+        when(memberService.getUser(generatedId)).thenReturn(Optional.of(student));
 
         String json = objectMapper.writeValueAsString(createForm);
 
@@ -145,7 +149,7 @@ public class MemberControllerTest {
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .build();
-        when(memberService.getAllMembers()).thenReturn(Collections.singletonList(student));
+        when(memberService.getAllUsers()).thenReturn(Collections.singletonList(student));
 
         mockMvc.perform(get("/api/v1/admin/members")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -189,7 +193,7 @@ public class MemberControllerTest {
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .build();
-        when(memberService.getMember(id)).thenReturn(Optional.of(student));
+        when(memberService.getUser(id)).thenReturn(Optional.of(student));
 
         mockMvc.perform(get("/api/v1/members/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -245,7 +249,7 @@ public class MemberControllerTest {
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 memberDetails, null, memberDetails.getAuthorities());
 
-        when(memberService.updateMember(eq(id), any(StudentUpdateForm.class)))
+        when(memberService.updateUser(eq(id), any(StudentUpdateForm.class)))
                 .thenReturn(updatedStudent);
 
         String json = objectMapper.writeValueAsString(updateForm);
