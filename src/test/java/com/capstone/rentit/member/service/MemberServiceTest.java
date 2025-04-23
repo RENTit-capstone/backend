@@ -1,218 +1,246 @@
 package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@Transactional
-public class MemberServiceTest {
+@ExtendWith(MockitoExtension.class)
+class MemberServiceUnitTest {
 
-    @Autowired
-    private MemberService memberService;
-
-    @Autowired
+    @Mock
     private MemberRepository memberRepository;
 
-    @Autowired
+    @Mock
     private PasswordEncoder passwordEncoder;
 
-    // --------------------------
-    // 생성 (createMember) 테스트 - 학생 회원 생성
-    // --------------------------
+    @InjectMocks
+    private MemberService memberService;
+
+    @Captor
+    private ArgumentCaptor<Student> studentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Company> companyCaptor;
+
+    @Captor
+    private ArgumentCaptor<StudentCouncilMember> councilCaptor;
+
     @Test
-    void createMember_student_success() {
+    @DisplayName("학생 회원 생성: ID를 반환해야 한다")
+    void createMember_shouldCreateStudent() {
+        // given
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(memberRepository.save(any(Student.class)))
+                .thenAnswer(invocation -> {
+                    Student s = invocation.getArgument(0);
+                    return Student.builder()
+                            .memberId(1L)
+                            .name(s.getName())
+                            .email(s.getEmail())
+                            .password(s.getPassword())
+                            .nickname(s.getNickname())
+                            .phone(s.getPhone())
+                            .university(s.getUniversity())
+                            .studentId(s.getStudentId())
+                            .gender(s.getGender())
+                            .role(s.getRole())
+                            .build();
+                });
         StudentCreateForm form = new StudentCreateForm();
-        form.setName("Integration Student");
-        form.setEmail("integration@student.com");
-        form.setPassword("password");
-        form.setNickname("intStudent");
-        form.setPhone("010-0000-0000");
-        form.setUniversity("Integration University");
-        form.setStudentId("INT1000");
-        form.setGender("F");
+        form.setName("Stu"); form.setEmail("stu@test.com"); form.setPassword("pass");
+        form.setNickname("nick"); form.setPhone("010-0000-0000");
+        form.setUniversity("Uni"); form.setStudentId("S100"); form.setGender("F");
 
-        Long memberId = memberService.createMember(form);
-        assertNotNull(memberId);
-
-        Optional<Member> optMember = memberRepository.findById(memberId);
-        assertTrue(optMember.isPresent());
-        Student student = (Student) optMember.get();
-
-        assertEquals("Integration Student", student.getName());
-        assertEquals("integration@student.com", student.getEmail());
-        assertTrue(passwordEncoder.matches("password", student.getPassword()));
-        assertEquals("Integration University", student.getUniversity());
-    }
-
-    // --------------------------
-    // 생성 - 학생회 회원 생성
-    // --------------------------
-    @Test
-    void createMember_council_success() {
-        StudentCouncilMemberCreateForm form = new StudentCouncilMemberCreateForm();
-        form.setName("Council User");
-        form.setEmail("council@test.com");
-        form.setPassword("pwd");
-        form.setUniversity("Council University");
-
+        // when
         Long id = memberService.createMember(form);
-        Optional<Member> opt = memberRepository.findById(id);
-        assertTrue(opt.isPresent());
-        Member m = opt.get();
-        assertEquals(MemberRoleEnum.COUNCIL, m.getRole());
-        assertEquals("council@test.com", m.getEmail());
+
+        // then
+        assertThat(id).isEqualTo(1L);
+        verify(memberRepository).save(studentCaptor.capture());
+        Student captured = studentCaptor.getValue();
+        assertThat(captured.getRole()).isEqualTo(MemberRoleEnum.STUDENT);
+        assertThat(captured.getPassword()).isEqualTo("encoded");
     }
 
-    // --------------------------
-    // 생성 - 회사 회원 생성
-    // --------------------------
     @Test
-    void createMember_company_success() {
+    @DisplayName("회사 회원 생성: ID를 반환해야 한다")
+    void createMember_shouldCreateCompany() {
+        // given
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(memberRepository.save(any(Company.class)))
+                .thenAnswer(invocation -> {
+                    Company c = invocation.getArgument(0);
+                    return Company.builder()
+                            .memberId(2L)
+                            .name(c.getName())
+                            .email(c.getEmail())
+                            .password(c.getPassword())
+                            .companyName(c.getCompanyName())
+                            .role(c.getRole())
+                            .build();
+                });
         CompanyCreateForm form = new CompanyCreateForm();
-        form.setName("Company Inc.");
-        form.setEmail("company@test.com");
-        form.setPassword("compwd");
-        form.setCompanyName("Company Inc.");
+        form.setName("Comp"); form.setEmail("comp@test.com");
+        form.setPassword("pwd"); form.setCompanyName("Company Inc.");
 
-        Long id = memberService.createMember(form);
-        Optional<Member> opt = memberRepository.findById(id);
-        assertTrue(opt.isPresent());
-        Member m = opt.get();
-        assertEquals(MemberRoleEnum.COMPANY, m.getRole());
-        assertEquals("company@test.com", m.getEmail());
-    }
-
-    // --------------------------
-    // 생성 - 지원되지 않는 폼
-    // --------------------------
-    @Test
-    void createMember_unsupportedForm_throws() {
-        MemberCreateForm badForm = new MemberCreateForm() {};
-        assertThrows(IllegalArgumentException.class, () -> {
-            memberService.createMember(badForm);
-        });
-    }
-
-    // --------------------------
-    // 조회 (getUser, findByEmail, getAllUsers) 테스트
-    // --------------------------
-    @Test
-    void getUser_and_findByEmail_and_getAllUsers_success() {
-        StudentCreateForm form = new StudentCreateForm();
-        form.setName("Bob");
-        form.setEmail("bob@test.com");
-        form.setPassword("password");
-        form.setNickname("bobNick");
-        form.setPhone("010-1111-1111");
-        form.setUniversity("Test University");
-        form.setStudentId("S1010");
-        form.setGender("M");
+        // when
         Long id = memberService.createMember(form);
 
-        Optional<Member> byId = memberService.getUser(id);
-        assertTrue(byId.isPresent());
-        assertEquals("bob@test.com", byId.get().getEmail());
+        // then
+        assertThat(id).isEqualTo(2L);
+        verify(memberRepository).save(companyCaptor.capture());
+        Company captured = companyCaptor.getValue();
+        assertThat(captured.getRole()).isEqualTo(MemberRoleEnum.COMPANY);
+        assertThat(captured.getPassword()).isEqualTo("encoded");
+    }
 
+    @Test
+    @DisplayName("학생회 회원 생성: ID를 반환해야 한다")
+    void createMember_shouldCreateCouncilMember() {
+        // given
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(memberRepository.save(any()))
+                .thenAnswer(invocation -> {
+                    StudentCouncilMember m = invocation.getArgument(0);
+                    return StudentCouncilMember.builder()
+                            .memberId(3L)
+                            .name(m.getName())
+                            .email(m.getEmail())
+                            .password(m.getPassword())
+                            .university(m.getUniversity())
+                            .role(m.getRole())
+                            .build();
+                });
+        StudentCouncilMemberCreateForm form = new StudentCouncilMemberCreateForm();
+        form.setName("Council"); form.setEmail("council@test.com");
+        form.setPassword("pwd"); form.setUniversity("UniCouncil");
+
+        // when
+        Long id = memberService.createMember(form);
+
+        // then
+        assertThat(id).isEqualTo(3L);
+        verify(memberRepository).save(councilCaptor.capture());
+        StudentCouncilMember captured = councilCaptor.getValue();
+        assertThat(captured.getRole()).isEqualTo(MemberRoleEnum.COUNCIL);
+        assertThat(captured.getPassword()).isEqualTo("encoded");
+    }
+
+    @Test
+    @DisplayName("지원되지 않은 폼: 예외를 던져야 한다")
+    void createMember_shouldThrowUnsupportedForm() {
+        // given
+        MemberCreateForm bad = new MemberCreateForm() {};
+
+        // when & then
+        assertThatThrownBy(() -> memberService.createMember(bad))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("CreateMember: Unsupported member type");
+    }
+
+    @Test
+    @DisplayName("사용자 조회: ID 및 이메일로 조회되어야 한다")
+    void retrieveUsers_shouldReturnUsers() {
+        // given
+        Student student = Student.builder()
+                .memberId(4L)
+                .email("bob@test.com")
+                .name("Bob")
+                .role(MemberRoleEnum.STUDENT)
+                .build();
+        when(memberRepository.findById(4L)).thenReturn(Optional.of(student));
+        when(memberRepository.findByEmail("bob@test.com")).thenReturn(Optional.of(student));
+        when(memberRepository.findAll()).thenReturn(Collections.singletonList(student));
+
+        // when
+        Optional<Member> byId = memberService.getMember(4L);
         Optional<Member> byEmail = memberService.findByEmail("bob@test.com");
-        assertTrue(byEmail.isPresent());
-        assertEquals("Bob", byEmail.get().getName());
+        List<Member> all = memberService.getAllMembers();
 
-        List<Member> all = memberService.getAllUsers();
-        assertTrue(all.size() >= 1);
+        // then
+        assertThat(byId).isPresent().contains(student);
+        assertThat(byEmail).isPresent().contains(student);
+        assertThat(all).hasSize(1).contains(student);
     }
 
-    // --------------------------
-    // 업데이트 (updateUser) 테스트 - 학생 회원 업데이트
-    // --------------------------
     @Test
-    void updateUser_student_success() {
-        StudentCreateForm form = new StudentCreateForm();
-        form.setName("Alice");
-        form.setEmail("alice@test.com");
-        form.setPassword("password");
-        form.setNickname("aliceOld");
-        form.setPhone("010-2222-2222");
-        form.setUniversity("Old University");
-        form.setStudentId("S2020");
-        form.setGender("F");
-        Long id = memberService.createMember(form);
+    @DisplayName("회원 정보 업데이트: 학생 필드가 업데이트되어야 한다")
+    void updateUser_shouldUpdateStudent() {
+        // given
+        Student existing = Student.builder().memberId(5L).role(MemberRoleEnum.STUDENT).build();
+        when(memberRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(memberRepository.save(any(Student.class))).thenReturn(existing);
 
-        StudentUpdateForm update = new StudentUpdateForm();
-        update.setName("Alice New");
-        update.setProfileImg("img.jpg");
-        update.setNickname("newNick");
-        update.setPhone("010-3333-3333");
+        StudentUpdateForm form = new StudentUpdateForm();
+        form.setName("NewName"); form.setProfileImg("img.png");
+        form.setNickname("nick2"); form.setPhone("010-1111-2222");
 
-        Member updated = memberService.updateUser(id, update);
-        Student st = (Student) updated;
-        assertEquals("Alice New", st.getName());
-        assertEquals("img.jpg", st.getProfileImg());
+        // when
+        Member updated = memberService.updateMember(5L, form);
+
+        // then
+        assertThat(((Student) updated).getName()).isEqualTo("NewName");
+        assertThat(((Student) updated).getProfileImg()).isEqualTo("img.png");
     }
 
-    // --------------------------
-    // 업데이트 - 타입 불일치 예외
-    // --------------------------
     @Test
-    void updateUser_unsupported_throws() {
-        StudentCreateForm form = new StudentCreateForm();
-        form.setName("Tom");
-        form.setEmail("tom@test.com");
-        form.setPassword("pwd");
-        form.setNickname("tomNick");
-        form.setPhone("010-5555-5555");
-        form.setUniversity("Uni");
-        form.setStudentId("S5050");
-        form.setGender("M");
-        Long id = memberService.createMember(form);
+    @DisplayName("회원 정보 업데이트 실패: 예외 메시지를 확인한다")
+    void updateMember_shouldThrowOnTypeMismatch() {
+        // given
+        Company company = Company.builder().memberId(6L).role(MemberRoleEnum.COMPANY).build();
+        when(memberRepository.findById(6L)).thenReturn(Optional.of(company));
+        StudentUpdateForm form = new StudentUpdateForm();
 
-        CompanyUpdateForm wrongForm = new CompanyUpdateForm();
-        wrongForm.setName("X");
-        wrongForm.setProfileImg("x.jpg");
-        wrongForm.setCompanyName("XCo");
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            memberService.updateUser(id, wrongForm);
-        });
+        // when & then
+        assertThatThrownBy(() -> memberService.updateMember(6L, form))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("UpdateUser: Unsupported member type");
     }
 
-    // --------------------------
-    // 삭제 (deleteUser) 테스트
-    // --------------------------
     @Test
-    void deleteUser_success() {
-        StudentCreateForm form = new StudentCreateForm();
-        form.setName("Charlie");
-        form.setEmail("charlie@test.com");
-        form.setPassword("password");
-        form.setNickname("charlieNick");
-        form.setPhone("010-4444-4444");
-        form.setUniversity("Test University");
-        form.setStudentId("S3030");
-        form.setGender("M");
-        Long id = memberService.createMember(form);
+    @DisplayName("회원 삭제: 기존 사용자를 삭제해야 한다")
+    void deleteUser_shouldDeleteMember() {
+        // given
+        Student dummy = Student.builder().memberId(7L).role(MemberRoleEnum.STUDENT).build();
+        when(memberRepository.findById(7L)).thenReturn(Optional.of(dummy));
 
-        assertTrue(memberService.getUser(id).isPresent());
-        memberService.deleteUser(id);
-        assertFalse(memberService.getUser(id).isPresent());
+        // when
+        memberService.deleteMember(7L);
+
+        // then
+        verify(memberRepository).delete(dummy);
     }
 
-    // --------------------------
-    // 삭제 - 존재하지 않는 사용자 예외
-    // --------------------------
     @Test
-    void deleteUser_notFound_throws() {
-        assertThrows(RuntimeException.class, () -> memberService.deleteUser(9999L));
+    @DisplayName("회원 삭제 실패: 예외 메시지를 확인한다")
+    void deleteMember_shouldThrowOnNotFound() {
+        // given
+        when(memberRepository.findById(8L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.deleteMember(8L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("User not found");
     }
 }
