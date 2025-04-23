@@ -61,29 +61,63 @@ dependencies {
 	implementation 'software.amazon.awssdk:url-connection-client'
 }
 
+// 1) 테스트에서 스니펫이 build/generated-snippets 에 생성되도록
+def snippetsDir = layout.buildDirectory.dir("generated-snippets").get().asFile
+
 tasks.named('test') {
-	useJUnitPlatform()
-	finalizedBy tasks.named('jacocoTestReport')
+	outputs.dir snippetsDir
 }
 
-////rest docs
-tasks.register('copyApiDocument', Copy) { // 자동으로 생성된 문서를 옮겨주는 copyApiDocument task 선언
-	dependsOn asciidoctor // copyApiDocument를 수행하기전 asciidoctor를 수행하도록 선언
-	doFirst { // 작업이 실행되기전 수행하는 작업 선언
-		delete file("src/main/resources/static/docs") // 기존 문서 삭제
+// 2) AsciidoctorTask 설정 – test → docs 변환 순서 보장
+asciidoctor {
+// 1) 테스트 → 스니펫 생성 → Asciidoctor 순서 보장
+	dependsOn tasks.named('test')
+	configurations 'asciidoctorExt'
+
+	// 2) 스니펫 입력 폴더를 증분 빌드용으로 등록
+	inputs.dir snippetsDir
+
+	// 3) {snippets} 속성에 'C:/.../build/generated-snippets' 형태의 문자열로 바인딩
+	attributes 'snippets': snippetsDir
+			.absolutePath                    // 절대 경로로
+			.replace('\\', '/')             // Windows 백슬래시 제거
+			.replaceAll(/ /, '\\ ')         // (선택) 공백이 있으면 이스케이프
+
+	// 4) 문서 변환 대상 .adoc 지정 (보통 index.adoc)
+	sources {
+		include 'index.adoc'
 	}
-	// 생성된 문서를 static/docs로 이동
-	from asciidoctor.outputDir
+
+	// 5) (선택) 출력 경로 명시
+	outputDir = layout.buildDirectory
+			.dir("docs/asciidoc")
+			.get()
+			.asFile
+}
+
+// 3) bootJar 단계에서만 HTML을 JAR 내부의 static/docs 로 복사
+tasks.named('bootJar') {
+	dependsOn tasks.named('asciidoctor')
+	from(layout.buildDirectory.dir("docs/asciidoc")) {
+		into 'static/docs'
+	}
+}
+
+tasks.register('copySnippetsToSrc', Copy) {
+	dependsOn asciidoctor
+	from(layout.buildDirectory.dir("docs/asciidoc"))
 	into file("src/main/resources/static/docs")
 }
 
-asciidoctor {
-	dependsOn test
-	configurations 'asciidoctorExt'
+tasks.named('assemble') {
+	finalizedBy 'copySnippetsToSrc'
 }
 
-build {
-	dependsOn copyApiDocument // 프로젝트 빌드 전 copyApiDocument를 실행하도록 변경
+tasks.named('test', Test) {
+	// JUnit 5(플랫폼) 사용 설정이 빠지면 테스트가 실행되지 않습니다!
+	useJUnitPlatform()
+	// (이미 설정해두신) 스니펫 출력 디렉터리 등록
+	outputs.dir layout.buildDirectory.dir("generated-snippets")
 }
 
 jacoco {
