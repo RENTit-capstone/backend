@@ -67,7 +67,7 @@ public class MemberService {
         return memberRepository.save(member).getMemberId();
     }
 
-    public Optional<Member> getUser(Long id) {
+    public Optional<Member> getMember(Long id) {
         return memberRepository.findById(id);
     }
 
@@ -75,11 +75,11 @@ public class MemberService {
         return memberRepository.findByEmail(email);
     }
 
-    public List<Member> getAllUsers() {
+    public List<Member> getAllMembers() {
         return memberRepository.findAll();
     }
 
-    public Member updateUser(Long id, MemberUpdateForm updateForm) {
+    public Member updateMember(Long id, MemberUpdateForm updateForm) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -110,7 +110,7 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public void deleteUser(Long id) {
+    public void deleteMember(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         memberRepository.delete(member);

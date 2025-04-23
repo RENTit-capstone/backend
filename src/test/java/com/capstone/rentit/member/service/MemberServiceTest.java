@@ -174,9 +174,9 @@ class MemberServiceUnitTest {
         when(memberRepository.findAll()).thenReturn(Collections.singletonList(student));
 
         // when
-        Optional<Member> byId = memberService.getUser(4L);
+        Optional<Member> byId = memberService.getMember(4L);
         Optional<Member> byEmail = memberService.findByEmail("bob@test.com");
-        List<Member> all = memberService.getAllUsers();
+        List<Member> all = memberService.getAllMembers();
 
         // then
         assertThat(byId).isPresent().contains(student);
@@ -197,7 +197,7 @@ class MemberServiceUnitTest {
         form.setNickname("nick2"); form.setPhone("010-1111-2222");
 
         // when
-        Member updated = memberService.updateUser(5L, form);
+        Member updated = memberService.updateMember(5L, form);
 
         // then
         assertThat(((Student) updated).getName()).isEqualTo("NewName");
@@ -206,27 +206,27 @@ class MemberServiceUnitTest {
 
     @Test
     @DisplayName("회원 정보 업데이트 실패: 예외 메시지를 확인한다")
-    void updateUser_shouldThrowOnTypeMismatch() {
+    void updateMember_shouldThrowOnTypeMismatch() {
         // given
         Company company = Company.builder().memberId(6L).role(MemberRoleEnum.COMPANY).build();
         when(memberRepository.findById(6L)).thenReturn(Optional.of(company));
         StudentUpdateForm form = new StudentUpdateForm();
 
         // when & then
-        assertThatThrownBy(() -> memberService.updateUser(6L, form))
+        assertThatThrownBy(() -> memberService.updateMember(6L, form))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("UpdateUser: Unsupported member type");
     }
 
     @Test
     @DisplayName("회원 삭제: 기존 사용자를 삭제해야 한다")
-    void deleteUser_shouldDeleteUser() {
+    void deleteUser_shouldDeleteMember() {
         // given
         Student dummy = Student.builder().memberId(7L).role(MemberRoleEnum.STUDENT).build();
         when(memberRepository.findById(7L)).thenReturn(Optional.of(dummy));
 
         // when
-        memberService.deleteUser(7L);
+        memberService.deleteMember(7L);
 
         // then
         verify(memberRepository).delete(dummy);
@@ -234,12 +234,12 @@ class MemberServiceUnitTest {
 
     @Test
     @DisplayName("회원 삭제 실패: 예외 메시지를 확인한다")
-    void deleteUser_shouldThrowOnNotFound() {
+    void deleteMember_shouldThrowOnNotFound() {
         // given
         when(memberRepository.findById(8L)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> memberService.deleteUser(8L))
+        assertThatThrownBy(() -> memberService.deleteMember(8L))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");
     }
