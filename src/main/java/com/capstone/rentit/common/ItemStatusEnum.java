@@ -1,5 +1,15 @@
 package com.capstone.rentit.common;
 
 public enum ItemStatusEnum {
-    OUT, AVAILABLE
+    OUT, AVAILABLE;
+
+    public static ItemStatusEnum integerToItemStatusEnum(int status){
+        if(status == 0){
+            return ItemStatusEnum.OUT;
+        }
+        else if(status == 1){
+            return ItemStatusEnum.AVAILABLE;
+        }
+        else return null;
+    }
 }
