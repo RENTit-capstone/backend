@@ -98,19 +98,19 @@ asciidoctor {
 // 3) bootJar 단계에서만 HTML을 JAR 내부의 static/docs 로 복사
 tasks.named('bootJar') {
 	dependsOn tasks.named('asciidoctor')
-	from(layout.buildDirectory.dir("docs/asciidoc")) {
+	from(layout.buildDirectory.dir('docs/asciidoc')) {
 		into 'static/docs'
 	}
 }
 
-tasks.register('copySnippetsToSrc', Copy) {
+tasks.register('copyDocsToSrc', Copy) {
 	dependsOn asciidoctor
-	from(layout.buildDirectory.dir("docs/asciidoc"))
-	into file("src/main/resources/static/docs")
+	from layout.buildDirectory.dir('docs/asciidoc')
+	into file('src/docs')
 }
 
 tasks.named('assemble') {
-	finalizedBy 'copySnippetsToSrc'
+	finalizedBy 'copyDocsToSrc'
 }
 
 tasks.named('test', Test) {
