@@ -9,12 +9,14 @@ import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
@@ -36,16 +38,18 @@ public class ItemServiceImpl implements ItemService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        itemRepository.save(item);
-        return item.getItemId();
+        Item savedItem = itemRepository.save(item);
+        return savedItem.getItemId();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> getAllItems() {
         List<Item> items = itemRepository.findAll();
         return items.stream().map(ItemDtoFactory::toDto).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ItemDto getItem(Long itemId) {
         Item item = itemRepository.findById(itemId)
