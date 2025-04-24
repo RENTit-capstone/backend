@@ -1,204 +1,210 @@
 package com.capstone.rentit.item.service;
 
+import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
-import jakarta.transaction.Transactional;
+import com.capstone.rentit.login.provider.JwtTokenProvider;
+import com.capstone.rentit.login.service.MemberDetailsService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 
-@SpringBootTest
-@Transactional  // 각 테스트 후 롤백되도록 설정
-class ItemServiceImplIntegrationTest {
+@ExtendWith(MockitoExtension.class)
+class ItemServiceTest {
 
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
+    @Mock
     private ItemRepository itemRepository;
 
-    /**
-     * createItem() 테스트
-     * - ItemCreateForm을 전달해 항목을 생성한 후, 아이디 반환 및 DB에 저장되었는지 검증
-     */
-    @Test
-    void testCreateItem() {
-        // given : 테스트를 위한 ItemCreateForm 생성
-        ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(100L);
-        form.setName("Test Item");
-        form.setItemImg("http://example.com/image.jpg");
-        form.setDescription("Test description");
-        form.setCategoryId(1L);
-        form.setStatus(0);  // status가 정수값으로 들어오면, 내부에서 ItemStatusConverter.fromInteger() 호출
-        form.setDamagedPolicy("Damage policy");
-        form.setReturnPolicy("Return policy");
-        form.setStartDate(LocalDateTime.of(2025, 1, 1, 9, 0));
-        form.setEndDate(LocalDateTime.of(2025, 12, 31, 18, 0));
+    @InjectMocks
+    private ItemServiceImpl itemService;
 
-        // when : 항목 생성
-        Long savedId = itemService.createItem(form);
+    private ItemCreateForm createForm;
+    private ItemUpdateForm updateForm;
+    private Item sampleItem;
 
-        // then : 반환된 ID가 null이 아니며, DB에 실제 저장되었는지 검증
-        assertNotNull(savedId);
-        Item found = itemRepository.findById(savedId).orElse(null);
-        assertNotNull(found);
-        assertEquals("Test Item", found.getName());
-    }
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+    @MockitoBean
+    private MemberDetailsService memberDetailsService;
 
-    /**
-     * getAllItems() 테스트
-     * - 두 개 이상의 항목을 생성한 후, 전체 목록이 DTO로 정상적으로 반환되는지 확인
-     */
-    @Test
-    void testGetAllItems() {
-        // given : 항목 2개 생성
-        ItemCreateForm form1 = new ItemCreateForm();
-        form1.setOwnerId(100L);
-        form1.setName("Item 1");
-        form1.setItemImg("http://example.com/1.jpg");
-        form1.setDescription("Description 1");
-        form1.setCategoryId(1L);
-        form1.setStatus(0);
-        form1.setDamagedPolicy("Policy 1");
-        form1.setReturnPolicy("Return 1");
-        form1.setStartDate(LocalDateTime.now());
-        form1.setEndDate(LocalDateTime.now().plusDays(10));
+    @BeforeEach
+    void setUp() {
+        createForm = new ItemCreateForm();
+        createForm.setOwnerId(100L);
+        createForm.setName("Sample");
+        createForm.setItemImg("img.jpg");
+        createForm.setDescription("desc");
+        createForm.setCategoryId(1L);
+        createForm.setStatus(0);
+        createForm.setDamagedPolicy("DP");
+        createForm.setReturnPolicy("RP");
+        createForm.setStartDate(LocalDateTime.now());
+        createForm.setEndDate(LocalDateTime.now().plusDays(1));
 
-        ItemCreateForm form2 = new ItemCreateForm();
-        form2.setOwnerId(101L);
-        form2.setName("Item 2");
-        form2.setItemImg("http://example.com/2.jpg");
-        form2.setDescription("Description 2");
-        form2.setCategoryId(2L);
-        form2.setStatus(1);
-        form2.setDamagedPolicy("Policy 2");
-        form2.setReturnPolicy("Return 2");
-        form2.setStartDate(LocalDateTime.now());
-        form2.setEndDate(LocalDateTime.now().plusDays(5));
+        // builder에서 실제 엔티티의 PK필드명(itemId)으로 세팅
+        sampleItem = Item.builder()
+                .itemId(42L)
+                .ownerId(createForm.getOwnerId())
+                .name(createForm.getName())
+                .itemImg(createForm.getItemImg())
+                .description(createForm.getDescription())
+                .categoryId(createForm.getCategoryId())
+                .status(ItemStatusEnum.integerToItemStatusEnum(createForm.getStatus()))
+                .damagedPolicy(createForm.getDamagedPolicy())
+                .returnPolicy(createForm.getReturnPolicy())
+                .startDate(createForm.getStartDate())
+                .endDate(createForm.getEndDate())
+                .build();
 
-        itemService.createItem(form1);
-        itemService.createItem(form2);
-
-        // when : 전체 항목 조회
-        List<ItemDto> allItems = itemService.getAllItems();
-
-        // then : 반환되는 목록이 null이 아니고, 최소 2개 이상의 항목이 포함됨
-        assertNotNull(allItems);
-        assertTrue(allItems.size() >= 2);
-    }
-
-    /**
-     * getItem() 테스트
-     * - 존재하는 itemId에 대해 DTO를 반환하는지, 존재하지 않는 경우 예외가 발생하는지 검증
-     */
-    @Test
-    void testGetItem() {
-        // given : 항목 생성
-        ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(100L);
-        form.setName("Get Item Test");
-        form.setItemImg("http://example.com/item.jpg");
-        form.setDescription("Description");
-        form.setCategoryId(1L);
-        form.setStatus(0);
-        form.setDamagedPolicy("Policy");
-        form.setReturnPolicy("Return");
-        form.setStartDate(LocalDateTime.now());
-        form.setEndDate(LocalDateTime.now().plusDays(3));
-        Long savedId = itemService.createItem(form);
-
-        // when : 존재하는 항목 조회
-        ItemDto dto = itemService.getItem(savedId);
-
-        // then : DTO가 null이 아니고, 이름이 일치하는지 검증
-        assertNotNull(dto);
-        assertEquals("Get Item Test", dto.getName());
-
-        // 없는 itemId 테스트 : RuntimeException 발생
-        Exception exception = assertThrows(RuntimeException.class, () -> itemService.getItem(999999L));
-        assertEquals("Item not found", exception.getMessage());
-    }
-
-    /**
-     * updateItem() 테스트
-     * - 기존 항목을 업데이트한 후, 변경 내용이 DB에 반영되었는지 검증
-     */
-    @Test
-    void testUpdateItem() {
-        // given : 항목 생성
-        ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(100L);
-        form.setName("Original Name");
-        form.setItemImg("http://example.com/original.jpg");
-        form.setDescription("Original description");
-        form.setCategoryId(1L);
-        form.setStatus(0);
-        form.setDamagedPolicy("Original policy");
-        form.setReturnPolicy("Original return");
-        form.setStartDate(LocalDateTime.now());
-        form.setEndDate(LocalDateTime.now().plusDays(2));
-        Long savedId = itemService.createItem(form);
-
-        // when : 업데이트 폼 생성 및 업데이트 수행 (몇몇 필드 변경)
-        ItemUpdateForm updateForm = new ItemUpdateForm();
-        updateForm.setName("Updated Name");
-        updateForm.setItemImg("http://example.com/updated.jpg");
-        updateForm.setDescription("Updated description");
+        updateForm = new ItemUpdateForm();
+        updateForm.setName("Updated");
+        updateForm.setItemImg("new.jpg");
+        updateForm.setDescription("new desc");
         updateForm.setCategoryId(2L);
         updateForm.setStatus(1);
-        updateForm.setDamagedPolicy("Updated policy");
-        updateForm.setReturnPolicy("Updated return");
-        updateForm.setStartDate(LocalDateTime.now().plusDays(1));
-        updateForm.setEndDate(LocalDateTime.now().plusDays(5));
-        itemService.updateItem(savedId, updateForm);
-
-        // then : 업데이트된 항목 조회 및 필드 값 검증
-        ItemDto updatedDto = itemService.getItem(savedId);
-        assertNotNull(updatedDto);
-        assertEquals("Updated Name", updatedDto.getName());
-        assertEquals("http://example.com/updated.jpg", updatedDto.getItemImg());
-        assertEquals("Updated description", updatedDto.getDescription());
-        assertEquals(2L, updatedDto.getCategoryId());
-        assertEquals("Updated policy", updatedDto.getDamagedPolicy());
-        assertEquals("Updated return", updatedDto.getReturnPolicy());
+        updateForm.setDamagedPolicy("DP2");
+        updateForm.setReturnPolicy("RP2");
+        updateForm.setStartDate(createForm.getStartDate().plusDays(1));
+        updateForm.setEndDate(createForm.getEndDate().plusDays(2));
     }
 
-    /**
-     * deleteItem() 테스트
-     * - 항목 삭제 후, DB에서 실제 삭제되었는지 검증
-     */
+    @DisplayName("createItem: 새 아이템 생성 후 ID 반환")
     @Test
-    void testDeleteItem() {
-        // given : 항목 생성
-        ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(100L);
-        form.setName("Item to Delete");
-        form.setItemImg("http://example.com/delete.jpg");
-        form.setDescription("Description");
-        form.setCategoryId(1L);
-        form.setStatus(0);
-        form.setDamagedPolicy("Policy");
-        form.setReturnPolicy("Return");
-        form.setStartDate(LocalDateTime.now());
-        form.setEndDate(LocalDateTime.now().plusDays(3));
-        Long savedId = itemService.createItem(form);
-        assertNotNull(itemRepository.findById(savedId).orElse(null));
+    void createItem_givenForm_whenSave_thenReturnId() {
+        // given
+        given(itemRepository.save(any(Item.class)))
+                .willAnswer(inv -> {
+                    Item arg = inv.getArgument(0);
+                    // 반환 시에도 itemId로 세팅
+                    return Item.builder()
+                            .itemId(sampleItem.getItemId())
+                            .ownerId(arg.getOwnerId())
+                            .name(arg.getName())
+                            .itemImg(arg.getItemImg())
+                            .description(arg.getDescription())
+                            .categoryId(arg.getCategoryId())
+                            .status(arg.getStatus())
+                            .damagedPolicy(arg.getDamagedPolicy())
+                            .returnPolicy(arg.getReturnPolicy())
+                            .startDate(arg.getStartDate())
+                            .endDate(arg.getEndDate())
+                            .build();
+                });
 
-        // when : 항목 삭제
-        itemService.deleteItem(savedId);
+        // when
+        Long returnedId = itemService.createItem(createForm);
 
-        // then : 해당 항목이 DB에서 삭제되었는지 확인
-        Optional<Item> deleted = itemRepository.findById(savedId);
-        assertFalse(deleted.isPresent());
+        // then
+        assertThat(returnedId).isEqualTo(sampleItem.getItemId());
+        then(itemRepository).should().save(any(Item.class));
+    }
+
+    @DisplayName("getAllItems: 저장된 모든 아이템을 DTO 목록으로 반환")
+    @Test
+    void getAllItems_whenCalled_thenReturnDtoList() {
+        // given
+        Item other = Item.builder()
+                .itemId(99L)
+                .ownerId(101L)
+                .name("Other")
+                .itemImg("o.jpg")
+                .description("o desc")
+                .categoryId(2L)
+                .status(ItemStatusEnum.AVAILABLE)
+                .damagedPolicy("DPo")
+                .returnPolicy("RPo")
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(3))
+                .build();
+
+        given(itemRepository.findAll())
+                .willReturn(Arrays.asList(sampleItem, other));
+
+        // when
+        List<ItemDto> dtos = itemService.getAllItems();
+
+        // then
+        assertThat(dtos).hasSize(2)
+                .extracting(ItemDto::getName)
+                .containsExactlyInAnyOrder("Sample", "Other");
+        then(itemRepository).should().findAll();
+    }
+
+    @DisplayName("getItem: 존재하는 ID면 DTO, 없으면 예외")
+    @Test
+    void getItem_existingId_thenReturnDto() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
+
+        // when
+        ItemDto dto = itemService.getItem(sampleItem.getItemId());
+
+        // then
+        assertThat(dto.getItemId()).isEqualTo(sampleItem.getItemId());
+        assertThat(dto.getName()).isEqualTo(sampleItem.getName());
+    }
+
+    @DisplayName("getItem: 존재하지 않는 ID면 예외 발생")
+    @Test
+    void getItem_missingId_thenThrow() {
+        // given
+        given(itemRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // when + then
+        assertThatThrownBy(() -> itemService.getItem(123L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Item not found");
+    }
+
+    @DisplayName("updateItem: ID 존재 시 필드 업데이트 후 저장")
+    @Test
+    void updateItem_existing_thenFieldsUpdated() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
+        // save는 인자로 받은 객체를 그대로 반환
+        given(itemRepository.save(any(Item.class)))
+                .willAnswer(inv -> inv.getArgument(0));
+
+        // when
+        itemService.updateItem(sampleItem.getItemId(), updateForm);
+
+        // then
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        then(itemRepository).should().save(captor.capture());
+        Item saved = captor.getValue();
+
+        assertThat(saved.getName()).isEqualTo(updateForm.getName());
+        assertThat(saved.getItemImg()).isEqualTo(updateForm.getItemImg());
+        assertThat(saved.getCategoryId()).isEqualTo(updateForm.getCategoryId());
+        assertThat(saved.getDamagedPolicy()).isEqualTo(updateForm.getDamagedPolicy());
+    }
+
+    @DisplayName("deleteItem: ID로 삭제 호출")
+    @Test
+    void deleteItem_whenCalled_thenRepositoryDeleteById() {
+        // when
+        itemService.deleteItem(55L);
+
+        // then
+        then(itemRepository).should().deleteById(55L);
     }
 }
