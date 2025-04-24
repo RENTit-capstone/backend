@@ -1,6 +1,9 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.domain.Item;
+import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -22,10 +25,16 @@ import java.util.stream.Collectors;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
+    private final ItemRepository itemRepository;
     private final FileStorageService fileStorageService;
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
+        Item item = itemRepository.findById(form.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        if(item.getStatus() == ItemStatusEnum.OUT)
+            throw new ArithmeticException("이미 대여된 물품");
+
         Rental rental = Rental.builder()
                 .itemId(form.getItemId())
                 .ownerId(form.getOwnerId())
@@ -66,6 +75,10 @@ public class RentalService {
     public void approve(Long rentalId) {
         Rental r = findOrThrow(rentalId);
         r.approve(LocalDateTime.now());
+
+        Item item = itemRepository.findById(r.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        item.updateOut();
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
@@ -81,6 +94,9 @@ public class RentalService {
             throw new IllegalArgumentException("취소 권한이 없습니다.");
         }
         r.cancel();
+        Item item = itemRepository.findById(r.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        item.updateAvailable();
     }
 
     /** 관리자: 특정 사용자 대여 목록 조회 */
@@ -139,6 +155,10 @@ public class RentalService {
         }
         r.clearLocker();
         r.retrieveByOwner(LocalDateTime.now());
+
+        Item item = itemRepository.findById(r.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        item.updateAvailable();
     }
 
     private Rental findOrThrow(Long id) {

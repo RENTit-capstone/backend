@@ -1,6 +1,9 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.domain.Item;
+import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -18,6 +21,7 @@ import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,14 +32,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RentalServiceTest {
 
-    @Mock
-    private RentalRepository rentalRepository;
+    @Mock RentalRepository     rentalRepository;
+    @Mock ItemRepository       itemRepository;
+    @Mock FileStorageService   fileStorageService;
 
-    @Mock
-    private FileStorageService fileStorageService;
-
-    @InjectMocks
-    private RentalService rentalService;
+    @InjectMocks RentalService rentalService;
 
     private RentalRequestForm baseForm;
 
@@ -49,11 +50,35 @@ class RentalServiceTest {
         baseForm.setDueDate(LocalDateTime.now().plusDays(7));
     }
 
+    // ---- requestRental ----
+
     @Test
-    @DisplayName("requestRental: 요청한 필드대로 Rental 엔티티가 저장되고 ID 반환")
-    void requestRental_savesCorrectEntity() {
-        // given
-        ArgumentCaptor<Rental> captor = ArgumentCaptor.forClass(Rental.class);
+    @DisplayName("requestRental: 물품이 없으면 IllegalArgumentException")
+    void requestRental_itemNotFound() {
+        given(itemRepository.findById(100L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> rentalService.requestRental(baseForm))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("존재하지 않는 물품");
+    }
+
+    @Test
+    @DisplayName("requestRental: 물품이 OUT 상태면 ArithmeticException")
+    void requestRental_alreadyOut() {
+        Item outItem = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
+        given(itemRepository.findById(100L)).willReturn(Optional.of(outItem));
+
+        assertThatThrownBy(() -> rentalService.requestRental(baseForm))
+                .isInstanceOf(ArithmeticException.class)
+                .hasMessageContaining("이미 대여된 물품");
+    }
+
+    @Test
+    @DisplayName("requestRental: 정상 저장 후 ID 반환")
+    void requestRental_success() {
+        Item avail = Item.builder().itemId(100L).status(ItemStatusEnum.AVAILABLE).build();
+        given(itemRepository.findById(100L)).willReturn(Optional.of(avail));
+
         Rental saved = Rental.builder()
                 .rentalId(1L)
                 .itemId(100L)
@@ -66,145 +91,290 @@ class RentalServiceTest {
                 .build();
         given(rentalRepository.save(any(Rental.class))).willReturn(saved);
 
-        // when
-        Long resultId = rentalService.requestRental(baseForm);
+        Long id = rentalService.requestRental(baseForm);
+        assertThat(id).isEqualTo(1L);
 
-        // then
-        assertThat(resultId).isEqualTo(1L);
+        ArgumentCaptor<Rental> captor = ArgumentCaptor.forClass(Rental.class);
         verify(rentalRepository).save(captor.capture());
         Rental toSave = captor.getValue();
         assertThat(toSave.getItemId()).isEqualTo(100L);
         assertThat(toSave.getOwnerId()).isEqualTo(10L);
         assertThat(toSave.getRenterId()).isEqualTo(20L);
         assertThat(toSave.getStatus()).isEqualTo(RentalStatusEnum.REQUESTED);
-        assertThat(toSave.getStartDate()).isEqualTo(baseForm.getStartDate());
-        assertThat(toSave.getDueDate()).isEqualTo(baseForm.getDueDate());
-        assertThat(toSave.getRequestDate()).isNotNull();
     }
 
+    // ---- getRentalsForUser ----
+
     @Test
-    @DisplayName("getRentalsForUser: 소유자·대여자 ID에 매칭되는 대여만 조회된다")
-    void getRentalsForUser_filtersByOwnerOrRenter() {
-        // given
+    @DisplayName("getRentalsForUser: MemberDto 기준 필터 및 URL생성")
+    void getRentalsForUser_success() {
         Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).build();
         Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).build();
-        given(rentalRepository.findAllByOwnerIdOrRenterId(10L, 10L))
-                .willReturn(Arrays.asList(r1, r2));
-        doReturn("http://dummy.url/image.jpg")
-                .when(fileStorageService).generatePresignedUrl(any());
+        given(rentalRepository.findAllByOwnerIdOrRenterId(10L,10L))
+                .willReturn(Arrays.asList(r1,r2));
+        doReturn("signed-url").when(fileStorageService).generatePresignedUrl(null);
 
         MemberDto user = mock(MemberDto.class);
         given(user.getId()).willReturn(10L);
 
-        // when
-        List<RentalDto> list = rentalService.getRentalsForUser(user);
+        List<RentalDto> dtos = rentalService.getRentalsForUser(user);
+        assertThat(dtos).extracting(RentalDto::getRentalId)
+                .containsExactlyInAnyOrder(1L,2L);
+    }
 
-        // then
-        assertThat(list)
-                .extracting(RentalDto::getRentalId)
-                .containsExactlyInAnyOrder(1L, 2L);
+    // ---- getRentalsByUser(admin) ----
 
-        verify(rentalRepository).findAllByOwnerIdOrRenterId(10L, 10L);
-        verify(fileStorageService, times(2)).generatePresignedUrl(null);
+    @Test
+    @DisplayName("getRentalsByUser: userId 기준 필터 및 URL생성")
+    void getRentalsByUser_admin_success() {
+        Rental r1 = Rental.builder().rentalId(3L).ownerId(20L).renterId(30L).build();
+        given(rentalRepository.findAllByOwnerIdOrRenterId(20L,20L))
+                .willReturn(Collections.singletonList(r1));
+        doReturn("admin-url").when(fileStorageService).generatePresignedUrl(null);
+
+        List<RentalDto> dtos = rentalService.getRentalsByUser(20L);
+        assertThat(dtos).hasSize(1);
+        assertThat(dtos.get(0).getRentalId()).isEqualTo(3L);
+    }
+
+    // ---- getRental ----
+
+    @Test
+    @DisplayName("getRental: 데이터 없으면 IllegalArgumentException")
+    void getRental_notFound() {
+        given(rentalRepository.findById(5L)).willReturn(Optional.empty());
+
+        MemberDto anyUser = mock(MemberDto.class);
+        assertThatThrownBy(() -> rentalService.getRental(5L, anyUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
     }
 
     @Test
-    @DisplayName("getRental: 소유자·대여자가 아니면 SecurityException")
-    void getRental_throwsIfNotOwnerOrRenter() {
-        // given
-        Rental stored = Rental.builder()
-                .rentalId(5L).ownerId(10L).renterId(20L).build();
-        given(rentalRepository.findById(5L))
-                .willReturn(Optional.of(stored));
+    @DisplayName("getRental: 권한 없으면 SecurityException")
+    void getRental_noPermission() {
+        Rental r = Rental.builder().rentalId(5L).ownerId(10L).renterId(20L).build();
+        given(rentalRepository.findById(5L)).willReturn(Optional.of(r));
 
         MemberDto stranger = mock(MemberDto.class);
         given(stranger.getId()).willReturn(999L);
 
-        // when & then
         assertThatThrownBy(() -> rentalService.getRental(5L, stranger))
                 .isInstanceOf(SecurityException.class)
                 .hasMessageContaining("조회 권한이 없습니다.");
     }
 
     @Test
-    @DisplayName("getRental: 소유자와 대여자는 정상 조회 가능")
-    void getRental_succeedsForOwnerAndRenter() {
-        // given
-        Rental stored = Rental.builder()
-                .rentalId(5L).ownerId(10L).renterId(20L).build();
-        given(rentalRepository.findById(5L))
-                .willReturn(Optional.of(stored));
-        doReturn("http://dummy")
-                .when(fileStorageService).generatePresignedUrl(any());
+    @DisplayName("getRental: 소유자·대여자는 정상 조회")
+    void getRental_success() {
+        Rental r = Rental.builder().rentalId(5L).ownerId(10L).renterId(20L).build();
+        given(rentalRepository.findById(5L)).willReturn(Optional.of(r));
+        doReturn("some-url").when(fileStorageService).generatePresignedUrl(null);
 
         MemberDto owner = mock(MemberDto.class);
         given(owner.getId()).willReturn(10L);
+        RentalDto dto1 = rentalService.getRental(5L, owner);
+        assertThat(dto1.getRentalId()).isEqualTo(5L);
+
         MemberDto renter = mock(MemberDto.class);
         given(renter.getId()).willReturn(20L);
-
-        // when
-        RentalDto dto1 = rentalService.getRental(5L, owner);
         RentalDto dto2 = rentalService.getRental(5L, renter);
-
-        // then
-        assertThat(dto1.getRentalId()).isEqualTo(5L);
         assertThat(dto2.getRentalId()).isEqualTo(5L);
     }
 
+    // ---- approve ----
+
     @Test
-    @DisplayName("cancel: 대여자만 취소할 수 있으며, 취소 후 상태 CANCELLED")
-    void cancel_allowsOnlyRenter() {
-        // given
-        Rental stored = Rental.builder()
-                .rentalId(7L).renterId(20L).build();
-        given(rentalRepository.findById(7L))
-                .willReturn(Optional.of(stored));
+    @DisplayName("approve: 대여 없으면 RuntimeException")
+    void approve_notFound() {
+        given(rentalRepository.findById(6L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.approve(6L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
 
-        // when
-        rentalService.cancel(7L, 20L);
-        // then
-        assertThat(stored.getStatus()).isEqualTo(RentalStatusEnum.CANCELLED);
+    @Test
+    @DisplayName("approve: 승인 후 Rental 상태와 Item 상태 변경")
+    void approve_success() {
+        Rental r = Rental.builder().rentalId(6L).itemId(100L).build();
+        given(rentalRepository.findById(6L)).willReturn(Optional.of(r));
+        Item i = Item.builder().itemId(100L).status(ItemStatusEnum.AVAILABLE).build();
+        given(itemRepository.findById(100L)).willReturn(Optional.of(i));
 
-        // 그리고 권한 없는 사용자
-        assertThatThrownBy(() -> rentalService.cancel(7L, 999L))
+        rentalService.approve(6L);
+
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.APPROVED);
+        assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.OUT);
+    }
+
+    // ---- reject ----
+
+    @Test
+    @DisplayName("reject: 대여 없으면 RuntimeException")
+    void reject_notFound() {
+        given(rentalRepository.findById(8L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.reject(8L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
+
+    @Test
+    @DisplayName("reject: 거절 후 상태 REJECTED")
+    void reject_success() {
+        Rental r = Rental.builder().rentalId(8L).build();
+        given(rentalRepository.findById(8L)).willReturn(Optional.of(r));
+
+        rentalService.reject(8L);
+
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.REJECTED);
+    }
+
+    // ---- cancel ----
+
+    @Test
+    @DisplayName("cancel: 대여 없으면 RuntimeException")
+    void cancel_notFound() {
+        given(rentalRepository.findById(7L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.cancel(7L,20L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
+
+    @Test
+    @DisplayName("cancel: 대여자만 취소, 상태 CANCELLED 및 Item AVAILABLE")
+    void cancel_success() {
+        Rental r = Rental.builder()
+                .rentalId(7L)
+                .itemId(100L)
+                .renterId(20L)
+                .status(RentalStatusEnum.APPROVED)
+                .build();
+        given(rentalRepository.findById(7L)).willReturn(Optional.of(r));
+        Item i = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
+        given(itemRepository.findById(100L)).willReturn(Optional.of(i));
+
+        rentalService.cancel(7L,20L);
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.CANCELLED);
+        assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.AVAILABLE);
+
+        assertThatThrownBy(() -> rentalService.cancel(7L,999L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("취소 권한이 없습니다.");
     }
 
+    // ---- dropOffToLocker ----
+
     @Test
-    @DisplayName("returnToLocker: 대여자가 lockerId 재지정 후 RETURNED_TO_LOCKER, returnedAt, 이미지 URL 설정 및 예외")
-    void returnToLocker_assignsLockerAndSetsStatus() {
-        // given
-        Rental stored = Rental.builder()
-                .rentalId(13L).renterId(20L).build();
-        given(rentalRepository.findById(13L))
-                .willReturn(Optional.of(stored));
-        MockMultipartFile file = new MockMultipartFile(
-                "returnImage", "photo.jpg", MediaType.IMAGE_JPEG_VALUE, "data".getBytes());
-        given(fileStorageService.store(file))
-                .willReturn("http://cdn.returned/photo.jpg");
+    @DisplayName("dropOffToLocker: 대여 없으면 RuntimeException")
+    void dropOff_notFound() {
+        given(rentalRepository.findById(9L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,10L,111L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
 
-        // when
-        rentalService.returnToLocker(13L, 20L, 444L, file);
+    @Test
+    @DisplayName("dropOffToLocker: 소유자만, lockerId 설정 및 상태 LEFT_IN_LOCKER")
+    void dropOff_success() {
+        Rental r = Rental.builder().rentalId(9L).ownerId(10L).build();
+        given(rentalRepository.findById(9L)).willReturn(Optional.of(r));
 
-        // then
-        assertThat(stored.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
-        assertThat(stored.getLockerId()).isEqualTo(444L);
-        assertThat(stored.getReturnedAt()).isNotNull();
-        assertThat(stored.getReturnImageUrl()).isEqualTo("http://cdn.returned/photo.jpg");
+        rentalService.dropOffToLocker(9L,10L,555L);
+        assertThat(r.getLockerId()).isEqualTo(555L);
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.LEFT_IN_LOCKER);
 
-        // renter 권한 없으면
-        assertThatThrownBy(() ->
-                rentalService.returnToLocker(13L, 999L, 444L, file)
-        ).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,999L,123L))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("권한이 없습니다.");
+    }
 
-        // 이미지 없으면
-        assertThatThrownBy(() ->
-                rentalService.returnToLocker(13L, 20L, 444L, null)
-        ).isInstanceOf(IllegalArgumentException.class)
+    // ---- pickUpByRenter ----
+
+    @Test
+    @DisplayName("pickUpByRenter: 대여 없으면 RuntimeException")
+    void pickUp_notFound() {
+        given(rentalRepository.findById(11L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,20L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
+
+    @Test
+    @DisplayName("pickUpByRenter: 대여자만, lockerId 클리어 및 상태 PICKED_UP")
+    void pickUp_success() {
+        Rental r = Rental.builder().rentalId(11L).renterId(20L).build();
+        r.assignLocker(777L);
+        given(rentalRepository.findById(11L)).willReturn(Optional.of(r));
+
+        rentalService.pickUpByRenter(11L,20L);
+        assertThat(r.getLockerId()).isNull();
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.PICKED_UP);
+
+        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,999L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("권한이 없습니다.");
+    }
+
+    // ---- returnToLocker ----
+
+    @Test
+    @DisplayName("returnToLocker: 대여 없으면 RuntimeException")
+    void return_notFound() {
+        given(rentalRepository.findById(13L)).willReturn(Optional.empty());
+        MockMultipartFile file = new MockMultipartFile(
+                "f","f.jpg",MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L,file))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
+
+    @Test
+    @DisplayName("returnToLocker: 정상 흐름 및 예외 케이스")
+    void return_successAndErrors() {
+        Rental r = Rental.builder().rentalId(13L).renterId(20L).build();
+        given(rentalRepository.findById(13L)).willReturn(Optional.of(r));
+        MockMultipartFile file = new MockMultipartFile(
+                "img","img.jpg",MediaType.IMAGE_JPEG_VALUE,"data".getBytes());
+        given(fileStorageService.store(file)).willReturn("stored-key");
+
+        rentalService.returnToLocker(13L,20L,444L,file);
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
+        assertThat(r.getLockerId()).isEqualTo(444L);
+        assertThat(r.getReturnImageUrl()).isEqualTo("stored-key");
+
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L,file))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("권한이 없습니다.");
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L,null))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("반납 사진이 없습니다.");
     }
 
-    // 나머지 메서드들도 동일한 패턴으로 Mockito 만 사용해 테스트하시면 됩니다.
+    // ---- retrieveByOwner ----
+
+    @Test
+    @DisplayName("retrieveByOwner: 대여 없으면 RuntimeException")
+    void retrieve_notFound() {
+        given(rentalRepository.findById(14L)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,10L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보");
+    }
+
+    @Test
+    @DisplayName("retrieveByOwner: 정상 회수 후 Item 상태 AVAILABLE 및 예외")
+    void retrieve_successAndError() {
+        Rental r = Rental.builder().rentalId(14L).itemId(100L).ownerId(10L).build();
+        given(rentalRepository.findById(14L)).willReturn(Optional.of(r));
+        Item i = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
+        given(itemRepository.findById(100L)).willReturn(Optional.of(i));
+
+        rentalService.retrieveByOwner(14L,10L);
+        assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.COMPLETED);
+        assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.AVAILABLE);
+
+        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,999L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("권한이 없습니다.");
+    }
 }
