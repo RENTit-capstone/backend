@@ -70,7 +70,7 @@ include::{snippets}/verify-code-success/http-response.adoc[]
 POST /api/v1/members/login
 
 ==== 요청 필드
-include::{snippets}/login_success/request-fields.adoc[]
+include::{snippets}/login-success/request-fields.adoc[]
 
 ==== HTTP 요청
 include::{snippets}/login-success/http-request.adoc[]

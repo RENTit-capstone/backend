@@ -77,7 +77,7 @@ public class LoginControllerTest {
                 .andExpect(jsonPath("$.data.accessToken").exists())
                 .andExpect(jsonPath("$.data.refreshToken").exists())
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("login_success",
+                .andDo(document("login-success",
                         requestFields(
                                 fieldWithPath("email").description("이메일").type(JsonFieldType.STRING),
                                 fieldWithPath("password").description("비밀번호").type(JsonFieldType.STRING)
@@ -194,7 +194,7 @@ public class LoginControllerTest {
                 .andExpect(jsonPath("$.data.accessToken").exists())
                 .andExpect(jsonPath("$.data.refreshToken").exists())
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("login_refresh_success",
+                .andDo(document("login-refresh-success",
                 requestFields(
                         fieldWithPath("accessToken").description("accessToken").type(JsonFieldType.STRING),
                         fieldWithPath("refreshToken").description("refreshToken").type(JsonFieldType.STRING)
