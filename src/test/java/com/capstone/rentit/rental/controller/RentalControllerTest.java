@@ -5,7 +5,6 @@ import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
-import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -23,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -61,7 +61,6 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals - 대여 요청 성공")
     @Test
     void requestRental_success() throws Exception {
-        // given
         RentalRequestForm form = new RentalRequestForm();
         form.setItemId(100L);
         form.setOwnerId(10L);
@@ -71,7 +70,6 @@ class RentalControllerTest {
 
         given(rentalService.requestRental(any())).willReturn(1L);
 
-        // when / then
         mockMvc.perform(post("/api/v1/rentals")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,11 +100,11 @@ class RentalControllerTest {
     @DisplayName("GET /api/v1/rentals - 내 대여 목록 조회")
     @Test
     void getMyRentals_success() throws Exception {
-        Member student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        var dto = RentalDto.builder()
+        RentalDto dto = RentalDto.builder()
                 .rentalId(1L).itemId(100L).ownerId(10L).renterId(20L)
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now().plusDays(1))
@@ -156,9 +154,8 @@ class RentalControllerTest {
     @DisplayName("GET /api/v1/rentals/{id} - 단일 대여 조회")
     @Test
     void getRental_success() throws Exception {
-        // given
         long rid = 5L;
-        Member student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
@@ -174,7 +171,6 @@ class RentalControllerTest {
                 .build();
         given(rentalService.getRental(eq(rid), any(MemberDto.class))).willReturn(dto);
 
-        // when / then
         mockMvc.perform(get("/api/v1/rentals/{id}", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -209,15 +205,56 @@ class RentalControllerTest {
     }
 
     @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/v1/rentals/{id}/approve - 대여 승인")
+    @Test
+    void approveRental_success() throws Exception {
+        long rid = 7L;
+        mockMvc.perform(post("/api/v1/rentals/{id}/approve", rid)
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("approve-rental",
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                        )
+                ));
+
+        verify(rentalService).approve(rid);
+    }
+
+    @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/v1/rentals/{id}/reject - 대여 거절")
+    @Test
+    void rejectRental_success() throws Exception {
+        long rid = 8L;
+        mockMvc.perform(post("/api/v1/rentals/{id}/reject", rid)
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("reject-rental",
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                        )
+                ));
+
+        verify(rentalService).reject(rid);
+    }
+
+    @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals/{id}/cancel - 대여 취소")
     @Test
     void cancelRental_success() throws Exception {
         long rid = 7L;
-        Member student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        // when / then
         mockMvc.perform(post("/api/v1/rentals/{id}/cancel", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -240,11 +277,10 @@ class RentalControllerTest {
     @Test
     void dropOff_success() throws Exception {
         long rid = 9L, lockerId = 42L;
-        Member student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        // when / then
         mockMvc.perform(post("/api/v1/rentals/{id}/dropoff", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -253,7 +289,7 @@ class RentalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("dropoff-rental",
-                        queryParameters(
+                        RequestDocumentation.queryParameters(
                                 parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
@@ -267,17 +303,42 @@ class RentalControllerTest {
     }
 
     @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/v1/rentals/{id}/pickup - 픽업")
+    @Test
+    void pickUpByRenter_success() throws Exception {
+        long rid = 10L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
+
+        mockMvc.perform(post("/api/v1/rentals/{id}/pickup", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("pickup-rental",
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                        )
+                ));
+
+        verify(rentalService).pickUpByRenter(rid, student.getMemberId());
+    }
+
+    @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals/{id}/return - 반납")
     @Test
     void returnToLocker_success() throws Exception {
         long rid = 13L, lockerId = 55L;
-        Member student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
         MockMultipartFile file = new MockMultipartFile("returnImage", "img.jpg", "image/jpeg", "data".getBytes());
 
-        // when / then
         mockMvc.perform(multipart("/api/v1/rentals/{id}/return", rid)
                         .file(file)
                         .with(csrf())
@@ -290,7 +351,7 @@ class RentalControllerTest {
                         requestParts(
                                 partWithName("returnImage").attributes(key("type").value("file")).description("반납 이미지")
                         ),
-                        queryParameters(
+                        RequestDocumentation.queryParameters(
                                 parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
@@ -308,11 +369,10 @@ class RentalControllerTest {
     @Test
     void retrieveByOwner_success() throws Exception {
         long rid = 15L;
-        Member student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
+        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        // when / then
         mockMvc.perform(post("/api/v1/rentals/{id}/retrieve", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -355,7 +415,6 @@ class RentalControllerTest {
                 .build();
         given(rentalService.getRentalsByUser(userId)).willReturn(List.of(dto1, dto2));
 
-        // when / then
         mockMvc.perform(get("/api/v1/admin/rentals/{userId}", userId)
                         .with(csrf())
                         .with(user("admin").roles("ADMIN"))
