@@ -213,6 +213,7 @@ class ItemControllerTest {
         form.setItemImg("newUrl");
         form.setDescription("newDesc");
         form.setCategoryId(2L);
+        form.setPrice(2000);
         form.setStatus(1);
         form.setDamagedPolicy("dp2");
         form.setReturnPolicy("rp2");
@@ -252,6 +253,7 @@ class ItemControllerTest {
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("수정할 이미지"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("수정할 설명"),
                                 fieldWithPath("categoryId").type(JsonFieldType.NUMBER).description("수정할 카테고리"),
+                                fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("status").type(JsonFieldType.NUMBER).description("수정할 상태"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("수정할 파손정책"),
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("수정할 반납정책"),

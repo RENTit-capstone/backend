@@ -51,6 +51,7 @@ class ItemServiceTest {
         createForm.setItemImg("img.jpg");
         createForm.setDescription("desc");
         createForm.setCategoryId(1L);
+        createForm.setPrice(1000);
         createForm.setStatus(0);
         createForm.setDamagedPolicy("DP");
         createForm.setReturnPolicy("RP");
@@ -65,6 +66,7 @@ class ItemServiceTest {
                 .itemImg(createForm.getItemImg())
                 .description(createForm.getDescription())
                 .categoryId(createForm.getCategoryId())
+                .categoryId(createForm.getCategoryId())
                 .status(ItemStatusEnum.integerToItemStatusEnum(createForm.getStatus()))
                 .damagedPolicy(createForm.getDamagedPolicy())
                 .returnPolicy(createForm.getReturnPolicy())
@@ -77,6 +79,7 @@ class ItemServiceTest {
         updateForm.setItemImg("new.jpg");
         updateForm.setDescription("new desc");
         updateForm.setCategoryId(2L);
+        updateForm.setPrice(2000);
         updateForm.setStatus(1);
         updateForm.setDamagedPolicy("DP2");
         updateForm.setReturnPolicy("RP2");
@@ -98,6 +101,7 @@ class ItemServiceTest {
                             .name(arg.getName())
                             .itemImg(arg.getItemImg())
                             .description(arg.getDescription())
+                            .price(arg.getPrice())
                             .categoryId(arg.getCategoryId())
                             .status(arg.getStatus())
                             .damagedPolicy(arg.getDamagedPolicy())
@@ -126,6 +130,7 @@ class ItemServiceTest {
                 .itemImg("o.jpg")
                 .description("o desc")
                 .categoryId(2L)
+                .price(1000)
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("DPo")
                 .returnPolicy("RPo")
