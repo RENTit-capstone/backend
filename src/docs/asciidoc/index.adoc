@@ -182,6 +182,9 @@ include::{snippets}/create-item/http-response.adoc[]
 === 물품 목록 조회
 GET /api/v1/items
 
+==== 쿼리 파라미터
+include::{snippets}/get-all-items/query-parameters.adoc[]
+
 ==== HTTP 요청
 include::{snippets}/get-all-items/http-request.adoc[]
 

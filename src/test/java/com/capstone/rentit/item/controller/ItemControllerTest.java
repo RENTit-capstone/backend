@@ -1,21 +1,17 @@
 package com.capstone.rentit.item.controller;
 
-import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
+import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
-import com.capstone.rentit.login.resolver.LoginMemberArgumentResolver;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.dto.MemberDto;
-import com.capstone.rentit.member.dto.StudentDto;
-import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,32 +20,26 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -82,6 +72,7 @@ class ItemControllerTest {
         form.setItemImg("http://example.com/item.jpg");
         form.setDescription("Sample description");
         form.setCategoryId(1L);
+        form.setPrice(2000);
         form.setStatus(0);
         form.setDamagedPolicy("No damage allowed");
         form.setReturnPolicy("Return within 3 days");
@@ -106,6 +97,7 @@ class ItemControllerTest {
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("물품 이미지 URL"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("물품 상세 설명"),
                                 fieldWithPath("categoryId").type(JsonFieldType.NUMBER).description("물품 카테고리 ID"),
+                                fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("status").type(JsonFieldType.NUMBER).description("물품 상태 (정수값)"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
@@ -127,27 +119,44 @@ class ItemControllerTest {
         // Given
         ItemDto dto1 = ItemDto.builder()
                 .itemId(1L).ownerId(1L).name("One").itemImg("url1").description("desc1")
-                .categoryId(1L).status(ItemStatusEnum.AVAILABLE).damagedPolicy("p1").returnPolicy("r1")
+                .categoryId(1L).status(ItemStatusEnum.AVAILABLE).damagedPolicy("p1").returnPolicy("r1").price(1000)
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         ItemDto dto2 = ItemDto.builder()
                 .itemId(2L).ownerId(2L).name("Two").itemImg("url2").description("desc2")
-                .categoryId(2L).status(ItemStatusEnum.OUT).damagedPolicy("p2").returnPolicy("r2")
+                .categoryId(2L).status(ItemStatusEnum.OUT).damagedPolicy("p2").returnPolicy("r2").price(2000)
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(2))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         List<ItemDto> list = Arrays.asList(dto1, dto2);
-        when(itemService.getAllItems()).thenReturn(list);
+        when(itemService.getAllItems(any(ItemSearchForm.class))).thenReturn(list);
 
         // When / Then
         mockMvc.perform(get("/api/v1/items")
                         .with(csrf())
+                        .param("keyword", "")
+                        .param("startDate", "")
+                        .param("endDate", "")
+                        .param("minPrice", "")
+                        .param("maxPrice", "")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andDo(document("get-all-items",
+                        relaxedQueryParameters(
+                                parameterWithName("keyword").attributes(key("type").value("String")).optional()
+                                        .description("검색 키워드 (물품명 또는 상세 설명 포함)"),
+                                parameterWithName("startDate").attributes(key("type").value("LocalDateTime")).optional()
+                                        .description("대여 가능 시작일 (ISO-8601 형식)"),
+                                parameterWithName("endDate").attributes(key("type").value("LocalDateTime")).optional()
+                                        .description("대여 가능 종료일 (ISO-8601 형식)"),
+                                parameterWithName("minPrice").attributes(key("type").value("Integer")).optional()
+                                        .description("최소 대여 가격"),
+                                parameterWithName("maxPrice").attributes(key("type").value("Integer")).optional()
+                                        .description("최대 대여 가격")
+                        ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.ARRAY).description("물품 목록"),
@@ -157,6 +166,7 @@ class ItemControllerTest {
                                 fieldWithPath("data[].itemImg").type(JsonFieldType.STRING).description("이미지 URL"),
                                 fieldWithPath("data[].description").type(JsonFieldType.STRING).description("상세 설명"),
                                 fieldWithPath("data[].categoryId").type(JsonFieldType.NUMBER).description("카테고리 ID"),
+                                fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상태"),
                                 fieldWithPath("data[].damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
                                 fieldWithPath("data[].returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
@@ -177,7 +187,7 @@ class ItemControllerTest {
         long id = 5L;
         ItemDto dto = ItemDto.builder()
                 .itemId(id).ownerId(1L).name("Single").itemImg("url")
-                .description("desc").categoryId(1L).status(ItemStatusEnum.AVAILABLE)
+                .description("desc").categoryId(1L).status(ItemStatusEnum.AVAILABLE).price(1000)
                 .damagedPolicy("dp").returnPolicy("rp")
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
@@ -200,6 +210,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.itemImg").type(JsonFieldType.STRING).description("이미지"),
                                 fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
                                 fieldWithPath("data.categoryId").type(JsonFieldType.NUMBER).description("카테고리"),
+                                fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.status").type(JsonFieldType.STRING).description("상태"),
                                 fieldWithPath("data.damagedPolicy").type(JsonFieldType.STRING).description("파손정책"),
                                 fieldWithPath("data.returnPolicy").type(JsonFieldType.STRING).description("반납정책"),
@@ -222,6 +233,7 @@ class ItemControllerTest {
         form.setItemImg("newUrl");
         form.setDescription("newDesc");
         form.setCategoryId(2L);
+        form.setPrice(2000);
         form.setStatus(1);
         form.setDamagedPolicy("dp2");
         form.setReturnPolicy("rp2");
@@ -261,6 +273,7 @@ class ItemControllerTest {
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("수정할 이미지"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("수정할 설명"),
                                 fieldWithPath("categoryId").type(JsonFieldType.NUMBER).description("수정할 카테고리"),
+                                fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("status").type(JsonFieldType.NUMBER).description("수정할 상태"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("수정할 파손정책"),
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("수정할 반납정책"),

@@ -31,6 +31,8 @@ public class Item {
 
     private Long categoryId;
 
+    private Integer price;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemStatusEnum status;
@@ -56,6 +58,8 @@ public class Item {
             this.description = form.getDescription();
         if(form.getCategoryId() != null)
             this.categoryId = form.getCategoryId();
+        if(form.getPrice() != null)
+            this.price = form.getPrice();
         if(form.getStatus() != null)
             this.status = ItemStatusConverter.fromInteger(form.getStatus());
         if(form.getDamagedPolicy() != null)
