@@ -32,7 +32,7 @@ class ItemServiceTest {
     private ItemRepository itemRepository;
 
     @InjectMocks
-    private ItemServiceImpl itemService;
+    private ItemService itemService;
 
     private ItemCreateForm createForm;
     private ItemUpdateForm updateForm;

@@ -1,6 +1,5 @@
 package com.capstone.rentit.item.controller;
 
-import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
@@ -10,12 +9,8 @@ import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
-import com.capstone.rentit.login.resolver.LoginMemberArgumentResolver;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.dto.MemberDto;
-import com.capstone.rentit.member.dto.StudentDto;
-import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,29 +19,21 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
