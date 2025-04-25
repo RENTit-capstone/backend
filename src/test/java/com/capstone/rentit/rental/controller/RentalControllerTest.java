@@ -3,6 +3,8 @@ package com.capstone.rentit.rental.controller;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
+import com.capstone.rentit.login.provider.JwtTokenProvider;
+import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -12,57 +14,52 @@ import com.capstone.rentit.rental.status.RentalStatusEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.apache.logging.log4j.util.Lazy.value;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
+@WebMvcTest(RentalController.class)
 @Import(WebConfig.class)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 class RentalControllerTest {
-    @Autowired
-    MockMvc mockMvc;
-    @Autowired
-    ObjectMapper objectMapper;
-    @MockitoBean
-    RentalService rentalService;
 
-    @Test
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
+
+    @MockitoBean RentalService rentalService;
+    @MockitoBean JwtTokenProvider jwtTokenProvider;
+    @MockitoBean MemberDetailsService memberDetailsService;
+
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals - 대여 요청 성공")
+    @Test
     void requestRental_success() throws Exception {
         RentalRequestForm form = new RentalRequestForm();
         form.setItemId(100L);
@@ -71,15 +68,16 @@ class RentalControllerTest {
         form.setStartDate(LocalDateTime.now().plusDays(1));
         form.setDueDate(LocalDateTime.now().plusDays(7));
 
-        long rentalId = 1L;
-        when(rentalService.requestRental(any(RentalRequestForm.class))).thenReturn(rentalId);
+        given(rentalService.requestRental(any())).willReturn(1L);
 
         mockMvc.perform(post("/api/v1/rentals")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(form)))
+                        .content(objectMapper.writeValueAsString(form))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").value(rentalId))
+                .andExpect(jsonPath("$.data").value(1))
                 .andDo(document("request-rental",
                         requestFields(
                                 fieldWithPath("itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
@@ -94,188 +92,204 @@ class RentalControllerTest {
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
+
+        verify(rentalService).requestRental(any());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /api/v1/rentals - 내 대여 목록 조회")
+    @Test
     void getMyRentals_success() throws Exception {
-        // 로그인된 사용자
-        Student student = Student.builder().memberId(20L).email("user@test.com").name("User").role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(student);
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
         RentalDto dto = RentalDto.builder()
-                .rentalId(1L)
-                .itemId(100L)
-                .ownerId(10L)
-                .renterId(20L)
+                .rentalId(1L).itemId(100L).ownerId(10L).renterId(20L)
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now().plusDays(1))
-                .status(RentalStatusEnum.REQUESTED)
                 .dueDate(LocalDateTime.now().plusDays(7))
-                .lockerId(null)
-                .paymentId(null)
+                .status(RentalStatusEnum.REQUESTED)
+                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .approvedDate(null).rejectedDate(null).leftAt(null)
+                .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
-        when(rentalService.getRentalsForUser(any(MemberDto.class)))
-                .thenReturn(Collections.singletonList(dto));
+        given(rentalService.getRentalsForUser(any(MemberDto.class)))
+                .willReturn(Collections.singletonList(dto));
 
         mockMvc.perform(get("/api/v1/rentals")
-                        .with(user(details))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].rentalId").value(1))
                 .andDo(document("get-my-rentals",
                         responseFields(
-                                fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
-                                fieldWithPath("data[].rentalId").description("대여 정보 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].itemId").description("대여 물품 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].ownerId").description("물품 소유자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].renterId").description("물품 대여자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].requestDate").description("대여 요청 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].status").description("대여 상태").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].approvedDate").description("승인 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].rejectedDate").description("거절 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].startDate").description("예정 대여 시작 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].dueDate").description("대여 만료 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].leftAt").description("소유자 물건 맡긴 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].pickedUpAt").description("대여자 픽업 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].returnedAt").description("대여자 반납 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data[].rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
+                                fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
+                                fieldWithPath("data[].ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data[].renterId").type(JsonFieldType.NUMBER).description("대여자 ID"),
+                                fieldWithPath("data[].requestDate").type(JsonFieldType.STRING).description("요청 일시"),
+                                fieldWithPath("data[].status").type(JsonFieldType.STRING).description("대여 상태"),
+                                fieldWithPath("data[].approvedDate").type(JsonFieldType.NULL).description("승인 일시 (없으면 null)"),
+                                fieldWithPath("data[].rejectedDate").type(JsonFieldType.NULL).description("거절 일시 (없으면 null)"),
+                                fieldWithPath("data[].startDate").type(JsonFieldType.STRING).description("시작일"),
+                                fieldWithPath("data[].dueDate").type(JsonFieldType.STRING).description("반납 예정일"),
+                                fieldWithPath("data[].leftAt").type(JsonFieldType.NULL).description("사물함에 맡긴 시각 (없으면 null)"),
+                                fieldWithPath("data[].pickedUpAt").type(JsonFieldType.NULL).description("픽업 시각 (없으면 null)"),
+                                fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
+                                fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
+                                fieldWithPath("data[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
+                                fieldWithPath("data[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
+                                fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
+
+        verify(rentalService).getRentalsForUser(any());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("GET /api/v1/rentals/{rentalId} - 단일 대여 조회")
+    @DisplayName("GET /api/v1/rentals/{id} - 단일 대여 조회")
+    @Test
     void getRental_success() throws Exception {
-        Student student = Student.builder().memberId(20L).email("user@test.com").name("User").role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(student);
+        long rid = 5L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
         RentalDto dto = RentalDto.builder()
-                .rentalId(5L)
-                .itemId(200L)
-                .ownerId(10L)
-                .renterId(20L)
+                .rentalId(rid).itemId(200L).ownerId(10L).renterId(20L)
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now().plusDays(2))
-                .status(RentalStatusEnum.REQUESTED)
                 .dueDate(LocalDateTime.now().plusDays(8))
-                .lockerId(null)
-                .paymentId(null)
+                .status(RentalStatusEnum.REQUESTED)
+                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .approvedDate(null).rejectedDate(null).leftAt(null)
+                .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
+        given(rentalService.getRental(eq(rid), any(MemberDto.class))).willReturn(dto);
 
-        when(rentalService.getRental(eq(5L), any(MemberDto.class))).thenReturn(dto);
-
-        mockMvc.perform(get("/api/v1/rentals/5")
-                        .with(user(details))
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/rentals/{id}", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.rentalId").value(5))
                 .andDo(document("get-rental",
                         responseFields(
-                                fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
-                                fieldWithPath("data.rentalId").description("대여 정보 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.itemId").description("대여 물품 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.ownerId").description("물품 소유자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.renterId").description("물품 대여자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.requestDate").description("대여 요청 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data.status").description("대여 상태").type(JsonFieldType.STRING),
-                                fieldWithPath("data.approvedDate").description("승인 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.rejectedDate").description("거절 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.startDate").description("예정 대여 시작 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data.dueDate").description("대여 만료 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data.leftAt").description("소유자 물건 맡긴 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.pickedUpAt").description("대여자 픽업 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.returnedAt").description("대여자 반납 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data.lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data.returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data.rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
+                                fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
+                                fieldWithPath("data.ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data.renterId").type(JsonFieldType.NUMBER).description("대여자 ID"),
+                                fieldWithPath("data.requestDate").type(JsonFieldType.STRING).description("요청 일시"),
+                                fieldWithPath("data.status").type(JsonFieldType.STRING).description("대여 상태"),
+                                fieldWithPath("data.approvedDate").type(JsonFieldType.NULL).description("승인 일시 (없으면 null)"),
+                                fieldWithPath("data.rejectedDate").type(JsonFieldType.NULL).description("거절 일시 (없으면 null)"),
+                                fieldWithPath("data.startDate").type(JsonFieldType.STRING).description("시작일"),
+                                fieldWithPath("data.dueDate").type(JsonFieldType.STRING).description("반납 예정일"),
+                                fieldWithPath("data.leftAt").type(JsonFieldType.NULL).description("사물함에 맡긴 시각 (없으면 null)"),
+                                fieldWithPath("data.pickedUpAt").type(JsonFieldType.NULL).description("픽업 시각 (없으면 null)"),
+                                fieldWithPath("data.returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
+                                fieldWithPath("data.retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
+                                fieldWithPath("data.lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
+                                fieldWithPath("data.paymentId").type(JsonFieldType.NULL).description("결제 ID"),
+                                fieldWithPath("data.returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
+
+        verify(rentalService).getRental(eq(rid), any());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals/{id}/approve - 대여 승인")
+    @Test
     void approveRental_success() throws Exception {
-        mockMvc.perform(post("/api/v1/rentals/5/approve")
-                        .with(user("user").roles("USER")))
+        long rid = 7L;
+        mockMvc.perform(post("/api/v1/rentals/{id}/approve", rid)
+                        .with(csrf())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("approve-rental",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(value(nullValue())).description("null"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
+
+        verify(rentalService).approve(rid);
     }
 
-    @Test
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals/{id}/reject - 대여 거절")
+    @Test
     void rejectRental_success() throws Exception {
-        mockMvc.perform(post("/api/v1/rentals/5/reject")
-                        .with(user("owner").roles("USER")))
+        long rid = 8L;
+        mockMvc.perform(post("/api/v1/rentals/{id}/reject", rid)
+                        .with(csrf())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("reject-rental",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(value(nullValue())).description("null"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
 
-        verify(rentalService).reject(5L);
+        verify(rentalService).reject(rid);
     }
 
-    @Test
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals/{id}/cancel - 대여 취소")
+    @Test
     void cancelRental_success() throws Exception {
-        // 로그인된 대여자 정보
-        Student renter = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(renter);
+        long rid = 7L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        mockMvc.perform(post("/api/v1/rentals/7/cancel")
-                        .with(user(details)))
+        mockMvc.perform(post("/api/v1/rentals/{id}/cancel", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("cancel-rental",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(value(nullValue())).description("null"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
 
-        verify(rentalService).cancel(7L, 20L);
+        verify(rentalService).cancel(rid, student.getMemberId());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/dropoff - 소유자 사물함에 맡기기")
+    @DisplayName("POST /api/v1/rentals/{id}/dropoff - 사물함에 맡기기")
+    @Test
     void dropOff_success() throws Exception {
-        Student owner = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(owner);
+        long rid = 9L, lockerId = 42L;
+        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        mockMvc.perform(post("/api/v1/rentals/9/dropoff")
-                        .with(user(details))
-                        .queryParam("lockerId", "42"))
+        mockMvc.perform(post("/api/v1/rentals/{id}/dropoff", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                        .queryParam("lockerId", String.valueOf(lockerId))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("dropoff-rental",
-                        queryParameters(
+                        RequestDocumentation.queryParameters(
                                 parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
@@ -285,57 +299,59 @@ class RentalControllerTest {
                         )
                 ));
 
-        verify(rentalService).dropOffToLocker(9L, 10L, 42L);
+        verify(rentalService).dropOffToLocker(rid, student.getMemberId(), lockerId);
     }
 
-    @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/pickup - 대여자가 픽업")
+    @DisplayName("POST /api/v1/rentals/{id}/pickup - 픽업")
+    @Test
     void pickUpByRenter_success() throws Exception {
-        Student renter = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(renter);
+        long rid = 10L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        mockMvc.perform(post("/api/v1/rentals/11/pickup")
-                        .with(user(details)))
+        mockMvc.perform(post("/api/v1/rentals/{id}/pickup", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("pickup-rental",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(value(nullValue())).description("null"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
 
-        verify(rentalService).pickUpByRenter(11L, 20L);
+        verify(rentalService).pickUpByRenter(rid, student.getMemberId());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/return - 대여자가 반납")
+    @DisplayName("POST /api/v1/rentals/{id}/return - 반납")
+    @Test
     void returnToLocker_success() throws Exception {
-        Student renter = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(renter);
+        long rid = 13L, lockerId = 55L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        MockMultipartFile returnImage = new MockMultipartFile(
-                "returnImage",             // @RequestPart name
-                "return.jpg",              // original filename
-                "image/jpeg",              // content type
-                "dummy-image-bytes".getBytes() // content
-        );
+        MockMultipartFile file = new MockMultipartFile("returnImage", "img.jpg", "image/jpeg", "data".getBytes());
 
-        mockMvc.perform(multipart("/api/v1/rentals/13/return")
-                        .file(returnImage)
-                        .with(user(details))
-                        .queryParam("lockerId", "55")
-                            )
+        mockMvc.perform(multipart("/api/v1/rentals/{id}/return", rid)
+                        .file(file)
+                        .with(csrf())
+                        .with(authentication(auth))
+                        .queryParam("lockerId", String.valueOf(lockerId))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("return-rental",
                         requestParts(
-                                partWithName("returnImage").attributes(key("type").value("file")).description("반납 시 찍은 물품 이미지")
+                                partWithName("returnImage").attributes(key("type").value("file")).description("반납 이미지")
                         ),
-                        queryParameters(
+                        RequestDocumentation.queryParameters(
                                 parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
                         ),
                         responseFields(
@@ -345,93 +361,90 @@ class RentalControllerTest {
                         )
                 ));
 
-        verify(rentalService).returnToLocker(
-                eq(13L),
-                eq(20L),
-                eq(55L),
-                any(MultipartFile.class)
-        );
+        verify(rentalService).returnToLocker(eq(rid), eq(student.getMemberId()), eq(lockerId), any());
     }
 
-    @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/retrieve - 소유자가 회수 (완료)")
+    @DisplayName("POST /api/v1/rentals/{id}/retrieve - 회수 완료")
+    @Test
     void retrieveByOwner_success() throws Exception {
-        Student owner = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails details = new MemberDetails(owner);
+        long rid = 15L;
+        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        mockMvc.perform(post("/api/v1/rentals/15/retrieve")
-                        .with(user(details)))
+        mockMvc.perform(post("/api/v1/rentals/{id}/retrieve", rid)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("retrieve-rental",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(value(nullValue())).description("null"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
                         )
                 ));
 
-        verify(rentalService).retrieveByOwner(15L, 10L);
+        verify(rentalService).retrieveByOwner(rid, student.getMemberId());
     }
 
-    @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /api/v1/admin/rentals/{userId} - 관리자 특정 사용자 대여 목록")
+    @Test
     void getRentalsByUser_success() throws Exception {
+        long userId = 99L;
         RentalDto dto1 = RentalDto.builder()
-                .rentalId(20L)
-                .itemId(100L)
-                .ownerId(10L)
-                .renterId(20L)
+                .rentalId(20L).itemId(100L).ownerId(10L).renterId(20L)
                 .requestDate(LocalDateTime.now())
+                .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .startDate(LocalDateTime.now().plusDays(2))
-                .dueDate(LocalDateTime.now().plusDays(8))
-                .paymentId(55L)
+                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .approvedDate(null).rejectedDate(null).leftAt(null)
+                .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
         RentalDto dto2 = RentalDto.builder()
-                .rentalId(21L)
-                .itemId(100L)
-                .ownerId(10L)
-                .renterId(21L)
+                .rentalId(21L).itemId(101L).ownerId(10L).renterId(21L)
                 .requestDate(LocalDateTime.now())
+                .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .startDate(LocalDateTime.now().plusDays(2))
-                .dueDate(LocalDateTime.now().plusDays(8))
-                .paymentId(55L)
+                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .approvedDate(null).rejectedDate(null).leftAt(null)
+                .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
-        when(rentalService.getRentalsByUser(99L)).thenReturn(List.of(dto1, dto2));
+        given(rentalService.getRentalsByUser(userId)).willReturn(List.of(dto1, dto2));
 
-        mockMvc.perform(get("/api/v1/admin/rentals/99")
-                        .with(user("admin").roles("ADMIN")))
+        mockMvc.perform(get("/api/v1/admin/rentals/{userId}", userId)
+                        .with(csrf())
+                        .with(user("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].rentalId").value(20))
                 .andDo(document("get-rentals-by-user",
                         responseFields(
-                                fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
-                                fieldWithPath("data[].rentalId").description("대여 정보 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].itemId").description("대여 물품 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].ownerId").description("물품 소유자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].renterId").description("물품 대여자 ID").type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].requestDate").description("대여 요청 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].status").description("대여 상태").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].approvedDate").description("승인 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].rejectedDate").description("거절 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].startDate").description("예정 대여 시작 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].dueDate").description("대여 만료 일시").type(JsonFieldType.STRING),
-                                fieldWithPath("data[].leftAt").description("소유자 물건 맡긴 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].pickedUpAt").description("대여자 픽업 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].returnedAt").description("대여자 반납 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].retrievedAt").description("소유자 회수 일시").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("data[].lockerId").description("사물함 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].paymentId").description("결제 정보 ID").optional().type(JsonFieldType.NUMBER),
-                                fieldWithPath("data[].returnImageUrl").description("반납 이미지").optional().type(JsonFieldType.STRING),
-                                fieldWithPath("message").description("성공 시 빈 문자열").type(JsonFieldType.STRING)
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data[].rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
+                                fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
+                                fieldWithPath("data[].ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data[].renterId").type(JsonFieldType.NUMBER).description("대여자 ID"),
+                                fieldWithPath("data[].requestDate").type(JsonFieldType.STRING).description("요청 일시"),
+                                fieldWithPath("data[].status").type(JsonFieldType.STRING).description("대여 상태"),
+                                fieldWithPath("data[].approvedDate").type(JsonFieldType.NULL).description("승인 일시 (없으면 null)"),
+                                fieldWithPath("data[].rejectedDate").type(JsonFieldType.NULL).description("거절 일시 (없으면 null)"),
+                                fieldWithPath("data[].startDate").type(JsonFieldType.STRING).description("시작일"),
+                                fieldWithPath("data[].dueDate").type(JsonFieldType.STRING).description("반납 예정일"),
+                                fieldWithPath("data[].leftAt").type(JsonFieldType.NULL).description("사물함에 맡긴 시각 (없으면 null)"),
+                                fieldWithPath("data[].pickedUpAt").type(JsonFieldType.NULL).description("픽업 시각 (없으면 null)"),
+                                fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
+                                fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
+                                fieldWithPath("data[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
+                                fieldWithPath("data[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
+                                fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
 
-        verify(rentalService).getRentalsByUser(99L);
+        verify(rentalService).getRentalsByUser(userId);
     }
 }

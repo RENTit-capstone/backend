@@ -72,4 +72,12 @@ public class Item {
             this.description = form.getDescription();
         updatedAt = LocalDateTime.now();
     }
+
+    public void updateAvailable(){
+        status = ItemStatusEnum.AVAILABLE;
+    }
+
+    public void updateOut(){
+        status = ItemStatusEnum.OUT;
+    }
 }

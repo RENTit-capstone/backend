@@ -90,7 +90,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").value(42))
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("create_item",
+                .andDo(document("create-item",
                         requestFields(
                                 fieldWithPath("ownerId").type(JsonFieldType.NUMBER).description("물품 소유자 ID"),
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("물품 이름"),
@@ -144,7 +144,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.length()").value(2))
-                .andDo(document("get_all_items",
+                .andDo(document("get-all-items",
                         relaxedQueryParameters(
                                 parameterWithName("keyword").attributes(key("type").value("String")).optional()
                                         .description("검색 키워드 (물품명 또는 상세 설명 포함)"),
@@ -201,7 +201,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.itemId").value((int)id))
-                .andDo(document("get_item",
+                .andDo(document("get-item",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
@@ -267,7 +267,7 @@ class ItemControllerTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("update_item",
+                .andDo(document("update-item",
                         requestFields(
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("수정할 이름"),
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("수정할 이미지"),
@@ -323,7 +323,7 @@ class ItemControllerTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("delete_item",
+                .andDo(document("delete-item",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
