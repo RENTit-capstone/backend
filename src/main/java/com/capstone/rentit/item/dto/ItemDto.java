@@ -17,6 +17,7 @@ public class ItemDto {
     private String itemImg;
     private String description;
     private Long categoryId;
+    private Integer price;
     private ItemStatusEnum status;
     private String damagedPolicy;
     private String returnPolicy;

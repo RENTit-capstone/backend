@@ -23,6 +23,7 @@ public class ItemDtoFactory {
                 .itemImg(item.getItemImg())
                 .description(item.getDescription())
                 .categoryId(item.getCategoryId())
+                .price(item.getPrice())
                 .status(item.getStatus())
                 .damagedPolicy(item.getDamagedPolicy())
                 .returnPolicy(item.getReturnPolicy())
