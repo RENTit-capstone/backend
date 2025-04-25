@@ -3,6 +3,7 @@ package com.capstone.rentit.item.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
+import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
@@ -28,8 +29,8 @@ public class ItemController {
     }
 
     @GetMapping("/items")
-    public CommonResponse<List<ItemDto>> getAllItems() {
-        List<ItemDto> items = itemService.getAllItems();
+    public CommonResponse<List<ItemDto>> getAllItems(@ModelAttribute ItemSearchForm searchForm) {
+        List<ItemDto> items = itemService.getAllItems(searchForm);
         return CommonResponse.success(items);
     }
 

@@ -2,10 +2,7 @@ package com.capstone.rentit.item.service;
 
 import com.capstone.rentit.common.ItemStatusConverter;
 import com.capstone.rentit.item.domain.Item;
-import com.capstone.rentit.item.dto.ItemCreateForm;
-import com.capstone.rentit.item.dto.ItemDto;
-import com.capstone.rentit.item.dto.ItemDtoFactory;
-import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,8 +39,8 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemDto> getAllItems() {
-        List<Item> items = itemRepository.findAll();
+    public List<ItemDto> getAllItems(ItemSearchForm searchForm) {
+        List<Item> items = itemRepository.search(searchForm);
         return items.stream().map(ItemDtoFactory::toDto).collect(Collectors.toList());
     }
 
