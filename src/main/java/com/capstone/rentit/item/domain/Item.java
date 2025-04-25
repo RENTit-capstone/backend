@@ -31,6 +31,8 @@ public class Item {
 
     private Long categoryId;
 
+    private Integer price;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemStatusEnum status;
