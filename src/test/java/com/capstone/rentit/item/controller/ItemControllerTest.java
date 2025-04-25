@@ -5,6 +5,7 @@ import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
+import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.dto.MemberDetails;
@@ -37,6 +38,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -127,16 +130,33 @@ class ItemControllerTest {
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         List<ItemDto> list = Arrays.asList(dto1, dto2);
-        when(itemService.getAllItems()).thenReturn(list);
+        when(itemService.getAllItems(any(ItemSearchForm.class))).thenReturn(list);
 
         // When / Then
         mockMvc.perform(get("/api/v1/items")
                         .with(csrf())
+                        .param("keyword", "")
+                        .param("startDate", "")
+                        .param("endDate", "")
+                        .param("minPrice", "")
+                        .param("maxPrice", "")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andDo(document("get_all_items",
+                        relaxedQueryParameters(
+                                parameterWithName("keyword").attributes(key("type").value("String")).optional()
+                                        .description("검색 키워드 (물품명 또는 상세 설명 포함)"),
+                                parameterWithName("startDate").attributes(key("type").value("LocalDateTime")).optional()
+                                        .description("대여 가능 시작일 (ISO-8601 형식)"),
+                                parameterWithName("endDate").attributes(key("type").value("LocalDateTime")).optional()
+                                        .description("대여 가능 종료일 (ISO-8601 형식)"),
+                                parameterWithName("minPrice").attributes(key("type").value("Integer")).optional()
+                                        .description("최소 대여 가격"),
+                                parameterWithName("maxPrice").attributes(key("type").value("Integer")).optional()
+                                        .description("최대 대여 가격")
+                        ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.ARRAY).description("물품 목록"),

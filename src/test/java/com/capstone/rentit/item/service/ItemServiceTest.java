@@ -4,6 +4,7 @@ import com.capstone.rentit.common.ItemStatusEnum;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
+import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
@@ -16,6 +17,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +68,7 @@ class ItemServiceTest {
                 .itemImg(createForm.getItemImg())
                 .description(createForm.getDescription())
                 .categoryId(createForm.getCategoryId())
-                .categoryId(createForm.getCategoryId())
+                .price(createForm.getPrice())
                 .status(ItemStatusEnum.integerToItemStatusEnum(createForm.getStatus()))
                 .damagedPolicy(createForm.getDamagedPolicy())
                 .returnPolicy(createForm.getReturnPolicy())
@@ -138,17 +140,42 @@ class ItemServiceTest {
                 .endDate(LocalDateTime.now().plusDays(3))
                 .build();
 
-        given(itemRepository.findAll())
+        ItemSearchForm emptyForm = new ItemSearchForm(); // 모든 필드 null
+        given(itemRepository.search(emptyForm))
                 .willReturn(Arrays.asList(sampleItem, other));
 
         // when
-        List<ItemDto> dtos = itemService.getAllItems();
+        List<ItemDto> dtos = itemService.getAllItems(emptyForm);
 
         // then
         assertThat(dtos).hasSize(2)
                 .extracting(ItemDto::getName)
                 .containsExactlyInAnyOrder("Sample", "Other");
-        then(itemRepository).should().findAll();
+        then(itemRepository).should().search(emptyForm);
+    }
+
+    @DisplayName("getAllItems: 키워드 및 가격 범위 조건으로 호출하면, 해당 조건에 맞는 아이템만 반환")
+    @Test
+    void getAllItems_whenWithConditions_thenReturnFiltered() {
+        // given
+        ItemSearchForm form = new ItemSearchForm();
+        form.setKeyword("Sam");
+        form.setMinPrice(500);
+        form.setMaxPrice(1500);
+
+        // sampleItem 만 필터링 결과로 가정
+        given(itemRepository.search(form))
+                .willReturn(Arrays.asList(sampleItem));
+
+        // when
+        List<ItemDto> dtos = itemService.getAllItems(form);
+
+        // then
+        assertThat(dtos).hasSize(1)
+                .first()
+                .extracting(ItemDto::getName)
+                .isEqualTo("Sample");
+        then(itemRepository).should().search(form);
     }
 
     @DisplayName("getItem: 존재하는 ID면 DTO, 없으면 예외")
