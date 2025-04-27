@@ -1,27 +1,40 @@
 package com.capstone.rentit.exception;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.rental.exception.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class RentalExceptionHandler {
 
-    /** 잘못된 요청(파라미터 등)에 대한 처리 */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public CommonResponse<Void> handleBadRequest(IllegalArgumentException ex) {
+    @ExceptionHandler({ RentalNotFoundException.class, ItemNotFoundException.class })
+    public CommonResponse<Void> handleNotFound(RuntimeException ex) {
+        log.warn("Not found error: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 
-    /** 권한 오류 처리 */
-    @ExceptionHandler(SecurityException.class)
-    public CommonResponse<Void> handleForbidden(SecurityException ex) {
+    @ExceptionHandler(ItemAlreadyRentedException.class)
+    public CommonResponse<Void> handleAlreadyRented(ItemAlreadyRentedException ex) {
+        log.info("Already rented: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 
-    /** 그 외 예기치 못한 서버 오류 처리 */
-    @ExceptionHandler(Exception.class)
-    public CommonResponse<Void> handleOther(Exception ex) {
-        return CommonResponse.failure("서버 오류가 발생했습니다.");
+    @ExceptionHandler(RentalUnauthorizedException.class)
+    public CommonResponse<Void> handleUnauthorized(RentalUnauthorizedException ex) {
+        log.warn("Unauthorized access: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
     }
+
+    @ExceptionHandler(ReturnImageMissingException.class)
+    public CommonResponse<Void> handleReturnImageMissing(ReturnImageMissingException ex) {
+        log.info("Missing return image: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
 }
