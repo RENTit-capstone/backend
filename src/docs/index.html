@@ -493,6 +493,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_사용자별_대여_목록_조회">사용자별 대여 목록 조회</a></li>
 </ul>
 </li>
+<li><a href="#_otp_api">OTP API</a>
+<ul class="sectlevel2">
+<li><a href="#_otp_요청">OTP 요청</a></li>
+<li><a href="#_otp_인증_요청">OTP 인증 요청</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -595,7 +601,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=gGp3rSijVd7wUwGk4it7nu-Ie2_VqtSjEL4y-v2KnLrV9PX4tFgTmBrBN-bdMTLB0wZP-464Vg3lmuCOc4gLycq7-t_kl8XL HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=eb5LSFgzjDTh9s-jqTpnqtc1AAE-CbpsYznlnzkT0__MeWW7GN8qLGwL6FXMx_vHmxdTzOBWLWBdPN5BUA-Arwoq45qqTlTf HTTP/1.1
 Content-Type: application/json
 Content-Length: 230
 Host: localhost:8080
@@ -689,7 +695,7 @@ Content-Length: 38
 <h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=zmMWPMy2SXXjCq_8sxq0-LRGqkNcg7k18jro9n_-6bcl58SprFpwXv6GfxPOOZaehjeAztV3h3pk5YEYlljZx0udi4AU0_aY HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=9idAhAYFMzxb4KWeNQ4RzOcugc3DCjm8aeSnrdmn03qHK2PVzkV54jQ1Clp2hZb4ASMl-tIZrPT2bgCRCNySm-uetkqxT1Wz HTTP/1.1
 Content-Type: application/json
 Content-Length: 59
 Host: localhost:8080
@@ -788,7 +794,7 @@ Content-Length: 95
 <h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=rCDjZ0oqdbH7s51blep50X_5JF8ccyJs8EEJYKR1Ttrbm1-izhOFUntIQILW0v5socdN5EeYCT5-FRJBlHc5UJZFK77q-W7D HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=9gkjgs2ooQan8wa5VAYqcvF6W-JK44SeJWoEd7mvwNQvd1rYwT4XsK_MkT-KlmDcYyseR5IYdoB8hrGzE1k9FYnO9OxNET7h HTTP/1.1
 Content-Type: application/json
 Content-Length: 73
 Host: localhost:8080
@@ -944,7 +950,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 449
 
-{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NjAwODUwLCJleHAiOjE3NDU2MDQ0NTB9.3oeoXzi_6Ps47hF1zY5wZ19q0Ywd9XYCjhpGAvL3-0aGBkEZQ-HJUgmAdnbMbZ3nIgPmQRePSmo9u9K3_6qUbA","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NjAwODUwLCJleHAiOjE3NDU2MTE2NTB9.Tho3VPHwuQl8OsbpVg39IC-bQPcZ_TajmrXrpObZtXd9zP4LQFK3JZI16-ns_0366H31pHRVxXYsOBTbgJN5Mg"},"message":""}</code></pre>
+{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NzYzMTYyLCJleHAiOjE3NDU3NjY3NjJ9.ZnfuRxjNA80P1cbqq5xunMRp1QQb5FZETwCMzdklf5cmcscDgnx7gD74e70H9jc0Ul0j9RDyN3oh82pFmhSJrw","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NzYzMTYyLCJleHAiOjE3NDU3NzM5NjJ9.nSrjNrutXf0k_jfTyn2ePHcxmddZZAehwA6WzZFHljqmFbeXvt3k2IrzSTrG98o0xPRrPvXy50BdtU2mQ8jfbw"},"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -992,7 +998,7 @@ Content-Type: application/json;charset=UTF-8
 Content-Length: 233
 Host: localhost:8080
 
-{"accessToken":"dummy","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NjAwODUxLCJleHAiOjE3NDU2MTE2NTF9.uwxLeP0u5knYIk_uWSCNfKEwlcpI2dlstskBCP56DF4DcOYzYGxsBC9OQKPZDsumdSl9YMODA6DQze3XJSqopQ"}</code></pre>
+{"accessToken":"dummy","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NzYzMTYzLCJleHAiOjE3NDU3NzM5NjN9.np7VcPNJi0Ji9TuWBR4ZorOw6gxj8naOfQF1f_ByMxLKcC5VngoOOwcYTYhUd4CDlTYeX5-bYHIl5O-5TtfsSQ"}</code></pre>
 </div>
 </div>
 </div>
@@ -1049,7 +1055,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 457
 
-{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NjAwODUxLCJleHAiOjE3NDU2MDQ0NTF9.rgT7Jj59XuSmtijkNXzBA0R2BVCaaOuITguDlAzsjhTUhh0iAkup8PrhZCYsz0mmexVvC9LkwJrdnCsKl36HUw","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NjAwODUxLCJleHAiOjE3NDU2MTE2NTF9.uwxLeP0u5knYIk_uWSCNfKEwlcpI2dlstskBCP56DF4DcOYzYGxsBC9OQKPZDsumdSl9YMODA6DQze3XJSqopQ"},"message":""}</code></pre>
+{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NzYzMTYzLCJleHAiOjE3NDU3NjY3NjN9.4knLmZgq_8jRDYDJspUn4bWT1azQI_PmzUwSyWP5sIAdL_63SJh6sWMWvQjrl1P-4CY6sR70T4YM2qlSYVaj2w","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1NzYzMTYzLCJleHAiOjE3NDU3NzM5NjN9.np7VcPNJi0Ji9TuWBR4ZorOw6gxj8naOfQF1f_ByMxLKcC5VngoOOwcYTYhUd4CDlTYeX5-bYHIl5O-5TtfsSQ"},"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -1347,7 +1353,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=Gl2P339llpciIWVpa8OkNz2fySHFlzIgGKfTuudny6-OEUAlK2jq6RkB8qAPEANdUu6QAwSq5EDwp1YNK8S324RX8py8IyMV HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=MfJ9dubABEOaDLDrY97tQzzmastwOOaFPmuAOodd7uZD07o0UMVMEt6hPHO3b9GJW_PZcQzSR_MSAYeoCQnjCL9o3t524YNX HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 233
 Host: localhost:8080
@@ -1462,7 +1468,7 @@ Content-Length: 38
 <h4 id="_http_요청_9"><a class="link" href="#_http_요청_9">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=xno2Ba8UocgFJRZ0waGDzSEM2gqu1Wwrk1E7OlZSUsdMhaWj_0gPZskjmK0oRyFB8Iy3qEA992iZ41wGqjUOWDdiZqJ_vcfH HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=7f6ponBJbvxWiAamadg3a_1Vy_CXjJB_RcvpH28z_8mT-Xet2MyclxJxWZh7uzWQWfUDUspi5smj7fRSc_PdJ1YGyKqnm0Of HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 125
 Host: localhost:8080
@@ -1767,7 +1773,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_12"><a class="link" href="#_http_요청_12">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=P0b5UL--uD_Cal1ir4hGbvR6RxNs0x5_072a-HmMuOhRMap2CHfLNoyL3lzvD2lXzKVyCsdOaitc5ihStY2ryRq5j940BptB HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=X9yKn5GydYjDC9SRm4xoFO6Lfzhs62qWXvC1jqlVQ0PF_Q6ePb2y-vfQQbruPLDz_qFcINazUloI2Vq7PcWF6MhjeiD0zW2t HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 288
 Host: localhost:8080
@@ -1835,10 +1841,47 @@ Content-Length: 39
 <p>GET /api/v1/items</p>
 </div>
 <div class="sect3">
+<h4 id="_쿼리_파라미터"><a class="link" href="#_쿼리_파라미터">쿼리 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>keyword</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">검색 키워드 (물품명 또는 상세 설명 포함)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 가능 시작일 (ISO-8601 형식)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 가능 종료일 (ISO-8601 형식)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>minPrice</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">최소 대여 가격</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxPrice</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">최대 대여 가격</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
 <h4 id="_http_요청_13"><a class="link" href="#_http_요청_13">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=&amp;startDate=&amp;endDate=&amp;minPrice=&amp;maxPrice=&amp;_csrf=_Ir7d69dRW64X154-F4vC4SKyyXlwD75XmivKoEnV1a4Us3GyrPLFp5kIV2VPDobmXMbaOG-5h3d9wvUbFnLGrlBYW6PZ_yl HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=&amp;startDate=&amp;endDate=&amp;minPrice=&amp;maxPrice=&amp;_csrf=cdVNY6IuE2-eoHvfT84gjTmkXMz2lFj_asYrfMjHMKfpTBRnSbB8VJoeJlezxEi7K-MU7AmVca7GrGvSDKUZT6ykUsWIfSVW HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -1957,7 +2000,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=ZMBpv0CCDSNAVigJecwJkQRmruR_s5vsJu1mrWfpNHQJcY64U_UL3nO2Phdtbk5tSuE982ZTg9wagP_BHtlfmF7QAxA7Qe2J HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=dtiJjD03WZZTK7TQR4YyEMH-WFatzFSVtuQs1BtcdxOkZIJEEOy-vgRSPfV-TobnJasGKfObdTfI-mW41ddI4ilvRSDHU-Yh HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2140,12 +2183,12 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_15"><a class="link" href="#_http_요청_15">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=jR-LvGcx3rILNRu0zDll-oAxZp_sddHn0uWgWYU9LfbFfXGa6Xm8iwIDu4smBiuHqBRRyeNVS_7YReLK69CTYedfTJDxSUGo HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=6gi3RBmscEwzT2QGxDqLGKnSR7vygZfTLtIfs-XcvGQ7pNfm3m6GIiHKEX4eelUwohe_Ls-3aoPA4Kb-Fuos1YTr3VFaweSA HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 223
 Host: localhost:8080
 
-{"name":"Updated","itemImg":"newUrl","description":"newDesc","categoryId":2,"price":2000,"status":1,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-04-26T02:07:23.545665","endDate":"2025-04-28T02:07:23.545665"}</code></pre>
+{"name":"Updated","itemImg":"newUrl","description":"newDesc","categoryId":2,"price":2000,"status":1,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-04-27T23:12:36.289214","endDate":"2025-04-29T23:12:36.289214"}</code></pre>
 </div>
 </div>
 </div>
@@ -2216,7 +2259,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=tQmmAhc8aFT_yISZRR5OYDWBQvBBofKckwDqZ-rVy16ygh4E1jjCNiAPWjXS_bOqJzN6UFewb8h2xZex9TjYUN2w-myDsi0y</code></pre>
+_csrf=3Q_AyzCW9o_fRvWK9MmxqHM2M9-OIUaYGhC4WEcxtVjVyPPp6Dqj-QD0w7byJc3vl-SFzUAAHr62GHK1KyeKaXdQ0G_i8ZXQ</code></pre>
 </div>
 </div>
 </div>
@@ -2313,12 +2356,12 @@ _csrf=tQmmAhc8aFT_yISZRR5OYDWBQvBBofKckwDqZ-rVy16ygh4E1jjCNiAPWjXS_bOqJzN6UFewb8
 <h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=5qgciCeemtup4WotKhDDrbn1b_GxRQhU-99ca6YjFF2S5dO91ZgpuB-v-OiEgl0ZGT33mdyRQsmEdj95yrlqW8IWITui1bWN HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=SM4SPKWPadT343rfp11U5C7_MrNAmbD5bqH26XXCGt5TZuFUKqgnCMDrCuPa0Rjpn3BghkicH4okrIDUDJeT2ROmI-xnAoAw HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Content-Length: 123
+Content-Length: 121
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-04-27T02:07:34.4882002","dueDate":"2025-05-03T02:07:34.4882002"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-04-28T23:12:46.769531","dueDate":"2025-05-04T23:12:46.769531"}</code></pre>
 </div>
 </div>
 </div>
@@ -2384,7 +2427,7 @@ Content-Length: 38
 <h4 id="_http_요청_18"><a class="link" href="#_http_요청_18">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals?_csrf=ykzG53xfidySPDSbqsRkm18sjzbQZVlXPucjooKjiPCG8_SnqH301x9pseu_BVGskulQ-GZJolTiAWt6Xd5AwLPF65HixsCQ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals?_csrf=NDjwjJ5I3RTi2JXUDUH2H92JpU1EdonmMQyN1NZ1Ln24OCGLDQmR6KksuSHP76zja2zCJuy-iHR3QrjLAm247bBDHUrZDUO- HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2513,7 +2556,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=XvAGJFKIQDJtHUqzwo8Rj7AvUEePFVxkmWP-jTzaG-EHdzlAP8hnHDbudwdAfyuB-qIlvIEbfX68JmtJ_wGavQy4KYQyQgtw HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=Cy0ZbxWGfkAn76zzgKlljmDiBnJyZ-MtDakz-ZJSofvXQvplbxksCnexHHMK15jFuYRRtlPXK0sUUNsAOcoGmqMwx57vJsgE HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2647,7 +2690,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=WJ8TXL02pe2xJB6ffOzo3wJ3vTH6OT8nLwgZfQc-hHbHB59LOf51PYkCwd2cHS-tHcHcumBCkFOcCFkKHW59RGQL5kP-ZK17</code></pre>
+_csrf=WzUf5qzwzPkxO8bt6wdQn7VQrljehNObzH_efyAFZjemaq0Bagwv1pzDqpgcWvLViSpkr9Qyg2HutrK2-EvoSRgzB1GQWpxl</code></pre>
 </div>
 </div>
 </div>
@@ -2700,7 +2743,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=qakkrmgbsHuvKNIdOLMdo5ySzidQoFUDEeQhs5igO0oEaWQakJwXy15_h0iCSeB-C54pla3340UyljMuI9cY0PuWXy5iXAYr</code></pre>
+_csrf=FI5xFYR-4g6BnUDm01vAdJVbHc-ix97ITw91iBnn8zrY9CzfLboULLEf1Gus_nLetnb0RvQ_MPaQ9bzlKzdBv3-CwV68wh3r</code></pre>
 </div>
 </div>
 </div>
@@ -2753,7 +2796,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=FKafIqfThKeYGxoKYmtyf78YiWJ2LqzsiEzX2Kn6n4scJkg9IJX9GsbmsZW1fSMyVEZGHo1-pFsQTJnBuHiy4ZnDqLMpEXAK</code></pre>
+_csrf=b9PWBR5RCkIvRC2Jv67oE97LhuZwC7JSoUesQW-ctCdZuxGZXuTnYyhoMyMCfB_s24Pcden-q95GOtB_w3CYeVykhRY4iCio</code></pre>
 </div>
 </div>
 </div>
@@ -2798,7 +2841,7 @@ _csrf=FKafIqfThKeYGxoKYmtyf78YiWJ2LqzsiEzX2Kn6n4scJkg9IJX9GsbmsZW1fSMyVEZGHo1-pF
 <p>POST /api/v1/rentals/{id}/dropoff</p>
 </div>
 <div class="sect3">
-<h4 id="_쿼리_파라미터"><a class="link" href="#_쿼리_파라미터">쿼리 파라미터</a></h4>
+<h4 id="_쿼리_파라미터_2"><a class="link" href="#_쿼리_파라미터_2">쿼리 파라미터</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2827,7 +2870,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=auBA6vlJ3VrQCk6Q88OTpJR2eZ3xpyF57JxqtCAyZiR35qCiXNQh2p8ouWr9aCryxO6nx_VPVKTIkxZU26QL10YGB0cU15XH</code></pre>
+_csrf=cHx3EGKm8_wp8iMCatK4xwcWwqxyGy8O5EC3UyiBQzkDMqvfFUQSdgSSl54ExRNgCf-M82Mg780RKBkj1HDTah6yIl9gUM-6</code></pre>
 </div>
 </div>
 </div>
@@ -2880,7 +2923,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=3QlHzBqtgztja7AHThI7KTso6Y5GblEZWT8lZCXF_XTZYbDE6Wt__S3J5g5OXYlleD8PSwIfxO91XmE0PV4UBkP8mEe9WIby</code></pre>
+_csrf=0zJZLx5u1lOPKgRz5kONrPgey7zPEXMqYzBIghqcNv85-8ZH4FFvHnhc52eiHjRF1265lJoq5t77JhUHW1F5sXj4AcoJw6Vy</code></pre>
 </div>
 </div>
 </div>
@@ -2925,7 +2968,7 @@ _csrf=3QlHzBqtgztja7AHThI7KTso6Y5GblEZWT8lZCXF_XTZYbDE6Wt__S3J5g5OXYlleD8PSwIfxO
 <p>POST /api/v1/rentals/{id}/return</p>
 </div>
 <div class="sect3">
-<h4 id="_쿼리_파라미터_2"><a class="link" href="#_쿼리_파라미터_2">쿼리 파라미터</a></h4>
+<h4 id="_쿼리_파라미터_3"><a class="link" href="#_쿼리_파라미터_3">쿼리 파라미터</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3032,7 +3075,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=0-jvmpJnQ1RdSW3CAcs4qFfaX0aCXpZdLIkI8MRyo2Eepnv94dDWr6BeIDVwKA_0Y-YMnWS_cn6zPaFwG-wxw_0Xm1UnxR3E</code></pre>
+_csrf=PRwUGNtHkhMwfKwmLiwENMhk6uZIq4sD7VVmTcostUOoTpXWBCwjeexzoiQdSckUHAEwVvtWx4R8mr0u2WdVLq8b0CHMKPHj</code></pre>
 </div>
 </div>
 </div>
@@ -3080,7 +3123,7 @@ _csrf=0-jvmpJnQ1RdSW3CAcs4qFfaX0aCXpZdLIkI8MRyo2Eepnv94dDWr6BeIDVwKA_0Y-YMnWS_cn
 <h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=g3l11kJTFChBJlv0e6khLb_Kp-FcNtIAvmYlRsEHhDSgewQ5skgTtXA1Jk1sEDjEQ4QVHomsitluBOUt2AASf_Q0vQLCSz0B HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=S8lPk2iBrc1Y-t_g-Y-BTk5EowH4xjE3NvnFwb1zT6zygZFRLvAroljknqh1z7yFnaK1eip0jmDK8lcaBczz84hALs3K5aFi HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3202,11 +3245,179 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_otp_api"><a class="link" href="#_otp_api">OTP API</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_otp_요청"><a class="link" href="#_otp_요청">OTP 요청</a></h3>
+<div class="paragraph">
+<p>POST /api/v1/auth/otp</p>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_28"><a class="link" href="#_http_요청_28">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/otp HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=LF2Fp8CSkDebs888oUtPehS_vzn_O5vbQiMfaIbg8AktBbo3FWvhkPfxoQe2iqwOlGZ7THCOklueCKn2J0cmWr7XlTkfPNtT</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_28"><a class="link" href="#_응답_필드_28">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">생성된 OTP 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열 또는 에러 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_11"><a class="link" href="#_http_응답_11">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 44
+
+{"success":true,"data":"12345","message":""}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_otp_인증_요청"><a class="link" href="#_otp_인증_요청">OTP 인증 요청</a></h3>
+<div class="paragraph">
+<p>GET /api/v1/auth/otp/verify</p>
+</div>
+<div class="sect3">
+<h4 id="_쿼리_파라미터_4"><a class="link" href="#_쿼리_파라미터_4">쿼리 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">검증할 OTP 코드</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_29"><a class="link" href="#_http_요청_29">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/otp/verify?code=12345 HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=7HKpoV6nFwnBYfMY2aTqXsZvhZw4O5IO8dHX8LDKxe8zNS9e3RCamWfFcmrsAMAouonebKJeqP4ACKMjw7LiloSrodhWAxxs</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_29"><a class="link" href="#_응답_필드_29">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null 반환</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열 또는 에러 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_12"><a class="link" href="#_http_응답_12">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 41
+
+{"success":true,"data":null,"message":""}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2025-04-26 01:59:47 +0900
+Last updated 2025-04-27 23:11:18 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
