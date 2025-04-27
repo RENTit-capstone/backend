@@ -8,6 +8,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
@@ -48,9 +49,9 @@ public class RentalService {
 
     /** 현재 사용자(소유자/대여자)의 대여 목록 조회 */
     @Transactional(readOnly = true)
-    public List<RentalDto> getRentalsForUser(MemberDto loginMember) {
+    public List<RentalDto> getRentalsForUser(MemberDto loginMember, RentalSearchForm searchForm) {
         Long userId = loginMember.getId();
-        List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
+        List<Rental> list = rentalRepository.findAllByUserIdAndStatuses(userId, searchForm.getStatuses());
         return list.stream().map(r -> RentalDto.fromEntity(
                 r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
                 )

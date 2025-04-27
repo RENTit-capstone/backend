@@ -5,6 +5,7 @@ import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.service.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,8 +32,10 @@ public class RentalController {
     /** 2) 내 대여 목록 조회 (소유자·대여자) */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/rentals")
-    public CommonResponse<List<RentalDto>> getMyRentals(@Login MemberDto loginMember) {
-        List<RentalDto> list = rentalService.getRentalsForUser(loginMember);
+    public CommonResponse<List<RentalDto>> getMyRentals(
+            @Login MemberDto loginMember,
+            @ModelAttribute RentalSearchForm searchForm) {
+        List<RentalDto> list = rentalService.getRentalsForUser(loginMember, searchForm);
         return CommonResponse.success(list);
     }
 
