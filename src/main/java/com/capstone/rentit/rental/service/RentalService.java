@@ -8,6 +8,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +31,8 @@ public class RentalService {
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
-        Item item = itemRepository.findById(form.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
-        if(item.getStatus() == ItemStatusEnum.OUT)
-            throw new ArithmeticException("이미 대여된 물품");
+        Item item = findItem(form.getItemId());
+        assertItemAvailable(item);
 
         Rental rental = Rental.builder()
                 .itemId(form.getItemId())
@@ -61,41 +60,34 @@ public class RentalService {
     /** 단일 대여 조회 */
     @Transactional(readOnly = true)
     public RentalDto getRental(Long rentalId, MemberDto loginMember) {
-        Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대여 정보"));
-        // 권한 체크: 소유자 또는 대여자만 조회 가능
-        Long userId = loginMember.getId();
-        if (!rental.getOwnerId().equals(userId) && !rental.getRenterId().equals(userId)) {
-            throw new SecurityException("조회 권한이 없습니다.");
-        }
+        Rental rental = findRental(rentalId);
+        assertOwnerOrRenter(rental, loginMember.getId());
+
         return RentalDto.fromEntity(rental, fileStorageService.generatePresignedUrl(rental.getReturnImageUrl()));
     }
 
     /** 4) 대여 승인 (소유자/관리자) */
     public void approve(Long rentalId) {
-        Rental r = findOrThrow(rentalId);
+        Rental r = findRental(rentalId);
         r.approve(LocalDateTime.now());
 
-        Item item = itemRepository.findById(r.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        Item item = findItem(r.getItemId());
         item.updateOut();
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
     public void reject(Long rentalId) {
-        Rental r = findOrThrow(rentalId);
+        Rental r = findRental(rentalId);
         r.reject(LocalDateTime.now());
     }
 
     /** 6) 대여 취소 (반드시 대여자만) */
     public void cancel(Long rentalId, Long requesterId) {
-        Rental r = findOrThrow(rentalId);
-        if (!r.getRenterId().equals(requesterId)) {
-            throw new IllegalArgumentException("취소 권한이 없습니다.");
-        }
+        Rental r = findRental(rentalId);
+        assertRenter(r, requesterId);
+
         r.cancel();
-        Item item = itemRepository.findById(r.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        Item item = findItem(r.getItemId());
         item.updateAvailable();
     }
 
@@ -112,57 +104,84 @@ public class RentalService {
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
     public void dropOffToLocker(Long rentalId, Long ownerId, Long lockerId) {
-        Rental r = findOrThrow(rentalId);
-        if (!r.getOwnerId().equals(ownerId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        Rental r = findRental(rentalId);
+        assertOwner(r, ownerId);
+
         r.assignLocker(lockerId);
         r.dropOffByOwner(LocalDateTime.now());
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
     public void pickUpByRenter(Long rentalId, Long renterId) {
-        Rental r = findOrThrow(rentalId);
-        if (!r.getRenterId().equals(renterId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        Rental r = findRental(rentalId);
+        assertRenter(r, renterId);
+
         r.clearLocker();
         r.pickUpByRenter(LocalDateTime.now());
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
     public void returnToLocker(Long rentalId, Long renterId, Long lockerId, MultipartFile returnImage) {
-        Rental r = findOrThrow(rentalId);
-        if (!r.getRenterId().equals(renterId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        Rental r = findRental(rentalId);
+        assertRenter(r, renterId);
 
         r.assignLocker(lockerId);
         r.returnToLocker(LocalDateTime.now());
 
-        if(returnImage == null) {
-            throw new IllegalArgumentException("반납 사진이 없습니다.");
-        }
+        assertReturnImage(returnImage);
         String objectKey = fileStorageService.store(returnImage);
         r.uploadReturnImageUrl(objectKey);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
     public void retrieveByOwner(Long rentalId, Long ownerId) {
-        Rental r = findOrThrow(rentalId);
-        if (!r.getOwnerId().equals(ownerId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        Rental r = findRental(rentalId);
+        assertOwner(r, ownerId);
+
         r.clearLocker();
         r.retrieveByOwner(LocalDateTime.now());
 
-        Item item = itemRepository.findById(r.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 물품"));
+        Item item = findItem(r.getItemId());
         item.updateAvailable();
     }
 
-    private Rental findOrThrow(Long id) {
+    private Rental findRental(Long id) {
         return rentalRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 대여 정보"));
+                .orElseThrow(() -> new RentalNotFoundException("존재하지 않는 대여 정보입니다."));
+    }
+
+    private Item findItem(Long id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException("존재하지 않는 물품입니다."));
+    }
+
+    private void assertItemAvailable(Item item) {
+        if (item.getStatus() == ItemStatusEnum.OUT) {
+            throw new ItemAlreadyRentedException("이미 대여된 물품입니다.");
+        }
+    }
+
+    private void assertOwnerOrRenter(Rental r, Long userId) {
+        if (!r.getOwnerId().equals(userId) && !r.getRenterId().equals(userId)) {
+            throw new RentalUnauthorizedException("물품 소유자 또는 대여자가 아닙니다.");
+        }
+    }
+
+    private void assertOwner(Rental r, Long ownerId) {
+        if (!r.getOwnerId().equals(ownerId)) {
+            throw new RentalUnauthorizedException("물품 소유자가 아닙니다.");
+        }
+    }
+
+    private void assertRenter(Rental r, Long renterId) {
+        if (!r.getRenterId().equals(renterId)) {
+            throw new RentalUnauthorizedException("물품 대여자가 아닙니다.");
+        }
+    }
+
+    private void assertReturnImage(MultipartFile img) {
+        if (img == null || img.isEmpty()) {
+            throw new ReturnImageMissingException("물품 반납 사진이 없습니다.");
+        }
     }
 }
