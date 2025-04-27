@@ -8,6 +8,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
@@ -109,18 +110,23 @@ class RentalServiceTest {
     @Test
     @DisplayName("getRentalsForUser: Login Member 기준 필터 및 URL생성")
     void getRentalsForUser_success() {
-        Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).build();
-        Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).build();
-        given(rentalRepository.findAllByOwnerIdOrRenterId(10L,10L))
-                .willReturn(Arrays.asList(r1,r2));
+        Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).status(RentalStatusEnum.APPROVED).build();
+        Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).status(RentalStatusEnum.PICKED_UP).build();
+
+        RentalSearchForm form = new RentalSearchForm();
+        List<RentalStatusEnum> statusEnumList = List.of(RentalStatusEnum.APPROVED);
+        form.setStatuses(statusEnumList);
+
+        given(rentalRepository.findAllByUserIdAndStatuses(10L,statusEnumList))
+                .willReturn(Arrays.asList(r1));
         doReturn("signed-url").when(fileStorageService).generatePresignedUrl(null);
 
         MemberDto user = mock(MemberDto.class);
         given(user.getId()).willReturn(10L);
 
-        List<RentalDto> dtos = rentalService.getRentalsForUser(user);
+        List<RentalDto> dtos = rentalService.getRentalsForUser(user, form);
         assertThat(dtos).extracting(RentalDto::getRentalId)
-                .containsExactlyInAnyOrder(1L,2L);
+                .containsExactlyInAnyOrder(1L);
     }
 
     // ---- getRental ----
