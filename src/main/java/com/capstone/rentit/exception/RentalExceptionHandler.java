@@ -1,11 +1,11 @@
-package com.capstone.rentit.rental.controller;
+package com.capstone.rentit.exception;
 
 import com.capstone.rentit.common.CommonResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class RentalControllerAdvice {
+public class RentalExceptionHandler {
 
     /** 잘못된 요청(파라미터 등)에 대한 처리 */
     @ExceptionHandler(IllegalArgumentException.class)
