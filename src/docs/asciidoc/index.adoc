@@ -338,3 +338,31 @@ include::{snippets}/get-rentals-by-user/http-request.adoc[]
 
 ==== 응답 필드
 include::{snippets}/get-rentals-by-user/response-fields.adoc[]
+
+== OTP API
+=== OTP 요청
+POST /api/v1/auth/otp
+
+==== HTTP 요청
+include::{snippets}/otp-request/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/otp-request/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/otp-request/http-response.adoc[]
+
+=== OTP 인증 요청
+GET /api/v1/auth/otp/verify
+
+==== 쿼리 파라미터
+include::{snippets}/otp-verify/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/otp-verify/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/otp-verify/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/otp-verify/http-response.adoc[]
