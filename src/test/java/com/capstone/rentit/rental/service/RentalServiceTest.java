@@ -8,6 +8,8 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.dto.RentalSearchForm;
+import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,24 +55,24 @@ class RentalServiceTest {
     // ---- requestRental ----
 
     @Test
-    @DisplayName("requestRental: 물품이 없으면 IllegalArgumentException")
+    @DisplayName("requestRental: 물품이 없으면 ItemNotFoundException")
     void requestRental_itemNotFound() {
         given(itemRepository.findById(100L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> rentalService.requestRental(baseForm))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("존재하지 않는 물품");
+                .isInstanceOf(ItemNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 물품입니다.");
     }
 
     @Test
-    @DisplayName("requestRental: 물품이 OUT 상태면 ArithmeticException")
+    @DisplayName("requestRental: 물품이 OUT 상태면 ItemAlreadyRentedException")
     void requestRental_alreadyOut() {
         Item outItem = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
         given(itemRepository.findById(100L)).willReturn(Optional.of(outItem));
 
         assertThatThrownBy(() -> rentalService.requestRental(baseForm))
-                .isInstanceOf(ArithmeticException.class)
-                .hasMessageContaining("이미 대여된 물품");
+                .isInstanceOf(ItemAlreadyRentedException.class)
+                .hasMessageContaining("이미 대여된 물품입니다.");
     }
 
     @Test
@@ -106,52 +108,42 @@ class RentalServiceTest {
     // ---- getRentalsForUser ----
 
     @Test
-    @DisplayName("getRentalsForUser: MemberDto 기준 필터 및 URL생성")
+    @DisplayName("getRentalsForUser: Login Member 기준 필터 및 URL생성")
     void getRentalsForUser_success() {
-        Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).build();
-        Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).build();
-        given(rentalRepository.findAllByOwnerIdOrRenterId(10L,10L))
-                .willReturn(Arrays.asList(r1,r2));
+        Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).status(RentalStatusEnum.APPROVED).build();
+        Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).status(RentalStatusEnum.PICKED_UP).build();
+
+        RentalSearchForm form = new RentalSearchForm();
+        List<RentalStatusEnum> statusEnumList = List.of(RentalStatusEnum.APPROVED);
+        form.setStatuses(statusEnumList);
+
+        given(rentalRepository.findAllByUserIdAndStatuses(10L,statusEnumList))
+                .willReturn(Arrays.asList(r1));
         doReturn("signed-url").when(fileStorageService).generatePresignedUrl(null);
 
         MemberDto user = mock(MemberDto.class);
         given(user.getId()).willReturn(10L);
 
-        List<RentalDto> dtos = rentalService.getRentalsForUser(user);
+        List<RentalDto> dtos = rentalService.getRentalsForUser(user, form);
         assertThat(dtos).extracting(RentalDto::getRentalId)
-                .containsExactlyInAnyOrder(1L,2L);
-    }
-
-    // ---- getRentalsByUser(admin) ----
-
-    @Test
-    @DisplayName("getRentalsByUser: userId 기준 필터 및 URL생성")
-    void getRentalsByUser_admin_success() {
-        Rental r1 = Rental.builder().rentalId(3L).ownerId(20L).renterId(30L).build();
-        given(rentalRepository.findAllByOwnerIdOrRenterId(20L,20L))
-                .willReturn(Collections.singletonList(r1));
-        doReturn("admin-url").when(fileStorageService).generatePresignedUrl(null);
-
-        List<RentalDto> dtos = rentalService.getRentalsByUser(20L);
-        assertThat(dtos).hasSize(1);
-        assertThat(dtos.get(0).getRentalId()).isEqualTo(3L);
+                .containsExactlyInAnyOrder(1L);
     }
 
     // ---- getRental ----
 
     @Test
-    @DisplayName("getRental: 데이터 없으면 IllegalArgumentException")
+    @DisplayName("getRental: 데이터 없으면 RentalNotFoundException")
     void getRental_notFound() {
         given(rentalRepository.findById(5L)).willReturn(Optional.empty());
 
         MemberDto anyUser = mock(MemberDto.class);
         assertThatThrownBy(() -> rentalService.getRental(5L, anyUser))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
-    @DisplayName("getRental: 권한 없으면 SecurityException")
+    @DisplayName("getRental: 권한 없으면 RentalUnauthorizedException")
     void getRental_noPermission() {
         Rental r = Rental.builder().rentalId(5L).ownerId(10L).renterId(20L).build();
         given(rentalRepository.findById(5L)).willReturn(Optional.of(r));
@@ -160,8 +152,8 @@ class RentalServiceTest {
         given(stranger.getId()).willReturn(999L);
 
         assertThatThrownBy(() -> rentalService.getRental(5L, stranger))
-                .isInstanceOf(SecurityException.class)
-                .hasMessageContaining("조회 권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 소유자 또는 대여자가 아닙니다.");
     }
 
     @Test
@@ -185,12 +177,12 @@ class RentalServiceTest {
     // ---- approve ----
 
     @Test
-    @DisplayName("approve: 대여 없으면 RuntimeException")
+    @DisplayName("approve: 대여 없으면 RentalNotFoundException")
     void approve_notFound() {
         given(rentalRepository.findById(6L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.approve(6L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -210,12 +202,12 @@ class RentalServiceTest {
     // ---- reject ----
 
     @Test
-    @DisplayName("reject: 대여 없으면 RuntimeException")
+    @DisplayName("reject: 대여 없으면 RentalNotFoundException")
     void reject_notFound() {
         given(rentalRepository.findById(8L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.reject(8L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -232,12 +224,12 @@ class RentalServiceTest {
     // ---- cancel ----
 
     @Test
-    @DisplayName("cancel: 대여 없으면 RuntimeException")
+    @DisplayName("cancel: 대여 없으면 RentalNotFoundException")
     void cancel_notFound() {
         given(rentalRepository.findById(7L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.cancel(7L,20L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -258,19 +250,19 @@ class RentalServiceTest {
         assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.AVAILABLE);
 
         assertThatThrownBy(() -> rentalService.cancel(7L,999L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("취소 권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 대여자가 아닙니다.");
     }
 
     // ---- dropOffToLocker ----
 
     @Test
-    @DisplayName("dropOffToLocker: 대여 없으면 RuntimeException")
+    @DisplayName("dropOffToLocker: 대여 없으면 RentalNotFoundException")
     void dropOff_notFound() {
         given(rentalRepository.findById(9L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,10L,111L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -284,19 +276,19 @@ class RentalServiceTest {
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.LEFT_IN_LOCKER);
 
         assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,999L,123L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 소유자가 아닙니다.");
     }
 
     // ---- pickUpByRenter ----
 
     @Test
-    @DisplayName("pickUpByRenter: 대여 없으면 RuntimeException")
+    @DisplayName("pickUpByRenter: 대여 없으면 RentalNotFoundException")
     void pickUp_notFound() {
         given(rentalRepository.findById(11L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,20L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -311,21 +303,21 @@ class RentalServiceTest {
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.PICKED_UP);
 
         assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,999L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 대여자가 아닙니다.");
     }
 
     // ---- returnToLocker ----
 
     @Test
-    @DisplayName("returnToLocker: 대여 없으면 RuntimeException")
+    @DisplayName("returnToLocker: 대여 없으면 RentalNotFoundException")
     void return_notFound() {
         given(rentalRepository.findById(13L)).willReturn(Optional.empty());
         MockMultipartFile file = new MockMultipartFile(
                 "f","f.jpg",MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L,file))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -343,22 +335,22 @@ class RentalServiceTest {
         assertThat(r.getReturnImageUrl()).isEqualTo("stored-key");
 
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L,file))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 대여자가 아닙니다.");
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L,null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("반납 사진이 없습니다.");
+                .isInstanceOf(ReturnImageMissingException.class)
+                .hasMessageContaining("물품 반납 사진이 없습니다.");
     }
 
     // ---- retrieveByOwner ----
 
     @Test
-    @DisplayName("retrieveByOwner: 대여 없으면 RuntimeException")
+    @DisplayName("retrieveByOwner: 대여 없으면 RentalNotFoundException")
     void retrieve_notFound() {
         given(rentalRepository.findById(14L)).willReturn(Optional.empty());
         assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,10L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("존재하지 않는 대여 정보");
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
@@ -374,7 +366,7 @@ class RentalServiceTest {
         assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.AVAILABLE);
 
         assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,999L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("권한이 없습니다.");
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("물품 소유자가 아닙니다.");
     }
 }

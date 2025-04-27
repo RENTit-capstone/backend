@@ -9,6 +9,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
+import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.service.RentalService;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -114,16 +115,22 @@ class RentalControllerTest {
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
-        given(rentalService.getRentalsForUser(any(MemberDto.class)))
+
+        given(rentalService.getRentalsForUser(any(MemberDto.class), any(RentalSearchForm.class)))
                 .willReturn(Collections.singletonList(dto));
 
         mockMvc.perform(get("/api/v1/rentals")
+                        .queryParam("statuses", "REQUESTED")
                         .with(csrf())
                         .with(authentication(auth))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("get-my-rentals",
+                        queryParameters(
+                                parameterWithName("statuses")
+                                        .description("조회할 대여 상태. 여러 개면 반복해서 전달(EX: ?statuses=REQUESTED&statuses=APPROVED)")
+                        ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data[].rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
@@ -147,7 +154,7 @@ class RentalControllerTest {
                         )
                 ));
 
-        verify(rentalService).getRentalsForUser(any());
+        verify(rentalService).getRentalsForUser(any(), any(RentalSearchForm.class));
     }
 
     @WithMockUser(roles = "USER")
