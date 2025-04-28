@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -101,6 +102,7 @@ class RentalControllerTest {
     @DisplayName("GET /api/v1/rentals - 내 대여 목록 조회")
     @Test
     void getMyRentals_success() throws Exception {
+        //given
         Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
@@ -116,45 +118,96 @@ class RentalControllerTest {
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
 
-        given(rentalService.getRentalsForUser(any(MemberDto.class), any(RentalSearchForm.class)))
-                .willReturn(Collections.singletonList(dto));
+        Page<RentalDto> dtoPage = new PageImpl<>(
+                List.of(dto),
+                PageRequest.of(0, 20, Sort.by("requestDate").descending()),
+                1
+        );
 
+        given(rentalService.getRentalsForUser(
+                any(MemberDto.class),
+                any(RentalSearchForm.class),
+                any(Pageable.class))
+        ).willReturn(dtoPage);
+
+        //when, then
         mockMvc.perform(get("/api/v1/rentals")
                         .queryParam("statuses", "REQUESTED")
+                        .queryParam("page", "0")
+                        .queryParam("size", "20")
+                        .queryParam("sort", "requestDate,desc")
                         .with(csrf())
                         .with(authentication(auth))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content[0].rentalId").value(1))
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.number").value(0))
+                .andExpect(jsonPath("$.data.size").value(20))
                 .andDo(document("get-my-rentals",
                         queryParameters(
                                 parameterWithName("statuses")
-                                        .description("조회할 대여 상태. 여러 개면 반복해서 전달(EX: ?statuses=REQUESTED&statuses=APPROVED)")
+                                        .description("조회할 대여 상태. 여러 개면 반복해서 전달 (예: ?statuses=REQUESTED&statuses=APPROVED)"),
+                                parameterWithName("page")
+                                        .description("페이지 번호 (0부터 시작)"),
+                                parameterWithName("size")
+                                        .description("페이지 크기"),
+                                parameterWithName("sort")
+                                        .description("정렬 기준 (예: requestDate,desc)")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data[].rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
-                                fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
-                                fieldWithPath("data[].ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
-                                fieldWithPath("data[].renterId").type(JsonFieldType.NUMBER).description("대여자 ID"),
-                                fieldWithPath("data[].requestDate").type(JsonFieldType.STRING).description("요청 일시"),
-                                fieldWithPath("data[].status").type(JsonFieldType.STRING).description("대여 상태"),
-                                fieldWithPath("data[].approvedDate").type(JsonFieldType.NULL).description("승인 일시 (없으면 null)"),
-                                fieldWithPath("data[].rejectedDate").type(JsonFieldType.NULL).description("거절 일시 (없으면 null)"),
-                                fieldWithPath("data[].startDate").type(JsonFieldType.STRING).description("시작일"),
-                                fieldWithPath("data[].dueDate").type(JsonFieldType.STRING).description("반납 예정일"),
-                                fieldWithPath("data[].leftAt").type(JsonFieldType.NULL).description("사물함에 맡긴 시각 (없으면 null)"),
-                                fieldWithPath("data[].pickedUpAt").type(JsonFieldType.NULL).description("픽업 시각 (없으면 null)"),
-                                fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
-                                fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
-                                fieldWithPath("data[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
-                                fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
+                                fieldWithPath("data.content[].rentalId").type(JsonFieldType.NUMBER).description("대여 정보 ID"),
+                                fieldWithPath("data.content[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
+                                fieldWithPath("data.content[].ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data.content[].renterId").type(JsonFieldType.NUMBER).description("대여자 ID"),
+                                fieldWithPath("data.content[].requestDate").type(JsonFieldType.STRING).description("요청 일시"),
+                                fieldWithPath("data.content[].status").type(JsonFieldType.STRING).description("대여 상태"),
+                                fieldWithPath("data.content[].approvedDate").type(JsonFieldType.NULL).description("승인 일시 (없으면 null)"),
+                                fieldWithPath("data.content[].rejectedDate").type(JsonFieldType.NULL).description("거절 일시 (없으면 null)"),
+                                fieldWithPath("data.content[].startDate").type(JsonFieldType.STRING).description("시작일"),
+                                fieldWithPath("data.content[].dueDate").type(JsonFieldType.STRING).description("반납 예정일"),
+                                fieldWithPath("data.content[].leftAt").type(JsonFieldType.NULL).description("사물함에 맡긴 시각 (없으면 null)"),
+                                fieldWithPath("data.content[].pickedUpAt").type(JsonFieldType.NULL).description("픽업 시각 (없으면 null)"),
+                                fieldWithPath("data.content[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
+                                fieldWithPath("data.content[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
+                                fieldWithPath("data.content[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
+                                fieldWithPath("data.content[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
+                                fieldWithPath("data.content[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열"),
+
+                                fieldWithPath("data.pageable").type(JsonFieldType.OBJECT).description("페이지 정보"),
+                                fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER).description("현재 페이지 번호"),
+                                fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER).description("페이지 크기"),
+                                fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER).description("현재 페이지의 요소 시작 인덱스"),
+                                fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN).description("페이징 여부"),
+                                fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN).description("비페이징 여부"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN).description("페이지 정렬 정보 비어있는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN).description("페이지 정렬 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN).description("페이지 미정렬 여부"),
+
+                                fieldWithPath("data.sort").type(JsonFieldType.OBJECT).description("전체 정렬 정보"),
+                                fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN).description("정렬 정보 비어있는지 여부"),
+                                fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN).description("정렬 여부"),
+                                fieldWithPath("data.sort.unsorted").type(JsonFieldType.BOOLEAN).description("미정렬 여부"),
+
+                                fieldWithPath("data.first").type(JsonFieldType.BOOLEAN).description("첫 페이지 여부"),
+                                fieldWithPath("data.last").type(JsonFieldType.BOOLEAN).description("마지막 페이지 여부"),
+                                fieldWithPath("data.number").type(JsonFieldType.NUMBER).description("현재 페이지 번호"),
+                                fieldWithPath("data.size").type(JsonFieldType.NUMBER).description("요소 개수 (페이지 크기)"),
+                                fieldWithPath("data.numberOfElements").type(JsonFieldType.NUMBER).description("현재 페이지의 실제 요소 수"),
+                                fieldWithPath("data.totalElements").type(JsonFieldType.NUMBER).description("전체 요소 수"),
+                                fieldWithPath("data.totalPages").type(JsonFieldType.NUMBER).description("전체 페이지 수"),
+                                fieldWithPath("data.empty").type(JsonFieldType.BOOLEAN).description("페이지가 비어있는지 여부")
                         )
                 ));
 
-        verify(rentalService).getRentalsForUser(any(), any(RentalSearchForm.class));
+        verify(rentalService).getRentalsForUser(
+                any(MemberDto.class),
+                any(RentalSearchForm.class),
+                any(Pageable.class)
+        );
     }
 
     @WithMockUser(roles = "USER")

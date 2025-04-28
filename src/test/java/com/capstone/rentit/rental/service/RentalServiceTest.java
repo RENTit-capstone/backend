@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.http.MediaType;
 
@@ -30,6 +32,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.data.domain.Pageable.unpaged;
 
 @ExtendWith(MockitoExtension.class)
 class RentalServiceTest {
@@ -110,22 +113,32 @@ class RentalServiceTest {
     @Test
     @DisplayName("getRentalsForUser: Login Member 기준 필터 및 URL생성")
     void getRentalsForUser_success() {
+        //given
         Rental r1 = Rental.builder().rentalId(1L).ownerId(10L).renterId(99L).status(RentalStatusEnum.APPROVED).build();
         Rental r2 = Rental.builder().rentalId(2L).ownerId(77L).renterId(10L).status(RentalStatusEnum.PICKED_UP).build();
 
         RentalSearchForm form = new RentalSearchForm();
-        List<RentalStatusEnum> statusEnumList = List.of(RentalStatusEnum.APPROVED);
-        form.setStatuses(statusEnumList);
-
-        given(rentalRepository.findAllByUserIdAndStatuses(10L,statusEnumList))
-                .willReturn(Arrays.asList(r1));
-        doReturn("signed-url").when(fileStorageService).generatePresignedUrl(null);
+        form.setStatuses(List.of(RentalStatusEnum.APPROVED));
 
         MemberDto user = mock(MemberDto.class);
         given(user.getId()).willReturn(10L);
 
-        List<RentalDto> dtos = rentalService.getRentalsForUser(user, form);
-        assertThat(dtos).extracting(RentalDto::getRentalId)
+        Page<Rental> rentalPage = new PageImpl<>(
+                List.of(r1),
+                unpaged(),
+                1
+        );
+
+        given(rentalRepository.findAllByUserIdAndStatuses(
+                10L, form.getStatuses(), unpaged()))
+                .willReturn(rentalPage);
+        doReturn("signed-url").when(fileStorageService).generatePresignedUrl(null);
+
+        //when
+        Page<RentalDto> dtoPage = rentalService.getRentalsForUser(user, form, unpaged());
+
+        //then
+        assertThat(dtoPage).extracting(RentalDto::getRentalId)
                 .containsExactlyInAnyOrder(1L);
     }
 
