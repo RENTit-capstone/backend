@@ -1,5 +1,6 @@
 package com.capstone.rentit.item.dto;
 
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,4 +21,6 @@ public class ItemSearchForm {
 
     private Integer minPrice;
     private Integer maxPrice;
+
+    private ItemStatusEnum status;
 }

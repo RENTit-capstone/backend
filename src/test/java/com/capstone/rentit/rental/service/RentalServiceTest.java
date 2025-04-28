@@ -1,6 +1,7 @@
 package com.capstone.rentit.rental.service;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.exception.ItemNotFoundException;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
@@ -24,14 +25,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.data.domain.Pageable.unpaged;
 
 @ExtendWith(MockitoExtension.class)

@@ -471,6 +471,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_물품_관리_api">물품 관리 API</a>
 <ul class="sectlevel2">
+<li><a href="#_물품_상태_목록">물품 상태 목록</a></li>
 <li><a href="#_물품_등록">물품 등록</a></li>
 <li><a href="#_물품_목록_조회">물품 목록 조회</a></li>
 <li><a href="#_물품_조회">물품 조회</a></li>
@@ -602,7 +603,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=Sz7_CUb3MJ467Nwefe_7mp58TLKp1N8Dap9nNuagAckFzwGxfVqcan_GUvgXjb4rSsLPq_1JYdOfsLwuW_5XDteYZfBjrTLV HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=nBBy9ATdD8GTZexr43y17VdBrPMIR986imh_tEuXB8HEiawIqnFCxmHqOaC-V9tdhVGB2zV2gcpsfrkXs1hO13ukYfLzuJk4 HTTP/1.1
 Content-Type: application/json
 Content-Length: 230
 Host: localhost:8080
@@ -696,7 +697,7 @@ Content-Length: 38
 <h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=x7998GcIh9uH7qAxJSzaUeffWuppzShiRebwo6KyI4ZKOcbzooZFwl8-5O-q15ABEwHuM9Dqd9Ne-kpPIIeVx5vXEeN4C6eX HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=EhJR7Ngsmk18PeW_Bu0rTQqXejPpx_yf3mqEc9KQwT_niXd0K3AyiegUontRDtCIMsAfdDqvVwqPocmyuAu9EbD09A-D7E5M HTTP/1.1
 Content-Type: application/json
 Content-Length: 59
 Host: localhost:8080
@@ -795,7 +796,7 @@ Content-Length: 95
 <h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=_GedWzQU8h6Ws1-M9vgc-0uxfvOR8F6ef60DvDcIjil5nszemVCsblAjxXy7i2jpwtUozimBU8qhwWyzHJUyj1MxvxEapq69 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=x0nuVugjX69zU8PQcJfh7tf__Cem4n0UKFGqseAfO3CCp5Rv9Svcb9BCZ55eava0RrrV1--a0UXF1U45GmjPhNh-Xkbhk6IN HTTP/1.1
 Content-Type: application/json
 Content-Length: 73
 Host: localhost:8080
@@ -951,7 +952,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 449
 
-{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODQ2MzYxLCJleHAiOjE3NDU4NDk5NjF9.6ZlBmCrX7-i8eyNvHkgjF9sm_pAAZVDw91Wqu8R-xjQe0RNyx2JoNAgi4HDy1abijgRGokfEg5XuPuFFq2uEFA","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODQ2MzYxLCJleHAiOjE3NDU4NTcxNjF9.o75HylQ5KrBMSGjB0wyLHs-ILai5SyWptoL8CEnja1jitP66BbGPr_4eiOxh10ZPEZUC13C1U9jETAKNVHM8ag"},"message":""}</code></pre>
+{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODUzOTA4LCJleHAiOjE3NDU4NTc1MDh9.cEnEvqMZxluJz2htA0r52OwiJZgxL4aXS8H6XZK5KwLsco3QvPAsar6i8y3FVibaP8pPuwld1TQJvvTwYcfngg","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODUzOTA4LCJleHAiOjE3NDU4NjQ3MDh9.SYlO6WYwmttpj_FxN-vNIVSQsP4mCo8MmdYflLR6YyEB7a5rZgP02r8jrI7X7j8da7DQApaK9Grsg4oau0maqg"},"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -999,7 +1000,7 @@ Content-Type: application/json;charset=UTF-8
 Content-Length: 233
 Host: localhost:8080
 
-{"accessToken":"dummy","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODQ2MzYxLCJleHAiOjE3NDU4NTcxNjF9.bf6Kh4mDYyGzXf1CmT-vQDfQ2vLtYU6kwCmOkiv9FevZ_0qnWBxFwSrRKSJZIEljaAUaBxSZwP-rTbdQDe7dJQ"}</code></pre>
+{"accessToken":"dummy","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODUzOTA4LCJleHAiOjE3NDU4NjQ3MDh9.EuTxafvJBsK_yValAwF-OsWvGiVD114EuNRtPy6VoA3jISpdxZYtE_sUF6_gxZ7E5Id30okgYQW_s_dAd0AzAg"}</code></pre>
 </div>
 </div>
 </div>
@@ -1056,7 +1057,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 457
 
-{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODQ2MzYxLCJleHAiOjE3NDU4NDk5NjF9.7ISprhMCZ9IThhls-XpfswV9L2A8CtWhPP5T9B35VNa_veX1fOM4ugtXMxPe1mmbgy21yh_jJaLDUVcRS8UmTg","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODQ2MzYxLCJleHAiOjE3NDU4NTcxNjF9.bf6Kh4mDYyGzXf1CmT-vQDfQ2vLtYU6kwCmOkiv9FevZ_0qnWBxFwSrRKSJZIEljaAUaBxSZwP-rTbdQDe7dJQ"},"message":""}</code></pre>
+{"success":true,"data":{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODUzOTA4LCJleHAiOjE3NDU4NTc1MDh9.ima0NhXX4m9QPcMHJIbyONR5bNogXlXlujrs0SYCxwqfHJ4Ab2bR2bmA67Xvr1qEfCZVP3yNMbLyHDIWSjgzHg","refreshToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ1ODUzOTA4LCJleHAiOjE3NDU4NjQ3MDh9.EuTxafvJBsK_yValAwF-OsWvGiVD114EuNRtPy6VoA3jISpdxZYtE_sUF6_gxZ7E5Id30okgYQW_s_dAd0AzAg"},"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -1354,7 +1355,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=wn8mhTe9zIp8zlLttxpxWzoyqktIxVOBayhfWMexUu5I5qSOp00VtAeJ-L9R_GbbhTdFPgwCh3MsoGGsXxxvbKKAY4xx3sbq HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=YapDEM-HaeLRuU29cfiOdRnmjEx9iLKYcMlHKfMBmwPM1382Ust1Jfq2CID8gH2JSdW6TXiHoXQbu9O1RfpySsBgomGvsxlV HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 233
 Host: localhost:8080
@@ -1469,7 +1470,7 @@ Content-Length: 38
 <h4 id="_http_요청_9"><a class="link" href="#_http_요청_9">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=pcUfkIwMhy_1hDhT997YoKJ3OmaugkKLW3VGZYLn-LqBAryskv0npe88s07Yt1xiz_PslpQRF16X5namb0AnALDSnou0M46a HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=FAV2u2CvRt_bVtFW1Sh2QqNHUUf5lMmdKu-yRtHzkopO8JzucmcTilWdc-v2MOVvswVCIJVwfH-aof2wG4mLIuTL9Lovw6nY HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 125
 Host: localhost:8080
@@ -1692,6 +1693,17 @@ Host: localhost:8080</code></pre>
 <h2 id="_물품_관리_api"><a class="link" href="#_물품_관리_api">물품 관리 API</a></h2>
 <div class="sectionbody">
 <div class="sect2">
+<h3 id="_물품_상태_목록"><a class="link" href="#_물품_상태_목록">물품 상태 목록</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre>{
+    AVAILABLE, //대여 가능 물품
+    OUT, //이미 대여된 물품
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_물품_등록"><a class="link" href="#_물품_등록">물품 등록</a></h3>
 <div class="paragraph">
 <p>POST /api/v1/items</p>
@@ -1744,8 +1756,8 @@ Host: localhost:8080</code></pre>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">물품 상태 (정수값)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">물품 상태</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>damagedPolicy</code></p></td>
@@ -1774,12 +1786,12 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_12"><a class="link" href="#_http_요청_12">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=zr14_lZWS_Y4V2DCEuB-xVR8utcyBC6GR3b4rBqBASxzAwK-q4ganGducpIVZVGkI81K8m0Yl7ZUZRerJRTNlCniN0lBZjCJ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=aR5Sz9tK6fI8o3p2L4XNi1epUuUKR97fVOaxlWqss16pstdAXXtnqewr3JERxUlCSaj56Waff4dsJe7yY4WG8V3Igzie07Uk HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Content-Length: 288
+Content-Length: 298
 Host: localhost:8080
 
-{"ownerId":1,"name":"Sample Item","itemImg":"http://example.com/item.jpg","description":"Sample description","categoryId":1,"price":2000,"status":0,"damagedPolicy":"No damage allowed","returnPolicy":"Return within 3 days","startDate":"2025-01-01T09:00:00","endDate":"2025-01-08T18:00:00"}</code></pre>
+{"ownerId":1,"name":"Sample Item","itemImg":"http://example.com/item.jpg","description":"Sample description","categoryId":1,"price":2000,"status":"AVAILABLE","damagedPolicy":"No damage allowed","returnPolicy":"Return within 3 days","startDate":"2025-01-01T09:00:00","endDate":"2025-01-08T18:00:00"}</code></pre>
 </div>
 </div>
 </div>
@@ -1875,6 +1887,22 @@ Content-Length: 39
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxPrice</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">최대 대여 가격</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">물품 상태 필터 (예: AVAILABLE, OUT)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 번호 (0부터 시작)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">정렬 기준 (예: createdAt,desc)</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1882,7 +1910,7 @@ Content-Length: 39
 <h4 id="_http_요청_13"><a class="link" href="#_http_요청_13">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=&amp;startDate=&amp;endDate=&amp;minPrice=&amp;maxPrice=&amp;_csrf=vJyMMJJ6dctSxU5ysC0sgtQFNwM9xQB0qja0T0jRtOm1yl9nj6ztCaseF_l_8n9AgAAY4ONnGmIJoDJZnVWDKnrngN2M-zkD HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=&amp;startDate=&amp;endDate=&amp;minPrice=&amp;maxPrice=&amp;status=&amp;page=0&amp;size=20&amp;sort=createdAt,desc HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -1909,84 +1937,174 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">물품 목록</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].itemId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].itemId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">물품 ID</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].ownerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].ownerId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">소유자 ID</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">물품 이름</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].itemImg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].itemImg</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">이미지 URL</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].description</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">상세 설명</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].categoryId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].categoryId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">카테고리 ID</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].price</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].price</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">대여 가격</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].status</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">상태</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">물품 상태</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].damagedPolicy</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].damagedPolicy</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">파손 정책</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].returnPolicy</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].returnPolicy</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">반납 정책</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].startDate</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">시작일</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].endDate</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">종료일</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].createdAt</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">물품 등록일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content[].updatedAt</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">물품 정보 수정일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">수정일</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지 (성공 시 빈 문자열)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.pageNumber</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지 번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.pageSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.offset</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 오프셋</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.paged</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이징 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.unpaged</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">비페이징 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.sort.empty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 내 정렬 정보가 비어있는지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.sort.sorted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 내 정렬이 적용되었는지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.pageable.sort.unsorted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 내 정렬이 미적용되었는지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.sort.empty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 정렬 정보 비어있는지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.sort.sorted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 정렬 적용 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.sort.unsorted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 정렬 미적용 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.numberOfElements</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지 요소 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.totalElements</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 요소 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.totalPages</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지 번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.empty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지가 비어있는지 여부</p></td>
 </tr>
 </tbody>
 </table>
@@ -2001,7 +2119,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=GECOvVlHV2mPLQo-FXI7D9dOAuiuws8-YyTGYVZiXfTnOW4vISO_iWgmZQ2iGGxdJF8PPOB3L4qdoKsTVRz3Am8AOZHSWFoa HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=9TUh719Eppaj_9QogLbaaecGPuo-Mk1P6ipdI9qBdbfM-uH9llETjTonw_SOm-AZ5ZvuDNJkE9MJAHVii05lQuyxFIevw9Oe HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2153,11 +2271,6 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">대여 가격</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">수정할 상태</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>damagedPolicy</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">수정할 파손정책</p></td>
@@ -2184,12 +2297,12 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_15"><a class="link" href="#_http_요청_15">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=qoDfrEvNG2WPRzQ2X1J0dYT9xHVrK0XvuoEofwqD-i-lNXfFmea6yHL1eFKifwRUOn9ARL2Y6U0OTyHC3udKSG67z0ySAkf0 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=-_780G3ZpLnY--2LUxTy4aFr8qu2pKz5w-slGYHi-dcD6OZHy82Z4Fi4nd31n9vpMjnGgsUI35KPkMnUptxAL7HSy-Iw3YMm HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Content-Length: 225
+Content-Length: 214
 Host: localhost:8080
 
-{"name":"Updated","itemImg":"newUrl","description":"newDesc","categoryId":2,"price":2000,"status":1,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-04-28T22:19:14.8733008","endDate":"2025-04-30T22:19:14.8733008"}</code></pre>
+{"name":"Updated","itemImg":"newUrl","description":"newDesc","categoryId":2,"price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-04-29T00:25:00.7296995","endDate":"2025-05-01T00:25:00.7296995"}</code></pre>
 </div>
 </div>
 </div>
@@ -2260,7 +2373,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=dnKYKXlDp9lc86Qsd8YZxFKDQ8S-shO591mbKE69KRk7Cik2EkH8H0B3ku5xxJwYROstoWSwbvyH0CqUxDuvEX_ZHildbhkD</code></pre>
+_csrf=jK5ScwDt5Rpr8NYY8ARh_9gzkChpa0II82dCmA3jdjV_6ph5upplSzHZ1C1GlOd-xClVzrwBvRBQW3Ely1d1_D_QF1cZiK8d</code></pre>
 </div>
 </div>
 </div>
@@ -2374,12 +2487,12 @@ _csrf=dnKYKXlDp9lc86Qsd8YZxFKDQ8S-shO591mbKE69KRk7Cik2EkH8H0B3ku5xxJwYROstoWSwbv
 <h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=RBkBZAGKTKaf-8dmqosT4My3FmAbxfhprE4HjCUJSLMR2pfVcS03VDS5eMWyyv8DyKYn0_TSO1kioclEmCw-vRw5Lotzv_aw HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=thztIcK-TzeU78i0LEL5qqjkyjzdRUf4tbgBQ5BsrUcjZSRPhCWMF_uIfg-5iqmCSG_NzMzW5wXld3bV1I05cfFfyXYUXBF3 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 123
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-04-29T22:19:25.5091384","dueDate":"2025-05-05T22:19:25.5091384"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-04-30T00:25:12.7186576","dueDate":"2025-05-06T00:25:12.7186576"}</code></pre>
 </div>
 </div>
 </div>
@@ -2712,7 +2825,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=360-84_2ncZMx14a-QnLDfJmc69jFTzIPSh0ggDOXumoKOfguctbwO2QrqNh9T8ryyT_b5BVXpZXLF_lXhBGsDn7btDMSoaE HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=hnf5p72BJMguN-nyKK7CbwtMGPbILtPUiwMbm_vXNYc7zlqlskPBn4TnR_oDAYvHToP2W2goNZesFuX5smYq-M-0AbMP-DjA HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2846,7 +2959,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=tKDhKFVjnVUbqmFRczvLGdeSBKRS-ghDu_ISAZTEJIAW0DQGhZHUHzMGpDA2klcySxb_LeLzKZ1jyThujMEiNaf8QuMj4FI-</code></pre>
+_csrf=XqkjN9dQSw_eSXo3L1NwodY-OfNms2pBRKac8hXqPEyiKGKnZ5hGBudlczrzKEsOGn5El-IIFMoAhgxscJT_wiHcXnmaS1uS</code></pre>
 </div>
 </div>
 </div>
@@ -2899,7 +3012,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=gNlwRLg8sq3Lv1WpPe409l1SlYL_DoYpp2c_tYO9hZ1c2tmfsOtBIYhfhZ3m3GWZD8MAlzgxuOPPbeQEkFRehuWLt6Rs7O6v</code></pre>
+_csrf=4iXVqSJNbkKhN4gim62TA3xw7Tpwd6OAUPPTT8b4aMgTu1KpgxXsnhEsDyGMU-wSo4CnYE9CwANAFJOtMcTkeKDIDa0qjWac</code></pre>
 </div>
 </div>
 </div>
@@ -2952,7 +3065,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=RvMrMhJlPgJUy7MSPufjho6e6FoUvh3889fS_7hPcFS3hMQQdpVOUSZVDjF58oJ3C8rXsuqqxTghjivRyuawxoF8EzWGvPQn</code></pre>
+_csrf=YtPs1hQVs_lgWVJjudT9LO6J7InIoEtBqVCwMY8RTWGdgY9JVeKN43IlhclNP2EB3_nJTY-wwbCrwntskWHUBrsgfASr5Lkq</code></pre>
 </div>
 </div>
 </div>
@@ -3026,7 +3139,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=D7y6elbjdC8ydreAqiEX5NjYxXhWtYf71XyZfM89Frmk-wTFa92DTmbaQBofEo61zgwjh-nr6BluhbPWtB6hGPoFd4rCyGeh</code></pre>
+_csrf=PQYJuTkQ5EGLAIhjgTiEdZ0TL93cGDAWfUScCLY6N4GWy2MOCjJogV0g03CmN7wA5RWwE_4rAuXtegk7GHKobtcPAbWu81pv</code></pre>
 </div>
 </div>
 </div>
@@ -3079,7 +3192,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=-et5RulkT8J1iixggYHxxeYdeaz-70l2gy_qvClUPw-eSo_LnI9KcdEGLqRY7B5StKzFp4AsVM3LjHBb5UmI2B1gWTqpLLv9</code></pre>
+_csrf=z1uqdzpL0RSmIDMQT0FC1OuNavy4YDLoqAoTWHy67glqWZeJ-22YFg955iOLFwIpe2x2tdy_R8TaVgHFnz4qa0vf1j9YaPS7</code></pre>
 </div>
 </div>
 </div>
@@ -3231,7 +3344,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=4xsWxedabrxrhuoxRO1fMtQeTNqsg-wuurilKSqzioi97DPIgn8l8NdrD9lG4NgBc8BrBuEpYeKVsNkDjo6VHEvRuL3bjlL8</code></pre>
+_csrf=27I3Pln_UQYf9Gd0xuWoMJDdaLEhzaw3Lg3riQCRuXU0ZRQ9v4RTCmibaTQywV9N88icU6HsRYgZ-ZkaSmvbvmOj2kANA3UF</code></pre>
 </div>
 </div>
 </div>
@@ -3279,7 +3392,7 @@ _csrf=4xsWxedabrxrhuoxRO1fMtQeTNqsg-wuurilKSqzioi97DPIgn8l8NdrD9lG4NgBc8BrBuEpYe
 <h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=NtjQhK2Ij-IcdOXU7ceGgrYaQpAx4glbRzDIk5d4nJTDl4GnVO3ktZ64t9cxEdDt3Oqy5oUsb_EJ1Wt2IwjxofEdraampLHC HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=mNIasknRCtPNOiDr4UOWafeX3siSIV5ZxGxNLaHViINwwNd4oOt8gyjpPrDgAkHZ2W6iXMSl86qmRW908gp7HcK06rZEpLZI HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3418,7 +3531,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=A4RTaVWpkZ1uGLsTuckR5xAnf6y6cqaGbiggjYvb9gCbclbKYrRnWjTNqKxDLolyj-QlgScWUpSDRZ6rWRwUvbLuzzKpETP5</code></pre>
+_csrf=LlenpLslIvJSuAsz3vtBvhtZKljWAhWEs_VLxBWEH8oOlmNLGWCexthEF8Z_2WpW5tZ1j34_B2DlNHOpgsR7oCe1J6g8plZ6</code></pre>
 </div>
 </div>
 </div>
@@ -3510,7 +3623,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=Zz9N08z698g6OXb5QeTBQBoyjxKwNtSGQ82ma1QmRpfZPvB5Vwp-sPvDkawXDxeadMn1Jn8HonDRBrereq7CXGFHJK_uD5Ua</code></pre>
+_csrf=HgzITyteaHPgTI-nKpbq-7DtnCJowS7ac-4wQU7hS3n97vWgfTX4fEpoXRfNfe6SSbvezITesRoN8R33F4pUd3bZKkqc3MeS</code></pre>
 </div>
 </div>
 </div>
@@ -3573,7 +3686,7 @@ Content-Length: 41
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2025-04-28 01:03:30 +0900
+Last updated 2025-04-28 23:25:41 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

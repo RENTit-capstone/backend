@@ -1,6 +1,8 @@
 package com.capstone.rentit.item.service;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.exception.ItemNotFoundException;
+import com.capstone.rentit.item.exception.ItemUnauthorizedException;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
@@ -9,15 +11,17 @@ import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
+import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.member.dto.StudentDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +43,9 @@ class ItemServiceTest {
     private ItemCreateForm createForm;
     private ItemUpdateForm updateForm;
     private Item sampleItem;
+    private MemberDto ownerMember;
+    private MemberDto otherMember;
+    private Pageable pageable;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -47,6 +54,7 @@ class ItemServiceTest {
 
     @BeforeEach
     void setUp() {
+        // 공통 테스트 데이터 준비
         createForm = new ItemCreateForm();
         createForm.setOwnerId(100L);
         createForm.setName("Sample");
@@ -54,13 +62,12 @@ class ItemServiceTest {
         createForm.setDescription("desc");
         createForm.setCategoryId(1L);
         createForm.setPrice(1000);
-        createForm.setStatus(0);
+        createForm.setStatus(ItemStatusEnum.AVAILABLE);
         createForm.setDamagedPolicy("DP");
         createForm.setReturnPolicy("RP");
         createForm.setStartDate(LocalDateTime.now());
         createForm.setEndDate(LocalDateTime.now().plusDays(1));
 
-        // builder에서 실제 엔티티의 PK필드명(itemId)으로 세팅
         sampleItem = Item.builder()
                 .itemId(42L)
                 .ownerId(createForm.getOwnerId())
@@ -69,7 +76,7 @@ class ItemServiceTest {
                 .description(createForm.getDescription())
                 .categoryId(createForm.getCategoryId())
                 .price(createForm.getPrice())
-                .status(ItemStatusEnum.integerToItemStatusEnum(createForm.getStatus()))
+                .status(createForm.getStatus())
                 .damagedPolicy(createForm.getDamagedPolicy())
                 .returnPolicy(createForm.getReturnPolicy())
                 .startDate(createForm.getStartDate())
@@ -82,11 +89,15 @@ class ItemServiceTest {
         updateForm.setDescription("new desc");
         updateForm.setCategoryId(2L);
         updateForm.setPrice(2000);
-        updateForm.setStatus(1);
         updateForm.setDamagedPolicy("DP2");
         updateForm.setReturnPolicy("RP2");
         updateForm.setStartDate(createForm.getStartDate().plusDays(1));
         updateForm.setEndDate(createForm.getEndDate().plusDays(2));
+
+        ownerMember = StudentDto.builder().id(createForm.getOwnerId()).build();
+        otherMember = StudentDto.builder().id(999L).build();
+
+        pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
     }
 
     @DisplayName("createItem: 새 아이템 생성 후 ID 반환")
@@ -140,18 +151,18 @@ class ItemServiceTest {
                 .endDate(LocalDateTime.now().plusDays(3))
                 .build();
 
-        ItemSearchForm emptyForm = new ItemSearchForm(); // 모든 필드 null
-        given(itemRepository.search(emptyForm))
-                .willReturn(Arrays.asList(sampleItem, other));
+        Page<Item> itemPage = new PageImpl<>(List.of(sampleItem, other), pageable, 2);
+        given(itemRepository.search(any(ItemSearchForm.class), eq(pageable)))
+                .willReturn(itemPage);
 
         // when
-        List<ItemDto> dtos = itemService.getAllItems(emptyForm);
+        Page<ItemDto> dtoPage = itemService.getAllItems(new ItemSearchForm(), pageable);
 
         // then
-        assertThat(dtos).hasSize(2)
+        assertThat(dtoPage).hasSize(2)
                 .extracting(ItemDto::getName)
                 .containsExactlyInAnyOrder("Sample", "Other");
-        then(itemRepository).should().search(emptyForm);
+        then(itemRepository).should().search(any(ItemSearchForm.class), eq(pageable));
     }
 
     @DisplayName("getAllItems: 키워드 및 가격 범위 조건으로 호출하면, 해당 조건에 맞는 아이템만 반환")
@@ -163,22 +174,21 @@ class ItemServiceTest {
         form.setMinPrice(500);
         form.setMaxPrice(1500);
 
-        // sampleItem 만 필터링 결과로 가정
-        given(itemRepository.search(form))
-                .willReturn(Arrays.asList(sampleItem));
+        Page<Item> itemPage = new PageImpl<>(List.of(sampleItem), pageable, 1);
+        given(itemRepository.search(form, pageable)).willReturn(itemPage);
 
         // when
-        List<ItemDto> dtos = itemService.getAllItems(form);
+        Page<ItemDto> dtoPage = itemService.getAllItems(form, pageable);
 
         // then
-        assertThat(dtos).hasSize(1)
+        assertThat(dtoPage).hasSize(1)
                 .first()
                 .extracting(ItemDto::getName)
                 .isEqualTo("Sample");
-        then(itemRepository).should().search(form);
+        then(itemRepository).should().search(form, pageable);
     }
 
-    @DisplayName("getItem: 존재하는 ID면 DTO, 없으면 예외")
+    @DisplayName("getItem: 존재하는 ID면 DTO 반환")
     @Test
     void getItem_existingId_thenReturnDto() {
         // given
@@ -200,10 +210,10 @@ class ItemServiceTest {
         given(itemRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
 
-        // when + then
+        // when, then
         assertThatThrownBy(() -> itemService.getItem(123L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Item not found");
+                .isInstanceOf(ItemNotFoundException.class)
+                .hasMessage("존재하지 않는 물품입니다.");
     }
 
     @DisplayName("updateItem: ID 존재 시 필드 업데이트 후 저장")
@@ -212,12 +222,10 @@ class ItemServiceTest {
         // given
         given(itemRepository.findById(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
-        // save는 인자로 받은 객체를 그대로 반환
-        given(itemRepository.save(any(Item.class)))
-                .willAnswer(inv -> inv.getArgument(0));
+        given(itemRepository.save(any(Item.class))).willAnswer(inv -> inv.getArgument(0));
 
         // when
-        itemService.updateItem(sampleItem.getItemId(), updateForm);
+        itemService.updateItem(ownerMember, sampleItem.getItemId(), updateForm);
 
         // then
         ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
@@ -230,13 +238,77 @@ class ItemServiceTest {
         assertThat(saved.getDamagedPolicy()).isEqualTo(updateForm.getDamagedPolicy());
     }
 
+    @DisplayName("updateItem: 존재하지 않는 ID면 ItemNotFoundException")
+    @Test
+    void updateItem_missingId_thenThrowNotFound() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() ->
+                itemService.updateItem(ownerMember, sampleItem.getItemId(), updateForm)
+        )
+                .isInstanceOf(ItemNotFoundException.class)
+                .hasMessage("존재하지 않는 물품입니다.");
+    }
+
+    @DisplayName("updateItem: 소유자가 아니면 ItemUnauthorizedException")
+    @Test
+    void updateItem_notOwner_thenThrowUnauthorized() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
+
+        // when, then
+        assertThatThrownBy(() ->
+                itemService.updateItem(otherMember, sampleItem.getItemId(), updateForm)
+        )
+                .isInstanceOf(ItemUnauthorizedException.class)
+                .hasMessage("자신의 소유 물품이 아닙니다.");
+    }
+
     @DisplayName("deleteItem: ID로 삭제 호출")
     @Test
     void deleteItem_whenCalled_thenRepositoryDeleteById() {
+        //given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
+
         // when
-        itemService.deleteItem(55L);
+        itemService.deleteItem(ownerMember, sampleItem.getItemId());
 
         // then
-        then(itemRepository).should().deleteById(55L);
+        then(itemRepository).should().deleteById(sampleItem.getItemId());
+    }
+
+    @DisplayName("deleteItem: 존재하지 않는 ID면 ItemNotFoundException")
+    @Test
+    void deleteItem_missingId_thenThrowNotFound() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() ->
+                itemService.deleteItem(ownerMember, sampleItem.getItemId())
+        )
+                .isInstanceOf(ItemNotFoundException.class)
+                .hasMessage("존재하지 않는 물품입니다.");
+    }
+
+    @DisplayName("deleteItem: 소유자가 아니면 ItemUnauthorizedException")
+    @Test
+    void deleteItem_notOwner_thenThrowUnauthorized() {
+        // given
+        given(itemRepository.findById(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
+
+        // when, then
+        assertThatThrownBy(() ->
+                itemService.deleteItem(otherMember, sampleItem.getItemId())
+        )
+                .isInstanceOf(ItemUnauthorizedException.class)
+                .hasMessage("자신의 소유 물품이 아닙니다.");
     }
 }

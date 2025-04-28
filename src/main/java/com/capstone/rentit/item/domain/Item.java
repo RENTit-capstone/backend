@@ -1,7 +1,6 @@
 package com.capstone.rentit.item.domain;
 
-import com.capstone.rentit.common.ItemStatusConverter;
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,8 +59,6 @@ public class Item {
             this.categoryId = form.getCategoryId();
         if(form.getPrice() != null)
             this.price = form.getPrice();
-        if(form.getStatus() != null)
-            this.status = ItemStatusConverter.fromInteger(form.getStatus());
         if(form.getDamagedPolicy() != null)
             this.damagedPolicy = form.getDamagedPolicy();
         if(form.getReturnPolicy() != null)
