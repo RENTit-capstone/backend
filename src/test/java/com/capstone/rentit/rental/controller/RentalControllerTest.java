@@ -63,6 +63,7 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals - 대여 요청 성공")
     @Test
     void requestRental_success() throws Exception {
+        //given
         RentalRequestForm form = new RentalRequestForm();
         form.setItemId(100L);
         form.setOwnerId(10L);
@@ -72,6 +73,7 @@ class RentalControllerTest {
 
         given(rentalService.requestRental(any())).willReturn(1L);
 
+        //when, then
         mockMvc.perform(post("/api/v1/rentals")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,6 +216,7 @@ class RentalControllerTest {
     @DisplayName("GET /api/v1/rentals/{id} - 단일 대여 조회")
     @Test
     void getRental_success() throws Exception {
+        //given
         long rid = 5L;
         Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
@@ -231,6 +234,7 @@ class RentalControllerTest {
                 .build();
         given(rentalService.getRental(eq(rid), any(MemberDto.class))).willReturn(dto);
 
+        //when, then
         mockMvc.perform(get("/api/v1/rentals/{id}", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -268,7 +272,10 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/approve - 대여 승인")
     @Test
     void approveRental_success() throws Exception {
+        //given
         long rid = 7L;
+
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/approve", rid)
                         .with(csrf())
                 )
@@ -289,7 +296,10 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/reject - 대여 거절")
     @Test
     void rejectRental_success() throws Exception {
+        //given
         long rid = 8L;
+
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/reject", rid)
                         .with(csrf())
                 )
@@ -310,11 +320,13 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/cancel - 대여 취소")
     @Test
     void cancelRental_success() throws Exception {
+        //given
         long rid = 7L;
         Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/cancel", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -336,11 +348,13 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/dropoff - 사물함에 맡기기")
     @Test
     void dropOff_success() throws Exception {
+        //given
         long rid = 9L, lockerId = 42L;
         Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/dropoff", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -366,11 +380,13 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/pickup - 픽업")
     @Test
     void pickUpByRenter_success() throws Exception {
+        //given
         long rid = 10L;
         Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/pickup", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -392,6 +408,7 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/return - 반납")
     @Test
     void returnToLocker_success() throws Exception {
+        //given
         long rid = 13L, lockerId = 55L;
         Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
@@ -399,6 +416,7 @@ class RentalControllerTest {
 
         MockMultipartFile file = new MockMultipartFile("returnImage", "img.jpg", "image/jpeg", "data".getBytes());
 
+        //when, then
         mockMvc.perform(multipart("/api/v1/rentals/{id}/return", rid)
                         .file(file)
                         .with(csrf())
@@ -428,11 +446,13 @@ class RentalControllerTest {
     @DisplayName("POST /api/v1/rentals/{id}/retrieve - 회수 완료")
     @Test
     void retrieveByOwner_success() throws Exception {
+        //given
         long rid = 15L;
         Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
+        //when, then
         mockMvc.perform(post("/api/v1/rentals/{id}/retrieve", rid)
                         .with(csrf())
                         .with(authentication(auth))
@@ -454,6 +474,7 @@ class RentalControllerTest {
     @DisplayName("GET /api/v1/admin/rentals/{userId} - 관리자 특정 사용자 대여 목록")
     @Test
     void getRentalsByUser_success() throws Exception {
+        //given
         long userId = 99L;
         RentalDto dto1 = RentalDto.builder()
                 .rentalId(20L).itemId(100L).ownerId(10L).renterId(20L)
@@ -475,6 +496,7 @@ class RentalControllerTest {
                 .build();
         given(rentalService.getRentalsByUser(userId)).willReturn(List.of(dto1, dto2));
 
+        //when, then
         mockMvc.perform(get("/api/v1/admin/rentals/{userId}", userId)
                         .with(csrf())
                         .with(user("admin").roles("ADMIN"))
