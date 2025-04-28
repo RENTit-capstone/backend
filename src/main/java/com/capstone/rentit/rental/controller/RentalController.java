@@ -8,6 +8,10 @@ import com.capstone.rentit.rental.dto.RentalRequestForm;
 import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.service.RentalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,11 +36,13 @@ public class RentalController {
     /** 2) 내 대여 목록 조회 (소유자·대여자) */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/rentals")
-    public CommonResponse<List<RentalDto>> getMyRentals(
+    public CommonResponse<Page<RentalDto>> getMyRentals(
             @Login MemberDto loginMember,
-            @ModelAttribute RentalSearchForm searchForm) {
-        List<RentalDto> list = rentalService.getRentalsForUser(loginMember, searchForm);
-        return CommonResponse.success(list);
+            @ModelAttribute RentalSearchForm searchForm,
+            @PageableDefault(size = 20, sort = "requestDate", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        Page<RentalDto> page = rentalService.getRentalsForUser(loginMember, searchForm, pageable);
+        return CommonResponse.success(page);
     }
 
     /** 3) 단일 대여 조회 */
