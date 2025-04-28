@@ -1,6 +1,7 @@
 package com.capstone.rentit.exception;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.rental.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RentalExceptionHandler {
 
-    @ExceptionHandler({ RentalNotFoundException.class, ItemNotFoundException.class })
+    @ExceptionHandler(RentalNotFoundException.class)
     public CommonResponse<Void> handleNotFound(RuntimeException ex) {
         log.warn("Not found error: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
