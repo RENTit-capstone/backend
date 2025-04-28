@@ -2,6 +2,7 @@ package com.capstone.rentit.item.repository;
 
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemSearchForm;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.capstone.rentit.item.domain.QItem;
@@ -28,7 +29,8 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                         startDateGoe(form.getStartDate()),
                         endDateLoe(form.getEndDate()),
                         priceGoe(form.getMinPrice()),
-                        priceLoe(form.getMaxPrice())
+                        priceLoe(form.getMaxPrice()),
+                        statusEq(form.getStatus())
                 )
                 .orderBy(item.createdAt.desc())
                 .fetch();
@@ -40,6 +42,12 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
         // name 또는 description 중 하나라도 매칭
         return item.name.lower().like(pattern)
                 .or(item.description.lower().like(pattern));
+    }
+
+    private BooleanExpression statusEq(ItemStatusEnum status) {
+        return status != null
+                ? item.status.eq(status)
+                : null;
     }
 
     private BooleanExpression startDateGoe(LocalDateTime date) {
@@ -57,4 +65,5 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private BooleanExpression priceLoe(Integer max) {
         return max != null ? item.price.loe(max) : null;
     }
+
 }
