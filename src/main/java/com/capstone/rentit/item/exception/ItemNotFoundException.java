@@ -1,4 +1,4 @@
-package com.capstone.rentit.rental.exception;
+package com.capstone.rentit.item.exception;
 
 public class ItemNotFoundException extends RuntimeException {
     public ItemNotFoundException(String message) {
