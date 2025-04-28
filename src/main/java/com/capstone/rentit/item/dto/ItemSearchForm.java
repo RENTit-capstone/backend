@@ -20,4 +20,5 @@ public class ItemSearchForm {
 
     private Integer minPrice;
     private Integer maxPrice;
+
 }

@@ -53,7 +53,7 @@ class ItemServiceTest {
         createForm.setDescription("desc");
         createForm.setCategoryId(1L);
         createForm.setPrice(1000);
-        createForm.setStatus(0);
+        createForm.setStatus(ItemStatusEnum.AVAILABLE);
         createForm.setDamagedPolicy("DP");
         createForm.setReturnPolicy("RP");
         createForm.setStartDate(LocalDateTime.now());
@@ -68,7 +68,7 @@ class ItemServiceTest {
                 .description(createForm.getDescription())
                 .categoryId(createForm.getCategoryId())
                 .price(createForm.getPrice())
-                .status(ItemStatusEnum.integerToItemStatusEnum(createForm.getStatus()))
+                .status(createForm.getStatus())
                 .damagedPolicy(createForm.getDamagedPolicy())
                 .returnPolicy(createForm.getReturnPolicy())
                 .startDate(createForm.getStartDate())
@@ -81,7 +81,6 @@ class ItemServiceTest {
         updateForm.setDescription("new desc");
         updateForm.setCategoryId(2L);
         updateForm.setPrice(2000);
-        updateForm.setStatus(1);
         updateForm.setDamagedPolicy("DP2");
         updateForm.setReturnPolicy("RP2");
         updateForm.setStartDate(createForm.getStartDate().plusDays(1));

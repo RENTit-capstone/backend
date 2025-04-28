@@ -1,6 +1,5 @@
 package com.capstone.rentit.item.service;
 
-import com.capstone.rentit.item.status.ItemStatusConverter;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.repository.ItemRepository;
@@ -26,7 +25,7 @@ public class ItemService {
                 .itemImg(form.getItemImg())
                 .description(form.getDescription())
                 .categoryId(form.getCategoryId())
-                .status(ItemStatusConverter.fromInteger(form.getStatus()))
+                .status(form.getStatus())
                 .damagedPolicy(form.getDamagedPolicy())
                 .returnPolicy(form.getReturnPolicy())
                 .startDate(form.getStartDate())

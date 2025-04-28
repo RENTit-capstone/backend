@@ -13,7 +13,6 @@ public class ItemUpdateForm {
     private String description;
     private Long categoryId;
     private Integer price;
-    private Integer status;
     private String damagedPolicy;
     private String returnPolicy;
     private LocalDateTime startDate;

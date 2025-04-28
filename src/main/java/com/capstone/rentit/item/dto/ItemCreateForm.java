@@ -1,5 +1,6 @@
 package com.capstone.rentit.item.dto;
 
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ public class ItemCreateForm {
     private String description;
     private Long categoryId;
     private Integer price;
-    private Integer status;
+    private ItemStatusEnum status;
     private String damagedPolicy;
     private String returnPolicy;
     private LocalDateTime startDate;
