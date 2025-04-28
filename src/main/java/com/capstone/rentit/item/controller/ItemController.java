@@ -9,6 +9,10 @@ import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +33,12 @@ public class ItemController {
     }
 
     @GetMapping("/items")
-    public CommonResponse<List<ItemDto>> getAllItems(@ModelAttribute ItemSearchForm searchForm) {
-        List<ItemDto> items = itemService.getAllItems(searchForm);
-        return CommonResponse.success(items);
+    public CommonResponse<Page<ItemDto>> getAllItems(
+            @ModelAttribute ItemSearchForm searchForm,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        Page<ItemDto> page = itemService.getAllItems(searchForm, pageable);
+        return CommonResponse.success(page);
     }
 
     @GetMapping("/items/{itemId}")

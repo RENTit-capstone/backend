@@ -4,6 +4,8 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,16 +40,16 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemDto> getAllItems(ItemSearchForm searchForm) {
-        List<Item> items = itemRepository.search(searchForm);
-        return items.stream().map(ItemDtoFactory::toDto).collect(Collectors.toList());
+    public Page<ItemDto> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
+        Page<Item> page = itemRepository.search(searchForm, pageable);
+        return page.map(ItemDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
     public ItemDto getItem(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
-        return ItemDtoFactory.toDto(item);
+        return ItemDto.fromEntity(item);
     }
 
     public void updateItem(Long itemId, ItemUpdateForm form) {
