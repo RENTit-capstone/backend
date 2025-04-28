@@ -3,6 +3,8 @@ package com.capstone.rentit.rental.repository;
 import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,9 +13,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,88 +30,97 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomRentalRepositoryImplTest {
 
     @Autowired
-    private RentalRepository rentalRepository;
+    private EntityManager em;
 
-    // 테스트용 상수
-    private static final Long USER_ID = 1L;
-    private Rental requestedByUser;
-    private Rental approvedForUser;
-    private Rental otherRental;
-    private LocalDateTime baseTime;
+    private CustomRentalRepositoryImpl customRepo;
 
     @BeforeEach
     void setUp() {
-        baseTime = LocalDateTime.of(2025, 4, 28, 0, 0);
-
-        requestedByUser = createRental(USER_ID, 99L, 100L, RentalStatusEnum.REQUESTED);
-        approvedForUser  = createRental(42L, USER_ID, 100L, RentalStatusEnum.APPROVED);
-        otherRental      = createRental(8L,  9L,    200L, RentalStatusEnum.REQUESTED);
-
-        rentalRepository.saveAll(List.of(requestedByUser, approvedForUser, otherRental));
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        customRepo = new CustomRentalRepositoryImpl(queryFactory);
     }
 
     @Test
-    @DisplayName("상태 필터가 비어 있으면, 해당 유저의 모든 대여를 반환한다")
-    void whenStatusesEmpty_thenReturnAllRentalsForUser() {
-        //given, when
-        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
-                USER_ID,
-                Collections.emptyList(),
-                Pageable.unpaged()
-        );
-        List<Rental> results = page.getContent();
+    @DisplayName("1. unpaged + 빈 status → 해당 user의 모든 Rental을 requestDate DESC 순으로 반환")
+    void whenUnpagedAndEmptyStatuses_thenReturnAllForUser() {
+        // given
+        Rental r1 = saveRental(1L, 2L, RentalStatusEnum.REQUESTED, LocalDateTime.now().minusDays(2));
+        Rental r2 = saveRental(3L, 1L, RentalStatusEnum.APPROVED, LocalDateTime.now().minusDays(1));
+        Rental r3 = saveRental(4L, 5L, RentalStatusEnum.COMPLETED, LocalDateTime.now());
+        em.flush();
 
-        //then
-        assertThat(results)
-                .hasSize(2)
-                .containsExactlyInAnyOrder(requestedByUser, approvedForUser);
+        // when
+        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(1L, Collections.emptyList(), Pageable.unpaged());
+
+        // then
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        // 가장 최신 requestDate 순: r2, r1
+        assertThat(page.getContent()).containsExactly(r2, r1);
     }
 
     @Test
-    @DisplayName("특정 상태만 필터링하면, 해당 상태의 대여만 반환한다")
-    void whenStatusesProvided_thenReturnOnlyFilteredRentals() {
-        //given, when
-        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
-                USER_ID,
-                List.of(RentalStatusEnum.APPROVED),
-                Pageable.unpaged()
-        );
-        List<Rental> results = page.getContent();
+    @DisplayName("2. paged + 특정 statuses → 필터링 후 requestDate DESC 페이징")
+    void whenPagedAndSpecificStatuses_thenFilterByStatusAndPage() {
+        // given
+        // userId = 1 인 것 중 APPROVED, RETURNED만 골라본다
+        saveRental(1L, 2L, RentalStatusEnum.REQUESTED, LocalDateTime.now().minusDays(3));
+        Rental r2 = saveRental(1L, 3L, RentalStatusEnum.APPROVED, LocalDateTime.now().minusDays(2));
+        Rental r3 = saveRental(4L, 1L, RentalStatusEnum.COMPLETED, LocalDateTime.now().minusDays(1));
+        saveRental(5L, 6L, RentalStatusEnum.APPROVED, LocalDateTime.now());
+        em.flush();
 
-        //then
-        assertThat(results)
-                .hasSize(1)
-                .first()
-                .extracting(Rental::getStatus)
-                .isEqualTo(RentalStatusEnum.APPROVED);
+        Pageable pg = PageRequest.of(0, 10, Sort.by("requestDate").descending());
+
+        // when
+        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(
+                1L,
+                Arrays.asList(RentalStatusEnum.APPROVED, RentalStatusEnum.COMPLETED),
+                pg
+        );
+
+        // then
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getContent()).containsExactly(r3, r2);
     }
 
     @Test
-    @DisplayName("해당 유저의 대여가 하나도 없으면, 빈 리스트를 반환한다")
-    void whenUserHasNoRentals_thenReturnEmptyList() {
-        //given, when
-        Long otherUserId = 9999L;
-        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
-                otherUserId,
-                null,
-                Pageable.unpaged()
-        );
-        List<Rental> results = page.getContent();
+    @DisplayName("3. paged + asc 정렬 → requestDate ASC 순으로 반환")
+    void whenPagedWithAscSort_thenOrderByRequestDateAsc() {
+        // given
+        Rental r1 = saveRental(1L, 2L, RentalStatusEnum.APPROVED, LocalDateTime.now().minusDays(2));
+        Rental r2 = saveRental(3L, 1L, RentalStatusEnum.APPROVED, LocalDateTime.now().minusDays(1));
+        Rental r3 = saveRental(1L, 4L, RentalStatusEnum.APPROVED, LocalDateTime.now());
+        em.flush();
 
-        //then
-        assertThat(results).isEmpty();
+        Pageable pg = PageRequest.of(0, 10, Sort.by("requestDate").ascending());
+
+        // when
+        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(
+                1L,
+                Collections.singletonList(RentalStatusEnum.APPROVED),
+                pg
+        );
+
+        // then
+        assertThat(page.getTotalElements()).isEqualTo(3);
+        assertThat(page.getContent()).containsExactly(r1, r2, r3);
     }
 
-    // 헬퍼: 빌더 패턴으로 Rental 객체 생성
-    private Rental createRental(Long ownerId, Long renterId, Long itemId, RentalStatusEnum status) {
-        return Rental.builder()
+    // — 헬퍼 메서드: 중복 코드 방지 —
+    private Rental saveRental(Long ownerId,
+                              Long renterId,
+                              RentalStatusEnum status,
+                              LocalDateTime requestDate) {
+        Rental r = Rental.builder()
                 .ownerId(ownerId)
                 .renterId(renterId)
-                .itemId(itemId)
+                .itemId(100L)
                 .status(status)
-                .requestDate(baseTime)
-                .startDate(baseTime.plusDays(1))
-                .dueDate(baseTime.plusDays(7))
+                .requestDate(requestDate)
+                .dueDate(requestDate.plusDays(7))
+                .startDate(requestDate.plusDays(1))
                 .build();
+        em.persist(r);
+        return r;
     }
 }
