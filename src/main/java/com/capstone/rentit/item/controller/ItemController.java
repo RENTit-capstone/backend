@@ -53,13 +53,7 @@ public class ItemController {
             @PathVariable("itemId") Long itemId,
             @RequestBody ItemUpdateForm form,
             @Login MemberDto loginMember) throws AccessDeniedException {
-
-        ItemDto existing = itemService.getItem(itemId);
-        if (!existing.getOwnerId().equals(loginMember.getId())) {
-            return CommonResponse.failure("소유자 매칭 오류");
-        }
-
-        itemService.updateItem(itemId, form);
+        itemService.updateItem(loginMember, itemId, form);
         return CommonResponse.success(null);
     }
 
@@ -68,14 +62,7 @@ public class ItemController {
     public CommonResponse<Void> deleteItem(
             @PathVariable("itemId") Long itemId,
             @Login MemberDto loginMember) throws AccessDeniedException {
-
-        // 소유자 확인
-        ItemDto existing = itemService.getItem(itemId);
-        if (!existing.getOwnerId().equals(loginMember.getId())) {
-            return CommonResponse.failure("소유자 매칭 오류");
-        }
-
-        itemService.deleteItem(itemId);
+        itemService.deleteItem(loginMember, itemId);
         return CommonResponse.success(null);
     }
 }
