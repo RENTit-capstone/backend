@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,9 +70,14 @@ class ItemRepositoryIntegrationTest {
     @DisplayName("조건 없이 호출하면, 저장된 모든 아이템을 반환")
     @Test
     void search_whenNoCriteria_thenReturnAll() {
+        //given
         ItemSearchForm form = new ItemSearchForm();  // 모든 필드 null
-        List<Item> result = itemRepository.search(form);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
+        //when
+        Page<Item> result = itemRepository.search(form, pageable);
+
+        //then
         assertThat(result).hasSize(2)
                 .extracting(Item::getName)
                 .containsExactlyInAnyOrder("Cheap", "Expensive");
@@ -79,8 +88,10 @@ class ItemRepositoryIntegrationTest {
     void search_whenMaxPrice_thenFilterByMax() {
         ItemSearchForm form = new ItemSearchForm();
         form.setMaxPrice(2000);  // 2,000원 이하
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
-        List<Item> result = itemRepository.search(form);
+
+        Page<Item> result = itemRepository.search(form, pageable);
 
         assertThat(result).hasSize(1)
                 .first()
@@ -93,8 +104,9 @@ class ItemRepositoryIntegrationTest {
     void search_whenMinPrice_thenFilterByMin() {
         ItemSearchForm form = new ItemSearchForm();
         form.setMinPrice(2000);  // 2,000원 이상
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
-        List<Item> result = itemRepository.search(form);
+        Page<Item> result = itemRepository.search(form, pageable);
 
         assertThat(result).hasSize(1)
                 .first()

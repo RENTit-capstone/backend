@@ -1,5 +1,6 @@
 package com.capstone.rentit.item.controller;
 
+import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +37,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -130,53 +134,111 @@ class ItemControllerTest {
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         List<ItemDto> list = Arrays.asList(dto1, dto2);
-        when(itemService.getAllItems(any(ItemSearchForm.class))).thenReturn(list);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        Page<ItemDto> page = new PageImpl<>(list, pageable, 2);
+        given(itemService.getAllItems(any(ItemSearchForm.class), any(Pageable.class)))
+                .willReturn(page);
 
         // When / Then
         mockMvc.perform(get("/api/v1/items")
                         .with(csrf())
-                        .param("keyword", "")
-                        .param("startDate", "")
-                        .param("endDate", "")
-                        .param("minPrice", "")
-                        .param("maxPrice", "")
+                        .queryParam("keyword", "")
+                        .queryParam("startDate", "")
+                        .queryParam("endDate", "")
+                        .queryParam("minPrice", "")
+                        .queryParam("maxPrice", "")
+                        .queryParam("status", "")
+                        .queryParam("page", "0")
+                        .queryParam("size", "20")
+                        .queryParam("sort", "createdAt,desc")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data.content.length()").value(2))
+                .andExpect(jsonPath("$.data.totalElements").value(2))
                 .andDo(document("get-all-items",
                         relaxedQueryParameters(
-                                parameterWithName("keyword").attributes(key("type").value("String")).optional()
+                                parameterWithName("keyword").optional()
                                         .description("검색 키워드 (물품명 또는 상세 설명 포함)"),
-                                parameterWithName("startDate").attributes(key("type").value("LocalDateTime")).optional()
+                                parameterWithName("startDate").optional()
                                         .description("대여 가능 시작일 (ISO-8601 형식)"),
-                                parameterWithName("endDate").attributes(key("type").value("LocalDateTime")).optional()
+                                parameterWithName("endDate").optional()
                                         .description("대여 가능 종료일 (ISO-8601 형식)"),
-                                parameterWithName("minPrice").attributes(key("type").value("Integer")).optional()
+                                parameterWithName("minPrice").optional()
                                         .description("최소 대여 가격"),
-                                parameterWithName("maxPrice").attributes(key("type").value("Integer")).optional()
-                                        .description("최대 대여 가격")
+                                parameterWithName("maxPrice").optional()
+                                        .description("최대 대여 가격"),
+                                parameterWithName("status").optional()
+                                        .description("물품 상태 필터 (예: AVAILABLE, OUT)"),
+                                parameterWithName("page")
+                                        .description("페이지 번호 (0부터 시작)"),
+                                parameterWithName("size")
+                                        .description("페이지 크기"),
+                                parameterWithName("sort")
+                                        .description("정렬 기준 (예: createdAt,desc)")
                         ),
                         responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.ARRAY).description("물품 목록"),
-                                fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
-                                fieldWithPath("data[].ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
-                                fieldWithPath("data[].name").type(JsonFieldType.STRING).description("물품 이름"),
-                                fieldWithPath("data[].itemImg").type(JsonFieldType.STRING).description("이미지 URL"),
-                                fieldWithPath("data[].description").type(JsonFieldType.STRING).description("상세 설명"),
-                                fieldWithPath("data[].categoryId").type(JsonFieldType.NUMBER).description("카테고리 ID"),
-                                fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("대여 가격"),
-                                fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상태"),
-                                fieldWithPath("data[].damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
-                                fieldWithPath("data[].returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
-                                fieldWithPath("data[].startDate").type(JsonFieldType.STRING).description("시작일"),
-                                fieldWithPath("data[].endDate").type(JsonFieldType.STRING).description("종료일"),
-                                fieldWithPath("data[].createdAt").type(JsonFieldType.STRING).description("물품 등록일"),
-                                fieldWithPath("data[].updatedAt").type(JsonFieldType.STRING).description("물품 정보 수정일"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
+                                        .description("API 호출 성공 여부"),
+                                fieldWithPath("data.content[].itemId").type(JsonFieldType.NUMBER)
+                                        .description("물품 ID"),
+                                fieldWithPath("data.content[].ownerId").type(JsonFieldType.NUMBER)
+                                        .description("소유자 ID"),
+                                fieldWithPath("data.content[].name").type(JsonFieldType.STRING)
+                                        .description("물품 이름"),
+                                fieldWithPath("data.content[].itemImg").type(JsonFieldType.STRING)
+                                        .description("이미지 URL"),
+                                fieldWithPath("data.content[].description").type(JsonFieldType.STRING)
+                                        .description("상세 설명"),
+                                fieldWithPath("data.content[].categoryId").type(JsonFieldType.NUMBER)
+                                        .description("카테고리 ID"),
+                                fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER)
+                                        .description("대여 가격"),
+                                fieldWithPath("data.content[].status").type(JsonFieldType.STRING)
+                                        .description("물품 상태"),
+                                fieldWithPath("data.content[].damagedPolicy").type(JsonFieldType.STRING)
+                                        .description("파손 정책"),
+                                fieldWithPath("data.content[].returnPolicy").type(JsonFieldType.STRING)
+                                        .description("반납 정책"),
+                                fieldWithPath("data.content[].startDate").type(JsonFieldType.STRING)
+                                        .description("시작일"),
+                                fieldWithPath("data.content[].endDate").type(JsonFieldType.STRING)
+                                        .description("종료일"),
+                                fieldWithPath("data.content[].createdAt").type(JsonFieldType.STRING)
+                                        .description("등록일"),
+                                fieldWithPath("data.content[].updatedAt").type(JsonFieldType.STRING)
+                                        .description("수정일"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지 (성공 시 빈 문자열)"),
+
+                                fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER).description("현재 페이지 번호"),
+                                fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER).description("페이지 크기"),
+                                fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER).description("페이지 오프셋"),
+                                fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN).description("페이징 여부"),
+                                fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN).description("비페이징 여부"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("페이지 내 정렬 정보가 비어있는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("페이지 내 정렬이 적용되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("페이지 내 정렬이 미적용되었는지 여부"),
+
+                                fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN).description("전체 정렬 정보 비어있는지 여부"),
+                                fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN).description("전체 정렬 적용 여부"),
+                                fieldWithPath("data.sort.unsorted").type(JsonFieldType.BOOLEAN).description("전체 정렬 미적용 여부"),
+
+                                fieldWithPath("data.first").type(JsonFieldType.BOOLEAN).description("첫 페이지 여부"),
+                                fieldWithPath("data.last").type(JsonFieldType.BOOLEAN).description("마지막 페이지 여부"),
+                                fieldWithPath("data.numberOfElements").type(JsonFieldType.NUMBER).description("현재 페이지 요소 수"),
+                                fieldWithPath("data.totalElements").type(JsonFieldType.NUMBER).description("전체 요소 수"),
+                                fieldWithPath("data.totalPages").type(JsonFieldType.NUMBER).description("전체 페이지 수"),
+                                fieldWithPath("data.number").type(JsonFieldType.NUMBER).description("현재 페이지 번호"),
+                                fieldWithPath("data.size").type(JsonFieldType.NUMBER).description("페이지 크기"),
+                                fieldWithPath("data.empty").type(JsonFieldType.BOOLEAN).description("페이지가 비어있는지 여부")
                         )
                 ));
+
+        then(itemService).should().getAllItems(any(ItemSearchForm.class), any(Pageable.class));
     }
 
     @WithMockUser(roles = "USER")

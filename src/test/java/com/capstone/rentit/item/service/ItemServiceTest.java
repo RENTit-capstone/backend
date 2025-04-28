@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
@@ -139,17 +140,18 @@ class ItemServiceTest {
                 .build();
 
         ItemSearchForm emptyForm = new ItemSearchForm(); // 모든 필드 null
-        given(itemRepository.search(emptyForm))
-                .willReturn(Arrays.asList(sampleItem, other));
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        Page<Item> itemPage = new PageImpl<>(List.of(sampleItem, other), pageable, 2);
+        given(itemRepository.search(emptyForm, pageable)).willReturn(itemPage);
 
         // when
-        List<ItemDto> dtos = itemService.getAllItems(emptyForm);
+        Page<ItemDto> dtoPage = itemService.getAllItems(emptyForm, pageable);
 
         // then
-        assertThat(dtos).hasSize(2)
+        assertThat(dtoPage).hasSize(2)
                 .extracting(ItemDto::getName)
                 .containsExactlyInAnyOrder("Sample", "Other");
-        then(itemRepository).should().search(emptyForm);
+        then(itemRepository).should().search(emptyForm, pageable);
     }
 
     @DisplayName("getAllItems: 키워드 및 가격 범위 조건으로 호출하면, 해당 조건에 맞는 아이템만 반환")
@@ -162,18 +164,20 @@ class ItemServiceTest {
         form.setMaxPrice(1500);
 
         // sampleItem 만 필터링 결과로 가정
-        given(itemRepository.search(form))
-                .willReturn(Arrays.asList(sampleItem));
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        Page<Item> itemPage = new PageImpl<>(List.of(sampleItem), pageable, 2);
+        given(itemRepository.search(form, pageable)).willReturn(itemPage);
 
         // when
-        List<ItemDto> dtos = itemService.getAllItems(form);
+        Page<ItemDto> dtoPage = itemService.getAllItems(form, pageable);
+
 
         // then
-        assertThat(dtos).hasSize(1)
+        assertThat(dtoPage).hasSize(1)
                 .first()
                 .extracting(ItemDto::getName)
                 .isEqualTo("Sample");
-        then(itemRepository).should().search(form);
+        then(itemRepository).should().search(form, pageable);
     }
 
     @DisplayName("getItem: 존재하는 ID면 DTO, 없으면 예외")
