@@ -1,6 +1,6 @@
 package com.capstone.rentit.item.dto;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

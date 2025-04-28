@@ -1,7 +1,7 @@
 package com.capstone.rentit.item.domain;
 
-import com.capstone.rentit.common.ItemStatusConverter;
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusConverter;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import jakarta.persistence.*;
 import lombok.*;

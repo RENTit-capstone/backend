@@ -1,6 +1,6 @@
 package com.capstone.rentit.item.controller;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.common.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.item.dto.ItemCreateForm;

@@ -1,6 +1,6 @@
 package com.capstone.rentit.item.service;
 
-import com.capstone.rentit.common.ItemStatusConverter;
+import com.capstone.rentit.item.status.ItemStatusConverter;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.repository.ItemRepository;

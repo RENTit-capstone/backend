@@ -1,6 +1,6 @@
 package com.capstone.rentit.item.repository;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemSearchForm;

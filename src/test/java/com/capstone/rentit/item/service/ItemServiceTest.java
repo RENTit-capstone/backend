@@ -1,6 +1,6 @@
 package com.capstone.rentit.item.service;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.dto.ItemDto;
@@ -17,7 +17,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;

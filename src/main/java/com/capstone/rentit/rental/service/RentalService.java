@@ -1,6 +1,6 @@
 package com.capstone.rentit.rental.service;
 
-import com.capstone.rentit.common.ItemStatusEnum;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
