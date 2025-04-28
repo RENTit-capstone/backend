@@ -13,6 +13,7 @@ import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -316,7 +317,8 @@ class ItemControllerTest {
                         .ownerId(id)
                         .build()
         );
-        doNothing().when(itemService).updateItem(eq(id), any(ItemUpdateForm.class));
+        doNothing().when(itemService)
+                .updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class));
 
         // when
         ResultActions result = mockMvc.perform(put("/api/v1/items/{id}", id)
@@ -348,8 +350,7 @@ class ItemControllerTest {
                 ));
 
         // then: service 호출 검증
-        verify(itemService).getItem(id);
-        verify(itemService).updateItem(eq(id), any(ItemUpdateForm.class));
+        verify(itemService).updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class));
     }
 
     @WithMockUser(roles = "USER")
@@ -373,7 +374,7 @@ class ItemControllerTest {
                         .ownerId(id)
                         .build()
         );
-        doNothing().when(itemService).deleteItem(id);
+        doNothing().when(itemService).deleteItem(any(MemberDto.class), eq(id));
 
         // when
         ResultActions result = mockMvc.perform(delete("/api/v1/items/{id}", id)
@@ -392,8 +393,7 @@ class ItemControllerTest {
                 ));
 
         // then: service 호출 검증
-        verify(itemService).getItem(id);
-        verify(itemService).deleteItem(id);
+        verify(itemService).deleteItem(any(MemberDto.class), eq(id));
     }
 
 }
