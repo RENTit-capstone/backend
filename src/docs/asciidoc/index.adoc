@@ -164,6 +164,13 @@ include::{snippets}/get-login-member/http-request.adoc[]
 include::{snippets}/get-login-member/response-fields.adoc[]
 
 == 물품 관리 API
+=== 물품 상태 목록
+----
+{
+    AVAILABLE, //대여 가능 물품
+    OUT, //이미 대여된 물품
+}
+----
 === 물품 등록
 POST /api/v1/items
 
