@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
