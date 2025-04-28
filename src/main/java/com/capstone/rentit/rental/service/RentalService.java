@@ -12,6 +12,8 @@ import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,13 +51,12 @@ public class RentalService {
 
     /** 현재 사용자(소유자/대여자)의 대여 목록 조회 */
     @Transactional(readOnly = true)
-    public List<RentalDto> getRentalsForUser(MemberDto loginMember, RentalSearchForm searchForm) {
+    public Page<RentalDto> getRentalsForUser(MemberDto loginMember, RentalSearchForm searchForm, Pageable pageable) {
         Long userId = loginMember.getId();
-        List<Rental> list = rentalRepository.findAllByUserIdAndStatuses(userId, searchForm.getStatuses());
-        return list.stream().map(r -> RentalDto.fromEntity(
-                r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
-                )
-                .collect(Collectors.toList());
+        Page<Rental> rentals = rentalRepository.findAllByUserIdAndStatuses(userId, searchForm.getStatuses(), pageable);
+        return rentals.map(r ->
+                RentalDto.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+        );
     }
 
     /** 단일 대여 조회 */

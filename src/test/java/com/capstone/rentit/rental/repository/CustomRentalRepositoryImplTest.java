@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -36,22 +38,25 @@ class CustomRentalRepositoryImplTest {
     void setUp() {
         baseTime = LocalDateTime.of(2025, 4, 28, 0, 0);
 
-        // Arrange: 테스트 데이터 준비
         requestedByUser = createRental(USER_ID, 99L, 100L, RentalStatusEnum.REQUESTED);
         approvedForUser  = createRental(42L, USER_ID, 100L, RentalStatusEnum.APPROVED);
         otherRental      = createRental(8L,  9L,    200L, RentalStatusEnum.REQUESTED);
 
         rentalRepository.saveAll(List.of(requestedByUser, approvedForUser, otherRental));
-        // 영속성 컨텍스트 초기화
     }
 
     @Test
     @DisplayName("상태 필터가 비어 있으면, 해당 유저의 모든 대여를 반환한다")
     void whenStatusesEmpty_thenReturnAllRentalsForUser() {
-        // Act
-        List<Rental> results = rentalRepository.findAllByUserIdAndStatuses(USER_ID, Collections.emptyList());
+        //given, when
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
+                USER_ID,
+                Collections.emptyList(),
+                Pageable.unpaged()
+        );
+        List<Rental> results = page.getContent();
 
-        // Assert
+        //then
         assertThat(results)
                 .hasSize(2)
                 .containsExactlyInAnyOrder(requestedByUser, approvedForUser);
@@ -60,13 +65,15 @@ class CustomRentalRepositoryImplTest {
     @Test
     @DisplayName("특정 상태만 필터링하면, 해당 상태의 대여만 반환한다")
     void whenStatusesProvided_thenReturnOnlyFilteredRentals() {
-        // Act
-        List<Rental> results = rentalRepository.findAllByUserIdAndStatuses(
+        //given, when
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
                 USER_ID,
-                List.of(RentalStatusEnum.APPROVED)
+                List.of(RentalStatusEnum.APPROVED),
+                Pageable.unpaged()
         );
+        List<Rental> results = page.getContent();
 
-        // Assert
+        //then
         assertThat(results)
                 .hasSize(1)
                 .first()
@@ -77,10 +84,16 @@ class CustomRentalRepositoryImplTest {
     @Test
     @DisplayName("해당 유저의 대여가 하나도 없으면, 빈 리스트를 반환한다")
     void whenUserHasNoRentals_thenReturnEmptyList() {
-        // Act
-        List<Rental> results = rentalRepository.findAllByUserIdAndStatuses(1234L, null);
+        //given, when
+        Long otherUserId = 9999L;
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
+                otherUserId,
+                null,
+                Pageable.unpaged()
+        );
+        List<Rental> results = page.getContent();
 
-        // Assert
+        //then
         assertThat(results).isEmpty();
     }
 
