@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
@@ -26,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MemberServiceUnitTest {
+class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
@@ -70,7 +71,7 @@ class MemberServiceUnitTest {
         StudentCreateForm form = new StudentCreateForm();
         form.setName("Stu"); form.setEmail("stu@test.com"); form.setPassword("pass");
         form.setNickname("nick"); form.setPhone("010-0000-0000");
-        form.setUniversity("Uni"); form.setStudentId("S100"); form.setGender("F");
+        form.setUniversity("Uni"); form.setStudentId("S100"); form.setGender(GenderEnum.WOMEN);
 
         // when
         Long id = memberService.createMember(form);

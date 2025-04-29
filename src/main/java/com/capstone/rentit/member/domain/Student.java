@@ -1,8 +1,7 @@
 package com.capstone.rentit.member.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import com.capstone.rentit.member.status.GenderEnum;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,8 @@ public class Student extends Member {
     private String studentId;
 
     @Column
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private GenderEnum gender;
 
     @Column
     private String phone;

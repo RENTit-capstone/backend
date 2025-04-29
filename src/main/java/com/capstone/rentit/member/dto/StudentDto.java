@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.dto;
 
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class StudentDto implements MemberDto {
     private boolean locked;
 
     private String nickname;
-    private String gender;
+    private GenderEnum gender;
     private String studentId;
     private String university;
     private String phone;

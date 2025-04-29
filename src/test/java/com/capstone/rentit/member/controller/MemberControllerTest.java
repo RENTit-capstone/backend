@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.controller;
 
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
@@ -87,7 +88,7 @@ class MemberControllerTest {
         form.setPhone("010-1234-5678");
         form.setUniversity("Test University");
         form.setStudentId("S12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setProfileImg(null);
 
         long generatedId = 1L;
@@ -158,7 +159,7 @@ class MemberControllerTest {
                 .phone("010-1234-5678")
                 .university("Test University")
                 .studentId("S12345678")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .role(MemberRoleEnum.STUDENT)
                 .locked(false)
                 .createdAt(LocalDate.now())
@@ -208,7 +209,7 @@ class MemberControllerTest {
                 .phone("010-1234-5678")
                 .university("Test University")
                 .studentId("S12345678")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .role(MemberRoleEnum.STUDENT)
                 .locked(false)
                 .createdAt(LocalDate.now())
@@ -264,7 +265,7 @@ class MemberControllerTest {
                 .phone(form.getPhone())
                 .university("Test University")
                 .studentId("S12345678")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .role(MemberRoleEnum.STUDENT)
                 .locked(false)
                 .createdAt(LocalDate.now())
@@ -340,7 +341,7 @@ class MemberControllerTest {
                 .phone("010-1111-1111")
                 .university("Test University")
                 .studentId("S12345678")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .role(MemberRoleEnum.STUDENT)
                 .locked(false)
                 .createdAt(LocalDate.of(2025, 4, 16))

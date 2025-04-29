@@ -7,6 +7,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
@@ -91,7 +92,7 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
         form.setProfileImg("profile_img");
 
@@ -145,7 +146,7 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
         Student existing = Student.builder()
@@ -155,7 +156,7 @@ class RegisterControllerTest {
                 .nickname("tester")
                 .studentId("12345678")
                 .university("Test University")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .phone("010-1234-5678")
                 .createdAt(LocalDate.now())
                 .locked(false)
@@ -189,7 +190,7 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
         when(memberService.findByEmail("test@ajou.ac.kr")).thenReturn(Optional.empty());
