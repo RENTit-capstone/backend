@@ -123,7 +123,7 @@ class RegisterControllerTest {
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("사용자 닉네임"),
                                 fieldWithPath("university").type(JsonFieldType.STRING).description("사용자 소속 대학"),
                                 fieldWithPath("studentId").type(JsonFieldType.STRING).description("학생 학번"),
-                                fieldWithPath("gender").type(JsonFieldType.STRING).description("성별"),
+                                fieldWithPath("gender").type(JsonFieldType.STRING).description("성별(MEM, WOMEN)"),
                                 fieldWithPath("phone").type(JsonFieldType.STRING).description("연락처"),
                                 fieldWithPath("profileImg").optional().type(JsonFieldType.STRING).description("프로필 이미지 (선택)")
                         ),
