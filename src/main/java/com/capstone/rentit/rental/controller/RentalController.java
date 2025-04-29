@@ -79,7 +79,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember
     ) {
-        rentalService.cancel(rentalId, loginMember.getId());
+        rentalService.cancel(rentalId, loginMember.getMemberId());
         return CommonResponse.success(null);
     }
 
@@ -91,7 +91,7 @@ public class RentalController {
             @Login MemberDto loginMember,
             @RequestParam("lockerId") Long lockerId
             ) {
-        rentalService.dropOffToLocker(rentalId, loginMember.getId(), lockerId);
+        rentalService.dropOffToLocker(rentalId, loginMember.getMemberId(), lockerId);
         return CommonResponse.success(null);
     }
 
@@ -102,7 +102,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember
     ) {
-        rentalService.pickUpByRenter(rentalId, loginMember.getId());
+        rentalService.pickUpByRenter(rentalId, loginMember.getMemberId());
         return CommonResponse.success(null);
     }
 
@@ -115,7 +115,7 @@ public class RentalController {
             @RequestParam("lockerId") Long lockerId,
             @RequestPart("returnImage") MultipartFile returnImage
     ) {
-        rentalService.returnToLocker(rentalId, loginMember.getId(), lockerId, returnImage);
+        rentalService.returnToLocker(rentalId, loginMember.getMemberId(), lockerId, returnImage);
         return CommonResponse.success(null);
     }
 
@@ -126,7 +126,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember
     ) {
-        rentalService.retrieveByOwner(rentalId, loginMember.getId());
+        rentalService.retrieveByOwner(rentalId, loginMember.getMemberId());
         return CommonResponse.success(null);
     }
 

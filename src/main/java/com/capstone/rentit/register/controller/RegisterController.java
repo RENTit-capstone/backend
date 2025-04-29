@@ -3,6 +3,7 @@ package com.capstone.rentit.register.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.dto.MemberCreateForm;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
@@ -24,8 +25,7 @@ public class RegisterController {
 
     @PostMapping("/auth/signup")
     public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
-        Optional<Member> existingUser = memberService.findByEmail(form.getEmail());
-        if (existingUser.isPresent()) {
+        if (memberService.getMemberByEmail(form.getEmail()).getEmail().isBlank()) {
             return CommonResponse.failure("이미 등록된 이메일입니다.");
         }
         if (!univCertService.isCertified(form.getEmail())) {
