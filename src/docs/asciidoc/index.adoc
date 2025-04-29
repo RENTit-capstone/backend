@@ -22,7 +22,7 @@ Harseal API 문서
 
 == 인증 API
 === 회원 가입
-POST /api/v1/members
+POST /api/v1/auth/signup
 
 ==== 요청 필드
 include::{snippets}/register-member-success/request-fields.adoc[]
@@ -37,7 +37,7 @@ include::{snippets}/register-member-success/response-fields.adoc[]
 include::{snippets}/register-member-success/http-response.adoc[]
 
 === 이메일 인증 요청
-POST /api/v1/members/verify-email
+POST /api/v1/auth/signup/verify-email
 
 ==== 요청 필드
 include::{snippets}/verify-email-success/request-fields.adoc[]
@@ -52,7 +52,7 @@ include::{snippets}/verify-email-success/response-fields.adoc[]
 include::{snippets}/verify-email-success/http-response.adoc[]
 
 === 인증 코드 검증
-POST /api/v1/members/verify-code
+POST /api/v1/auth/signup/verify-code
 
 ==== 요청 필드
 include::{snippets}/verify-code-success/request-fields.adoc[]
@@ -67,7 +67,7 @@ include::{snippets}/verify-code-success/response-fields.adoc[]
 include::{snippets}/verify-code-success/http-response.adoc[]
 
 === 로그인
-POST /api/v1/members/login
+POST /api/v1/auth/login
 
 ==== 요청 필드
 include::{snippets}/login-success/request-fields.adoc[]
@@ -82,7 +82,7 @@ include::{snippets}/login-success/response-fields.adoc[]
 include::{snippets}/login-success/http-response.adoc[]
 
 === 리프레시 토큰 갱신
-POST /api/v1/members/refresh
+POST /api/v1/auth/login/refresh
 
 ==== 요청 필드
 include::{snippets}/login-refresh-success/request-fields.adoc[]
