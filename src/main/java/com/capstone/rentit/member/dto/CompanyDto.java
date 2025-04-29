@@ -1,6 +1,6 @@
     package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
 

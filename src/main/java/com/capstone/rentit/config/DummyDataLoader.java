@@ -1,6 +1,6 @@
 package com.capstone.rentit.config;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.repository.MemberRepository;
 import org.springframework.boot.CommandLineRunner;

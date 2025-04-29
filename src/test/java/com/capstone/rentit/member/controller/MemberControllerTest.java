@@ -1,6 +1,6 @@
 package com.capstone.rentit.member.controller;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.member.domain.Student;

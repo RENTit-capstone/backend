@@ -1,6 +1,6 @@
 package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
