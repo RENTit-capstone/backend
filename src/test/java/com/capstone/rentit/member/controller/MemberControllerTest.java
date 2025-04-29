@@ -1,5 +1,7 @@
 package com.capstone.rentit.member.controller;
 
+import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
@@ -33,12 +35,12 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
@@ -76,7 +78,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("학생 회원 생성 성공")
+    @DisplayName("POST /api/v1/admin/members → 생성 후 ID 반환")
     @Test
     void createMember_success() throws Exception {
         // given
@@ -108,16 +110,14 @@ class MemberControllerTest {
 
         given(memberService.createMember(any(StudentCreateForm.class)))
                 .willReturn(generatedId);
-        given(memberService.getMember(generatedId))
-                .willReturn(Optional.of(student));
-
-        String payload = objectMapper.writeValueAsString(form);
+        given(memberService.getMemberById(generatedId))
+                .willReturn(MemberDto.fromEntity(student));
 
         // when
         ResultActions result = mockMvc.perform(post("/api/v1/admin/members")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(payload));
+                .content(objectMapper.writeValueAsString(form)));
 
         // then
         result.andExpect(status().isOk())
@@ -146,7 +146,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("모든 회원 조회 성공")
+    @DisplayName("GET /api/v1/admin/members → 전체 회원 목록 반환")
     @Test
     void getAllMembers_success() throws Exception {
         // given
@@ -165,7 +165,7 @@ class MemberControllerTest {
                 .createdAt(LocalDate.now())
                 .build();
         given(memberService.getAllMembers())
-                .willReturn(Collections.singletonList(student));
+                .willReturn(Collections.singletonList(MemberDto.fromEntity(student)));
 
         // when
         ResultActions result = mockMvc.perform(get("/api/v1/admin/members")
@@ -196,7 +196,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "USER")
-    @DisplayName("단일 회원 조회 성공")
+    @DisplayName("GET /api/v1/members/{id} → 단일 회원 조회")
     @Test
     void getMember_success() throws Exception {
         // given
@@ -214,8 +214,8 @@ class MemberControllerTest {
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .build();
-        given(memberService.getMember(id))
-                .willReturn(Optional.of(student));
+        given(memberService.getMemberById(id))
+                .willReturn(MemberDto.fromEntity(student));
 
         // when
         ResultActions result = mockMvc.perform(get("/api/v1/members/{id}", id)
@@ -246,7 +246,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "USER")
-    @DisplayName("회원 정보 수정 성공")
+    @DisplayName("PUT /api/v1/members → 로그인 회원 정보 업데이트")
     @Test
     void updateMember_success() throws Exception {
         // given
@@ -273,17 +273,15 @@ class MemberControllerTest {
 
         MemberDetails details = new MemberDetails(updated);
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-        given(memberService.updateMember(eq(id), any(StudentUpdateForm.class)))
-                .willReturn(updated);
-
-        String payload = objectMapper.writeValueAsString(form);
+        doNothing().when(memberService)
+                .updateMember(eq(id), any(StudentUpdateForm.class));
 
         // when
         ResultActions result = mockMvc.perform(put("/api/v1/members")
                 .with(authentication(auth))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(payload));
+                .content(objectMapper.writeValueAsString(form)));
 
         // then
         result.andExpect(status().isOk())
@@ -305,7 +303,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("회원 삭제 성공")
+    @DisplayName("DELETE /api/v1/admin/members/{id} → 회원 삭제")
     @Test
     void deleteMember_success() throws Exception {
         // given
@@ -329,7 +327,7 @@ class MemberControllerTest {
     }
 
     @WithMockUser(roles = "USER")
-    @DisplayName("로그인 회원 조회 성공")
+    @DisplayName("GET /api/v1/members/me → 로그인 회원 반환")
     @Test
     void getLoginMember_success() throws Exception {
         // given
