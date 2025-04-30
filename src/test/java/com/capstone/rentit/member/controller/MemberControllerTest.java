@@ -260,7 +260,6 @@ class MemberControllerTest {
 
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
-//        form.setProfileImgFile(file);
         form.setNickname("updatedNick");
         form.setPhone("010-9876-5432");
 
@@ -347,7 +346,7 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("update-member",
+                .andDo(document("update-member-profile",
                         requestParts(
                                 partWithName("profileImg").attributes(key("type").value("file")).description("프로필 이미지")
                         ),
