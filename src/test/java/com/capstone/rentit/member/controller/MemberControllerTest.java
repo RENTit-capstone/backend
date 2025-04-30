@@ -1,6 +1,8 @@
 package com.capstone.rentit.member.controller;
 
 import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
+import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
@@ -40,10 +42,12 @@ import java.util.Collections;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -61,9 +65,9 @@ class MemberControllerTest {
     MemberService memberService;
 
     @MockitoBean
-    private com.capstone.rentit.login.provider.JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProvider jwtTokenProvider;
     @MockitoBean
-    private com.capstone.rentit.login.filter.JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -256,7 +260,7 @@ class MemberControllerTest {
 
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
-        form.setProfileImgFile(file);
+//        form.setProfileImgFile(file);
         form.setNickname("updatedNick");
         form.setPhone("010-9876-5432");
 
@@ -276,6 +280,7 @@ class MemberControllerTest {
 
         MemberDetails details = new MemberDetails(updated);
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
+
         doNothing().when(memberService)
                 .updateMember(eq(id), any(StudentUpdateForm.class));
 
@@ -292,7 +297,6 @@ class MemberControllerTest {
                 .andDo(document("update-member",
                         requestFields(
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("변경할 이름"),
-                                fieldWithPath("profileImg").type(JsonFieldType.STRING).description("변경할 프로필 이미지 URL"),
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("변경할 닉네임"),
                                 fieldWithPath("phone").type(JsonFieldType.STRING).description("변경할 연락처"),
                                 fieldWithPath("memberType").type(JsonFieldType.STRING).description("회원 역할")
@@ -305,6 +309,57 @@ class MemberControllerTest {
                 ));
     }
 
+    @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/v1/members/profile-image → 로그인 회원 프로필 업데이트")
+    @Test
+    void updateMemberProfile_success() throws Exception {
+        // given
+        long id = 1L;
+        MockMultipartFile file = new MockMultipartFile(
+                "profileImg","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
+        Student updated = Student.builder()
+                .memberId(id)
+                .email("student@example.com")
+                .profileImg("")
+                .role(MemberRoleEnum.STUDENT)
+                .build();
+
+        MemberDetails details = new MemberDetails(updated);
+        Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
+
+        doNothing().when(memberService).updateProfileImage(id, file);
+
+        // when
+        ResultActions result = mockMvc.perform(multipart("/api/v1/members/profile-image")
+                .file(file)
+                .with(request -> {
+                    request.setMethod("POST");
+                    return request;
+                })
+                .with(authentication(auth))
+                .with(csrf())
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isEmpty())
+                .andExpect(jsonPath("$.message").value(""))
+                .andDo(document("update-member",
+                        requestParts(
+                                partWithName("profileImg").attributes(key("type").value("file")).description("프로필 이미지")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                        )
+                ));
+
+        verify(memberService).updateProfileImage(id, file);
+    }
     @WithMockUser(roles = "ADMIN")
     @DisplayName("DELETE /api/v1/admin/members/{id} → 회원 삭제")
     @Test

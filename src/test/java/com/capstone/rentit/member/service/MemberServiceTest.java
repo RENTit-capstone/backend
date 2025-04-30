@@ -238,22 +238,16 @@ class MemberServiceTest {
         Student mock = mock(Student.class);
         when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
 
-        MockMultipartFile file = new MockMultipartFile(
-                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("new");
-        form.setProfileImgFile(file);
         form.setNickname("nn");
         form.setPhone("010");
 
-        when(fileStorageService.store(file)).thenReturn("");
-        doNothing().when(mock).update(form, "");
+        doNothing().when(mock).update(form);
 
         memberService.updateMember(ID, form);
 
-        verify(fileStorageService).store(file);
-        verify(mock).update(form, "");
+        verify(mock).update(form);
     }
 
     @Test @DisplayName("업데이트 시 ID 없으면 MemberNotFoundException")
@@ -265,6 +259,34 @@ class MemberServiceTest {
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
     }
 
+    @Test @DisplayName("회원 정보 업데이트 성공")
+    void updateMemberProfile_success() {
+        Student mock = mock(Student.class);
+        when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
+        when(fileStorageService.store(file)).thenReturn("");
+
+        memberService.updateProfileImage(ID, file);
+
+        verify(fileStorageService).store(file);
+        verify(mock).updateProfile("");
+    }
+
+    @Test @DisplayName("업데이트 시 ID 없으면 MemberNotFoundException")
+    void updateMemberProfile_notFound() {
+        when(memberRepository.findById(ID)).thenReturn(Optional.empty());
+
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
+        assertThatThrownBy(() -> memberService.updateProfileImage(ID, file))
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage("존재하지 않는 사용자 ID 입니다.");
+    }
+
     @Test @DisplayName("업데이트 타입 불일치 시 MemberTypeMismatchException 전파")
     void updateMember_typeMismatch() {
         Student mock = mock(Student.class);
@@ -272,7 +294,7 @@ class MemberServiceTest {
 
         CompanyUpdateForm badForm = new CompanyUpdateForm();
         doThrow(new MemberTypeMismatchException("회원 유형이 일치하지 않습니다."))
-                .when(mock).update(any(MemberUpdateForm.class), anyString());
+                .when(mock).update(any(MemberUpdateForm.class));
 
         assertThatThrownBy(() -> memberService.updateMember(ID, badForm))
                 .isInstanceOf(MemberTypeMismatchException.class)
