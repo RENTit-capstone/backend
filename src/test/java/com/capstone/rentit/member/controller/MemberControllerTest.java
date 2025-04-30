@@ -60,7 +60,6 @@ class MemberControllerTest {
     @MockitoBean
     MemberService memberService;
 
-    // ↓ 여기를 추가
     @MockitoBean
     private com.capstone.rentit.login.provider.JwtTokenProvider jwtTokenProvider;
     @MockitoBean
@@ -175,11 +174,11 @@ class MemberControllerTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].id").value(id))
+                .andExpect(jsonPath("$.data[0].memberId").value(id))
                 .andDo(document("get-all-members",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("회원 ID"),
+                                fieldWithPath("data[].memberId").type(JsonFieldType.NUMBER).description("회원 ID"),
                                 fieldWithPath("data[].email").type(JsonFieldType.STRING).description("회원 이메일"),
                                 fieldWithPath("data[].name").type(JsonFieldType.STRING).description("회원 이름"),
                                 fieldWithPath("data[].role").type(JsonFieldType.STRING).description("회원 역할"),
@@ -225,11 +224,11 @@ class MemberControllerTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.id").value(id))
+                .andExpect(jsonPath("$.data.memberId").value(id))
                 .andDo(document("get-member",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("회원 ID"),
+                                fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("회원 ID"),
                                 fieldWithPath("data.email").type(JsonFieldType.STRING).description("회원 이메일"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("회원 이름"),
                                 fieldWithPath("data.role").type(JsonFieldType.STRING).description("회원 역할"),
@@ -254,6 +253,7 @@ class MemberControllerTest {
         long id = 1L;
         MockMultipartFile file = new MockMultipartFile(
                 "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
         form.setProfileImgFile(file);
@@ -361,13 +361,13 @@ class MemberControllerTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.id").value(99))
+                .andExpect(jsonPath("$.data.memberId").value(99))
                 .andExpect(jsonPath("$.data.email").value("login@student.com"))
                 .andExpect(jsonPath("$.data.name").value("Login Student"))
                 .andDo(document("get-login-member",
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("로그인 회원 ID"),
+                                fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("로그인 회원 ID"),
                                 fieldWithPath("data.email").type(JsonFieldType.STRING).description("로그인 회원 이메일"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("로그인 회원 이름"),
                                 fieldWithPath("data.role").type(JsonFieldType.STRING).description("로그인 회원 역할"),
