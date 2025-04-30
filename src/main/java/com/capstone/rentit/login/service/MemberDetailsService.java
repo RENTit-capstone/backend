@@ -2,6 +2,7 @@ package com.capstone.rentit.login.service;
 
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,8 +17,13 @@ public class MemberDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Member not found with email: " + username));
+        Member member = findMemberByEmail(username);
         return new MemberDetails(member);
+    }
+
+    private Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new MemberNotFoundException("존재하지 않는 사용자 이메일 입니다."));
     }
 }
