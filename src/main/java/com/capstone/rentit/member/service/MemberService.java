@@ -6,6 +6,7 @@ import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.*;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.register.exception.EmailAlreadyRegisteredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,12 @@ public class MemberService {
     public void deleteMember(Long id) {
         Member member = findMemberById(id);
         memberRepository.delete(member);
+    }
+
+    public void ensureEmailNotRegistered(String email) {
+        if (memberRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyRegisteredException();
+        }
     }
 
     private Member findMemberById(Long id) {

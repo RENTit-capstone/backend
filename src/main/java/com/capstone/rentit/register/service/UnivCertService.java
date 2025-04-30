@@ -1,5 +1,7 @@
 package com.capstone.rentit.register.service;
 
+import com.capstone.rentit.register.exception.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,91 +18,89 @@ public class UnivCertService {
     private String apiKey;
 
     private final RestTemplate restTemplate;
+    private static final String BASE = "https://univcert.com/api/v1";
 
-    public boolean checkUniversity(String univName) {
-        String url = "https://univcert.com/api/v1/check";
-        Map<String, String> request = new HashMap<>();
-        request.put("univName", univName);
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            return body != null && (boolean) body.getOrDefault("success", false);
-        } catch (Exception e) {
-            return false;
+    public void validateUniversity(String univName) {
+        ApiResponse resp = post("/check", Map.of("univName", univName));
+        if (!resp.isSuccess()) {
+            throw new InvalidUniversityException();
         }
     }
 
-    public boolean certify(String email, String univName, boolean univCheck) {
-        String url = "https://univcert.com/api/v1/certify";
-        Map<String, Object> request = new HashMap<>();
-        request.put("key", apiKey);
-        request.put("email", email);
-        request.put("univName", univName);
-        request.put("univ_check", univCheck);
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            return body != null && (boolean) body.getOrDefault("success", false);
-        } catch (Exception e) {
-            return false;
+    public void sendCertification(String email, String univName, boolean univCheck) {
+        ApiResponse resp = post("/certify", Map.of(
+                "key", apiKey,
+                "email", email,
+                "univName", univName,
+                "univ_check", univCheck
+        ));
+        if (!resp.isSuccess()) {
+            throw new CertificationSendFailureException();
         }
     }
 
-    public boolean certifyCode(String email, String univName, int code) {
-        String url = "https://univcert.com/api/v1/certifycode";
-        Map<String, Object> request = new HashMap<>();
-        request.put("key", apiKey);
-        request.put("email", email);
-        request.put("univName", univName);
-        request.put("code", code);
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            return body != null && (boolean) body.getOrDefault("success", false);
-        } catch (Exception e) {
-            return false;
+    public void verifyCode(String email, String univName, int code) {
+        ApiResponse resp = post("/certifycode", Map.of(
+                "key", apiKey,
+                "email", email,
+                "univName", univName,
+                "code", code
+        ));
+        if (!resp.isSuccess()) {
+            throw new InvalidVerificationCodeException();
         }
     }
 
-    public boolean isCertified(String email) {
-        String url = "https://univcert.com/api/v1/status";
-        Map<String, Object> request = new HashMap<>();
-        request.put("key", apiKey);
-        request.put("email", email);
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            return body != null && (boolean) body.getOrDefault("success", false);
-        } catch (Exception e) {
-            return false;
+    public void ensureCertified(String email) {
+        ApiResponse resp = post("/status", Map.of(
+                "key", apiKey,
+                "email", email
+        ));
+        if (!resp.isSuccess()) {
+            throw new UnivNotCertifiedException();
         }
     }
 
-    public boolean clearAll(){
-        String url = "https://univcert.com/api/v1/clear";
-        Map<String, Object> request = new HashMap<>();
-        request.put("key", apiKey);
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            return body != null && (boolean) body.getOrDefault("success", false);
-        } catch (Exception e) {
-            return false;
+    public void clearAll() {
+        ApiResponse resp = post("/clear", Map.of("key", apiKey));
+        if (!resp.isSuccess()) {
+            throw new UnivServiceException("인증 데이터 초기화에 실패했습니다.");
         }
     }
 
-    public Object showAll(){
-        String url = "https://univcert.com/api/v1/certifiedlist";
-        Map<String, Object> request = new HashMap<>();
-        request.put("key", apiKey);
+    public Object showAll() {
+        ApiResponse resp = post("/certifiedlist", Map.of("key", apiKey));
+        if (!resp.isSuccess()) {
+            throw new UnivServiceException("인증 정보 조회에 실패했습니다.");
+        }
+        return resp.getData();
+    }
+
+    private ApiResponse post(String path, Object request) {
         try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            if(body != null && (boolean) body.getOrDefault("success", false))
-                return body.getOrDefault("data", "empty");
-            return "error";
+            ResponseEntity<Map> r = restTemplate.postForEntity(BASE + path, request, Map.class);
+            Map<String, Object> body = r.getBody();
+            if (body == null) {
+                throw new UnivServiceException("외부 인증 서비스 응답이 비어 있습니다.");
+            }
+            boolean success = (boolean) body.getOrDefault("success", false);
+            Object data   = body.get("data");
+            return new ApiResponse(success, data);
+
+        } catch (UnivServiceException e) {
+            throw e;  // 이미 UnivServiceException
         } catch (Exception e) {
-            return "error";
+            throw new UnivServiceException("외부 인증 서비스 호출 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    @Getter
+    private static class ApiResponse {
+        private final boolean success;
+        private final Object data;
+        ApiResponse(boolean success, Object data) {
+            this.success = success;
+            this.data    = data;
         }
     }
 }
