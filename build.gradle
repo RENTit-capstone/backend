@@ -141,7 +141,7 @@ tasks.named('jacocoTestReport', JacocoReport) {
 	classDirectories.setFrom(
 			files(layout.buildDirectory.dir('classes/java/main'))
 					.asFileTree
-					.matching { exclude '**/config/**', '**/common/**', '**/dto/**', '**/domain/**', '**/filter/**' }
+					.matching { exclude '**/config/**', '**/common/**', '**/dto/**', '**/domain/**', '**/filter/**', '**/exception/**' }
 	)
 	def jacocoDir = layout.buildDirectory.dir('jacoco').get().asFile
 	executionData.setFrom fileTree(dir: jacocoDir, include: ['*.exec'])
