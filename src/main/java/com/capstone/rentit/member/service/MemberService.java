@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.*;
@@ -21,6 +22,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
     public Long createMember(MemberCreateForm form) {
         Member member = Member.createEntity(form, passwordEncoder.encode(form.getPassword()));
@@ -48,7 +50,12 @@ public class MemberService {
 
     public void updateMember(Long id, MemberUpdateForm form) {
         Member member = findMemberById(id);
-        member.update(form);
+
+        String objectKey = "";
+        if(form.getProfileImgFile() != null) {
+            objectKey = fileStorageService.store(form.getProfileImgFile());
+        }
+        member.update(form, objectKey);
     }
 
     /** 6) 회원 삭제 */
