@@ -145,6 +145,21 @@ include::{snippets}/update-member/response-fields.adoc[]
 ==== HTTP 응답
 include::{snippets}/update-member/http-response.adoc[]
 
+=== 회원 프로필 수정
+PUT /api/v1/members/profile-image
+
+==== 요청 파트
+include::{snippets}/update-member-profile/request-parts.adoc[]
+
+==== HTTP 요청
+include::{snippets}/update-member-profile/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/update-member-profile/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/update-member-profile/http-response.adoc[]
+
 === 회원 삭제
 DELETE /api/v1/admin/members/{id}
 

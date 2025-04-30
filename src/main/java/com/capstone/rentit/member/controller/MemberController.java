@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,6 +52,14 @@ public class MemberController {
     public CommonResponse<?> updateMember(@Login MemberDto loginMember,
                                           @RequestBody MemberUpdateForm updateForm) {
         memberService.updateMember(loginMember.getMemberId(), updateForm);
+        return CommonResponse.success(null);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/members/profile-image")
+    public CommonResponse<String> uploadProfileImage(@Login MemberDto loginMember,
+                                                     @RequestParam("profileImg") MultipartFile profileImg) {
+        memberService.updateProfileImage(loginMember.getMemberId(), profileImg);
         return CommonResponse.success(null);
     }
 

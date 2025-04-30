@@ -38,16 +38,6 @@ public class Student extends Member {
     @Column
     private String phone;
 
-//    public void updateStudent(String name, String profileImg, String nickname, String phone) {
-////        super.update(name, profileImg);
-//        if (nickname != null) {
-//            this.nickname = nickname;
-//        }
-//        if (phone != null) {
-//            this.phone = phone;
-//        }
-//    }
-
     public static Student createEntity(StudentCreateForm form, String encodedPassword) {
         return Student.builder()
                 .name(form.getName())
@@ -69,7 +59,7 @@ public class Student extends Member {
         if (!(form instanceof StudentUpdateForm f)) {
             throw new MemberTypeMismatchException("학생 정보 수정 폼이 아닙니다.");
         }
-        updateEntity(form.getName(), form.getProfileImg());
+        updateEntity(form.getName());
         if (nickname != null) {
             this.nickname = nickname;
         }

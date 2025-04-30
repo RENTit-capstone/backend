@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.GenderEnum;
@@ -20,6 +21,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
@@ -40,6 +43,9 @@ class MemberServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private MemberService memberService;
@@ -234,7 +240,6 @@ class MemberServiceTest {
 
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("new");
-        form.setProfileImg("img.png");
         form.setNickname("nn");
         form.setPhone("010");
 
@@ -250,6 +255,34 @@ class MemberServiceTest {
         when(memberRepository.findById(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.updateMember(ID, new StudentUpdateForm()))
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage("존재하지 않는 사용자 ID 입니다.");
+    }
+
+    @Test @DisplayName("회원 정보 업데이트 성공")
+    void updateMemberProfile_success() {
+        Student mock = mock(Student.class);
+        when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
+        when(fileStorageService.store(file)).thenReturn("");
+
+        memberService.updateProfileImage(ID, file);
+
+        verify(fileStorageService).store(file);
+        verify(mock).updateProfile("");
+    }
+
+    @Test @DisplayName("업데이트 시 ID 없으면 MemberNotFoundException")
+    void updateMemberProfile_notFound() {
+        when(memberRepository.findById(ID)).thenReturn(Optional.empty());
+
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
+        assertThatThrownBy(() -> memberService.updateProfileImage(ID, file))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
     }

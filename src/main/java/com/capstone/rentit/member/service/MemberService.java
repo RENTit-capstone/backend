@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.*;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +24,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
     public Long createMember(MemberCreateForm form) {
         Member member = Member.createEntity(form, passwordEncoder.encode(form.getPassword()));
@@ -49,7 +52,14 @@ public class MemberService {
 
     public void updateMember(Long id, MemberUpdateForm form) {
         Member member = findMemberById(id);
+
         member.update(form);
+    }
+    public void updateProfileImage(Long id, MultipartFile file) {
+        Member member = findMemberById(id);
+        String objectKey = fileStorageService.store(file);
+
+        member.updateProfile(objectKey);
     }
 
     /** 6) 회원 삭제 */
