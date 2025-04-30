@@ -42,13 +42,17 @@ public abstract class Member {
     @Column
     private boolean locked;
 
-    public abstract void update(MemberUpdateForm form, String profileImg);
+    public abstract void update(MemberUpdateForm form);
 
-    public void updateEntity(String name, String profileImg) {
+    public void updateEntity(String name) {
         if (name != null) {
             this.name = name;
         }
-        if (profileImg != "") {
+
+    }
+
+    public void updateProfile(String profileImg){
+        if (profileImg != null && !profileImg.isEmpty()) {
             this.profileImg = profileImg;
         }
     }

@@ -20,5 +20,4 @@ import org.springframework.web.multipart.MultipartFile;
 })
 public abstract class MemberUpdateForm {
     private String name;
-    private MultipartFile profileImgFile;
 }
