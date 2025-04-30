@@ -119,7 +119,7 @@ class RentalServiceTest {
         form.setStatuses(List.of(RentalStatusEnum.APPROVED));
 
         MemberDto user = mock(MemberDto.class);
-        given(user.getId()).willReturn(10L);
+        given(user.getMemberId()).willReturn(10L);
 
         Page<Rental> rentalPage = new PageImpl<>(
                 List.of(r1),
@@ -160,7 +160,7 @@ class RentalServiceTest {
         given(rentalRepository.findById(5L)).willReturn(Optional.of(r));
 
         MemberDto stranger = mock(MemberDto.class);
-        given(stranger.getId()).willReturn(999L);
+        given(stranger.getMemberId()).willReturn(999L);
 
         assertThatThrownBy(() -> rentalService.getRental(5L, stranger))
                 .isInstanceOf(RentalUnauthorizedException.class)
@@ -175,12 +175,12 @@ class RentalServiceTest {
         doReturn("some-url").when(fileStorageService).generatePresignedUrl(null);
 
         MemberDto owner = mock(MemberDto.class);
-        given(owner.getId()).willReturn(10L);
+        given(owner.getMemberId()).willReturn(10L);
         RentalDto dto1 = rentalService.getRental(5L, owner);
         assertThat(dto1.getRentalId()).isEqualTo(5L);
 
         MemberDto renter = mock(MemberDto.class);
-        given(renter.getId()).willReturn(20L);
+        given(renter.getMemberId()).willReturn(20L);
         RentalDto dto2 = rentalService.getRental(5L, renter);
         assertThat(dto2.getRentalId()).isEqualTo(5L);
     }

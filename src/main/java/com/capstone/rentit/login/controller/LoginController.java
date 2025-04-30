@@ -26,9 +26,7 @@ public class LoginController {
 
     @PostMapping("/auth/login")
     public CommonResponse<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        if (memberService.findByEmail(loginRequest.getEmail()).isEmpty()) {
-            return new CommonResponse<>(false, null, "등록되지 않은 이메일입니다.");
-        }
+        memberService.getMemberByEmail(loginRequest.getEmail());
 
         try {
             Authentication authentication = authenticationManager.authenticate(

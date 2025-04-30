@@ -94,8 +94,8 @@ class ItemServiceTest {
         updateForm.setStartDate(createForm.getStartDate().plusDays(1));
         updateForm.setEndDate(createForm.getEndDate().plusDays(2));
 
-        ownerMember = StudentDto.builder().id(createForm.getOwnerId()).build();
-        otherMember = StudentDto.builder().id(999L).build();
+        ownerMember = StudentDto.builder().memberId(createForm.getOwnerId()).build();
+        otherMember = StudentDto.builder().memberId(999L).build();
 
         pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
     }

@@ -57,7 +57,7 @@ public class ItemService {
 
     public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {
         Item item = findItem(itemId);
-        assertOwner(item, loginMember.getId());
+        assertOwner(item, loginMember.getMemberId());
 
         item.updateItem(form);
         itemRepository.save(item);
@@ -65,7 +65,7 @@ public class ItemService {
 
     public void deleteItem(MemberDto loginMember, Long itemId) {
         Item item = findItem(itemId);
-        assertOwner(item, loginMember.getId());
+        assertOwner(item, loginMember.getMemberId());
 
         itemRepository.deleteById(itemId);
     }

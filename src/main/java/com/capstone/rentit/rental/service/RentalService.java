@@ -53,7 +53,7 @@ public class RentalService {
     /** 현재 사용자(소유자/대여자)의 대여 목록 조회 */
     @Transactional(readOnly = true)
     public Page<RentalDto> getRentalsForUser(MemberDto loginMember, RentalSearchForm searchForm, Pageable pageable) {
-        Long userId = loginMember.getId();
+        Long userId = loginMember.getMemberId();
         Page<Rental> rentals = rentalRepository.findAllByUserIdAndStatuses(userId, searchForm.getStatuses(), pageable);
         return rentals.map(r ->
                 RentalDto.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
@@ -64,7 +64,7 @@ public class RentalService {
     @Transactional(readOnly = true)
     public RentalDto getRental(Long rentalId, MemberDto loginMember) {
         Rental rental = findRental(rentalId);
-        assertOwnerOrRenter(rental, loginMember.getId());
+        assertOwnerOrRenter(rental, loginMember.getMemberId());
 
         return RentalDto.fromEntity(rental, fileStorageService.generatePresignedUrl(rental.getReturnImageUrl()));
     }

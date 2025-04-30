@@ -4,7 +4,6 @@ import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.MemberDto;
-import com.capstone.rentit.member.dto.MemberDtoFactory;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -36,19 +33,16 @@ public class MemberController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/members")
     public CommonResponse<List<MemberDto>> getAllMembers() {
-        List<MemberDto> list = memberService.getAllMembers().stream()
-                .map(MemberDtoFactory::toDto)
-                .collect(Collectors.toList());
-        return CommonResponse.success(list);
+        List<MemberDto> memberDtos = memberService.getAllMembers();
+        return CommonResponse.success(memberDtos);
     }
 
     // 특정 회원 조회
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/{id}")
     public CommonResponse<MemberDto> getMember(@PathVariable("id") Long id) {
-        Optional<MemberDto> optionalDto = memberService.getMember(id)
-                .map(MemberDtoFactory::toDto);
-        return optionalDto.map(CommonResponse::success).orElseGet(() -> CommonResponse.failure("존재하지 않는 사용자"));
+        MemberDto memberDto = memberService.getMemberById(id);
+        return CommonResponse.success(memberDto);
     }
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
@@ -56,7 +50,7 @@ public class MemberController {
     @PutMapping("/members")
     public CommonResponse<?> updateMember(@Login MemberDto loginMember,
                                           @RequestBody MemberUpdateForm updateForm) {
-        memberService.updateMember(loginMember.getId(), updateForm);
+        memberService.updateMember(loginMember.getMemberId(), updateForm);
         return CommonResponse.success(null);
     }
 

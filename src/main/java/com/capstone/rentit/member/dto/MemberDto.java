@@ -1,15 +1,37 @@
 package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.domain.Company;
+import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
+import com.capstone.rentit.member.exception.MemberTypeMismatchException;
+import com.capstone.rentit.member.status.MemberRoleEnum;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
-public interface MemberDto {
-    Long getId();
-    String getEmail();
-    String getName();
-    MemberRoleEnum getRole();
-    String getProfileImg();
-    LocalDate getCreatedAt();
-    boolean getLocked();
+@Getter
+@SuperBuilder
+public abstract class MemberDto {
+    Long memberId;
+    String email;
+    String name;
+    MemberRoleEnum role;
+    String profileImg;
+    LocalDate createdAt;
+    Boolean locked;
+
+    public static MemberDto fromEntity(Member m) {
+        if (m instanceof Student s) {
+            return StudentDto.fromEntity(s);
+        } else if (m instanceof StudentCouncilMember scm) {
+            return StudentCouncilMemberDto.fromEntity(scm);
+        } else if (m instanceof Company c) {
+            return CompanyDto.fromEntity(c);
+        } else {
+            throw new MemberTypeMismatchException("지원하지 않는 회원 타입입니다.");
+        }
+    }
 }

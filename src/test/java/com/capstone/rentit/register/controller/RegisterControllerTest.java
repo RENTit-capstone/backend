@@ -5,8 +5,11 @@ import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberCreateForm;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.StudentCreateForm;
+import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
@@ -91,11 +94,12 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
         form.setProfileImg("profile_img");
 
-        when(memberService.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(memberService.getMemberByEmail("test@example.com"))
+                .thenThrow(new MemberNotFoundException("존재하지 않는 사용자 이메일 입니다."));
         when(univCertService.isCertified("test@example.com")).thenReturn(true);
         Long generatedId = 1L;
         when(memberService.createMember(any(StudentCreateForm.class))).thenReturn(generatedId);
@@ -122,7 +126,7 @@ class RegisterControllerTest {
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("사용자 닉네임"),
                                 fieldWithPath("university").type(JsonFieldType.STRING).description("사용자 소속 대학"),
                                 fieldWithPath("studentId").type(JsonFieldType.STRING).description("학생 학번"),
-                                fieldWithPath("gender").type(JsonFieldType.STRING).description("성별"),
+                                fieldWithPath("gender").type(JsonFieldType.STRING).description("성별(MEM, WOMEN)"),
                                 fieldWithPath("phone").type(JsonFieldType.STRING).description("연락처"),
                                 fieldWithPath("profileImg").optional().type(JsonFieldType.STRING).description("프로필 이미지 (선택)")
                         ),
@@ -145,7 +149,7 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
         Student existing = Student.builder()
@@ -155,13 +159,13 @@ class RegisterControllerTest {
                 .nickname("tester")
                 .studentId("12345678")
                 .university("Test University")
-                .gender("M")
+                .gender(GenderEnum.MEN)
                 .phone("010-1234-5678")
                 .createdAt(LocalDate.now())
                 .locked(false)
                 .build();
 
-        when(memberService.findByEmail("test@example.com")).thenReturn(Optional.of(existing));
+        when(memberService.getMemberByEmail("test@example.com")).thenReturn(MemberDto.fromEntity(existing));
 
         String payload = objectMapper.writeValueAsString(form);
 
@@ -189,10 +193,11 @@ class RegisterControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
-        when(memberService.findByEmail("test@ajou.ac.kr")).thenReturn(Optional.empty());
+        when(memberService.getMemberByEmail("test@ajou.ac.kr"))
+                .thenThrow(new MemberNotFoundException("존재하지 않는 사용자 이메일 입니다."));
         when(univCertService.isCertified("test@ajou.ac.kr")).thenReturn(false);
 
         String payload = objectMapper.writeValueAsString(form);

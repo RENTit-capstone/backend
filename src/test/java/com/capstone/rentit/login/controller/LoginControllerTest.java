@@ -4,6 +4,7 @@ import com.capstone.rentit.login.dto.JwtTokens;
 import com.capstone.rentit.login.dto.LoginRequest;
 import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.member.status.GenderEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ public class LoginControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
         memberService.createMember(form);
@@ -125,7 +126,7 @@ public class LoginControllerTest {
         form.setNickname("tester");
         form.setUniversity("Test University");
         form.setStudentId("12345678");
-        form.setGender("M");
+        form.setGender(GenderEnum.MEN);
         form.setPhone("010-1234-5678");
 
         memberService.createMember(form);
@@ -156,7 +157,7 @@ public class LoginControllerTest {
         form.setNickname("refreshTester");
         form.setUniversity("Test University");
         form.setStudentId("87654321");
-        form.setGender("F");
+        form.setGender(GenderEnum.WOMEN);
         form.setPhone("010-5678-1234");
 
         memberService.createMember(form);

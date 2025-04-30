@@ -1,6 +1,6 @@
 package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
@@ -11,7 +11,7 @@ public class MemberDtoFactory {
         if (member.getRole().equals(MemberRoleEnum.STUDENT)) {
             Student student = (Student) member;
             return StudentDto.builder()
-                    .id(student.getMemberId())
+                    .memberId(student.getMemberId())
                     .email(student.getEmail())
                     .role(student.getRole())
                     .locked(student.isLocked())
@@ -27,7 +27,7 @@ public class MemberDtoFactory {
         } else if (member.getRole().equals(MemberRoleEnum.COUNCIL)) {
             StudentCouncilMember scm = (StudentCouncilMember) member;
             return StudentCouncilMemberDto.builder()
-                    .id(scm.getMemberId())
+                    .memberId(scm.getMemberId())
                     .email(scm.getEmail())
                     .role(scm.getRole())
                     .locked(scm.isLocked())
@@ -38,7 +38,7 @@ public class MemberDtoFactory {
         } else if (member.getRole().equals(MemberRoleEnum.COMPANY)) {
             Company company = (Company) member;
             return CompanyDto.builder()
-                    .id(company.getMemberId())
+                    .memberId(company.getMemberId())
                     .email(company.getEmail())
                     .role(company.getRole())
                     .locked(company.isLocked())
