@@ -1,26 +1,24 @@
     package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
-import lombok.Builder;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
 import lombok.Getter;
-
-import java.time.LocalDate;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
-public class StudentCouncilMemberDto implements MemberDto {
-    private Long id;
-    private String email;
-    private String name;
-    private MemberRoleEnum role;
-    private String profileImg;
-    private LocalDate createdAt;
-    private boolean locked;
-
+@SuperBuilder
+public class StudentCouncilMemberDto extends MemberDto {
     private String university;
 
-    @Override
-    public boolean getLocked() {
-        return locked;
+    public static StudentCouncilMemberDto fromEntity(StudentCouncilMember entity) {
+        return StudentCouncilMemberDto.builder()
+                .memberId(entity.getMemberId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .role(entity.getRole())
+                .profileImg(entity.getProfileImg())
+                .createdAt(entity.getCreatedAt())
+                .locked(entity.isLocked())
+                .university(entity.getUniversity())
+                .build();
     }
 }

@@ -3,6 +3,7 @@ package com.capstone.rentit.register.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.dto.MemberCreateForm;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,8 +25,7 @@ public class RegisterController {
 
     @PostMapping("/auth/signup")
     public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
-        Optional<Member> existingUser = memberService.findByEmail(form.getEmail());
-        if (existingUser.isPresent()) {
+        if (memberService.getMemberByEmail(form.getEmail()).getEmail().isBlank()) {
             return CommonResponse.failure("이미 등록된 이메일입니다.");
         }
         if (!univCertService.isCertified(form.getEmail())) {
@@ -68,7 +67,7 @@ public class RegisterController {
     @DeleteMapping("/admin/auth/signup/{id}")
     public CommonResponse<Boolean> deleteUser(@PathVariable("id") Long id) {
         try {
-            memberService.deleteUser(id);
+            memberService.deleteMember(id);
             return CommonResponse.success(true);
         } catch (RuntimeException e) {
             return CommonResponse.failure("사용자를 찾을 수 없습니다.");

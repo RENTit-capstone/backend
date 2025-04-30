@@ -1,6 +1,8 @@
 package com.capstone.rentit.member.domain;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.dto.*;
+import com.capstone.rentit.member.exception.MemberTypeMismatchException;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -40,12 +42,26 @@ public abstract class Member {
     @Column
     private boolean locked;
 
-    public void update(String name, String profileImg) {
+    public abstract void update(MemberUpdateForm form);
+
+    public void updateEntity(String name, String profileImg) {
         if (name != null) {
             this.name = name;
         }
         if (profileImg != null) {
             this.profileImg = profileImg;
+        }
+    }
+
+    public static Member createEntity(MemberCreateForm form, String encodedPassword) {
+        if (form instanceof StudentCreateForm f) {
+            return Student.createEntity(f, encodedPassword);
+        } else if (form instanceof StudentCouncilMemberCreateForm f) {
+            return StudentCouncilMember.createEntity(f, encodedPassword);
+        } else if (form instanceof CompanyCreateForm f) {
+            return Company.createEntity(f, encodedPassword);
+        } else {
+            throw new MemberTypeMismatchException("지원하지 않는 회원 유형입니다.");
         }
     }
 }

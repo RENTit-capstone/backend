@@ -6,6 +6,8 @@ import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.member.status.GenderEnum;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,7 +87,7 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.data.accessToken").value("ACCESS_TOKEN"))
                 .andExpect(jsonPath("$.data.refreshToken").value("REFRESH_TOKEN"))
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("login_success",
+                .andDo(document("login-success",
                         requestFields(
                                 fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                 fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호")
@@ -180,18 +182,18 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.data.accessToken").value("NEW_ACCESS"))
                 .andExpect(jsonPath("$.data.refreshToken").value("NEW_REFRESH"))
                 .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("login_refresh_success",
-                        requestFields(
-                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("기존 액세스 토큰 (미사용)"),
-                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("새 액세스 토큰"),
-                                fieldWithPath("data.refreshToken").type(JsonFieldType.STRING).description("새 리프레시 토큰"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
-                        )
-                ));
+                .andDo(document("login-refresh-success",
+                requestFields(
+                        fieldWithPath("accessToken").description("accessToken").type(JsonFieldType.STRING),
+                        fieldWithPath("refreshToken").description("refreshToken").type(JsonFieldType.STRING)
+                ),
+                responseFields(
+                        fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
+                        fieldWithPath("data.accessToken").description("Access Token").type(JsonFieldType.STRING),
+                        fieldWithPath("data.refreshToken").description("Refresh Token").type(JsonFieldType.STRING),
+                        fieldWithPath("message").description("성공 시 빈 문자열, 실패 시 에러 메시지").type(JsonFieldType.STRING)
+                )
+        ));
     }
 
     @DisplayName("토큰 리프레시 실패 - 잘못된 리프레시 토큰")

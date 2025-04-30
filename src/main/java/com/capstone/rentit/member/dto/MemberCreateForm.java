@@ -1,6 +1,5 @@
 package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.common.MemberRoleEnum;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;

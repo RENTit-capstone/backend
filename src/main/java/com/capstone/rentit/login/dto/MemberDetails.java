@@ -1,7 +1,6 @@
 package com.capstone.rentit.login.dto;
 
-import com.capstone.rentit.common.MemberRoleConverter;
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class MemberDetails implements UserDetails {
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
         else{
-            List<String> roles = List.of("ROLE_USER", "ROLE_" + MemberRoleConverter.roleToString(member.getRole()));
+            List<String> roles = List.of("ROLE_USER", "ROLE_" + MemberRoleEnum.roleToString(member.getRole()));
             return roles.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());

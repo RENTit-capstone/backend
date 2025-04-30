@@ -3,10 +3,18 @@ plugins {
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.asciidoctor.jvm.convert' version '3.3.2' //rest docs
+	id 'jacoco'
+//	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.capstone'
 version = '0.0.1-SNAPSHOT'
+
+//def querydslDir = layout.buildDirectory.dir("generated/querydsl")
+def snippetsDir = layout.buildDirectory.dir("generated-snippets").get().asFile
+//ext {
+//	querydslVersion = '5.0.0'
+//}
 
 java {
 	toolchain {
@@ -19,6 +27,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+//	querydsl.extendsFrom compileClasspath
 }
 
 repositories {
@@ -36,6 +45,7 @@ dependencies {
 
 	//database
 	runtimeOnly 'com.h2database:h2'
+	testImplementation 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -53,28 +63,128 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	//object storage
+	implementation platform('software.amazon.awssdk:bom:2.27.21')
+	implementation 'software.amazon.awssdk:s3'
+	implementation 'software.amazon.awssdk:url-connection-client'
+
+	//querydsl
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	outputs.dir snippetsDir
 }
 
-////rest docs
-tasks.register('copyApiDocument', Copy) { // 자동으로 생성된 문서를 옮겨주는 copyApiDocument task 선언
-	dependsOn asciidoctor // copyApiDocument를 수행하기전 asciidoctor를 수행하도록 선언
-	doFirst { // 작업이 실행되기전 수행하는 작업 선언
-		delete file("src/main/resources/static/docs") // 기존 문서 삭제
-	}
-	// 생성된 문서를 static/docs로 이동
-	from asciidoctor.outputDir
-	into file("src/main/resources/static/docs")
-}
-
+// 2) AsciidoctorTask 설정 – test → docs 변환 순서 보장
 asciidoctor {
-	dependsOn test
+// 1) 테스트 → 스니펫 생성 → Asciidoctor 순서 보장
+	dependsOn tasks.named('test')
 	configurations 'asciidoctorExt'
+
+	// 2) 스니펫 입력 폴더를 증분 빌드용으로 등록
+	inputs.dir snippetsDir
+
+	// 3) {snippets} 속성에 'C:/.../build/generated-snippets' 형태의 문자열로 바인딩
+	attributes 'snippets': snippetsDir
+			.absolutePath                    // 절대 경로로
+			.replace('\\', '/')             // Windows 백슬래시 제거
+			.replaceAll(/ /, '\\ ')         // (선택) 공백이 있으면 이스케이프
+
+	// 4) 문서 변환 대상 .adoc 지정 (보통 index.adoc)
+	sources {
+		include 'index.adoc'
+	}
+
+	// 5) (선택) 출력 경로 명시
+	outputDir = layout.buildDirectory.dir("docs/asciidoc").get().asFile
 }
 
-build {
-	dependsOn copyApiDocument // 프로젝트 빌드 전 copyApiDocument를 실행하도록 변경
+tasks.named('bootJar') {
+	dependsOn tasks.named('asciidoctor')
+	from(layout.buildDirectory.dir('docs/asciidoc')) {
+		into 'static/docs'
+	}
+}
+
+tasks.register('copyDocsToSrc', Copy) {
+	dependsOn asciidoctor
+	from layout.buildDirectory.dir('docs/asciidoc')
+	into file('src/docs')
+}
+
+tasks.named('assemble') {
+	finalizedBy 'copyDocsToSrc'
+}
+
+tasks.named('test', Test) {
+	useJUnitPlatform()
+	outputs.dir layout.buildDirectory.dir("generated-snippets")
+}
+
+jacoco {
+	toolVersion = "0.8.11"
+}
+
+tasks.named('jacocoTestReport', JacocoReport) {
+	dependsOn tasks.named('test')
+	reports {
+		html.required.set(true)
+		xml.required.set(true)
+	}
+	sourceDirectories.setFrom files('src/main/java')
+	classDirectories.setFrom(
+			files(layout.buildDirectory.dir('classes/java/main'))
+					.asFileTree
+					.matching { exclude '**/config/**', '**/common/**', '**/dto/**', '**/domain/**', '**/filter/**' }
+	)
+	def jacocoDir = layout.buildDirectory.dir('jacoco').get().asFile
+	executionData.setFrom fileTree(dir: jacocoDir, include: ['*.exec'])
+}
+
+tasks.register('copyJacocoReportsToDocs', Copy) {
+	dependsOn tasks.named('jacocoTestReport')
+	from layout.buildDirectory.dir('reports/jacoco/test/html')
+	into file('src/docs/jacoco')
+}
+
+tasks.named('assemble') {
+	finalizedBy 'copyDocsToSrc', 'copyJacocoReportsToDocs'
+}
+
+// check 태스크에 커버리지 검증 포함
+tasks.named('check') {
+	dependsOn tasks.named('jacocoTestCoverageVerification')
+}
+
+
+// Querydsl 설정부
+def generatedQuerydsl = 'src/main/generated'
+
+sourceSets {
+	main {
+		java {
+			// 기존 src/main/java 외에 generatedSourcesDir 추가
+			srcDirs += generatedQuerydsl
+		}
+	}
+}
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile).configureEach {
+	options.generatedSourceOutputDirectory = file(generatedQuerydsl)
+}
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+	main.java.srcDirs += "$projectDir/build/generated"
+}
+
+clean {
+	delete file('src/main/generated')
 }

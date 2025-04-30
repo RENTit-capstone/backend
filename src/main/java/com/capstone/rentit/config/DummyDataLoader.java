@@ -1,6 +1,7 @@
 package com.capstone.rentit.config;
 
-import com.capstone.rentit.common.MemberRoleEnum;
+import com.capstone.rentit.member.status.GenderEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.repository.MemberRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -26,7 +27,7 @@ public class DummyDataLoader {
                             .nickname("dummynick1")
                             .university("Dummy University")
                             .studentId("DUMMY1001")
-                            .gender("M")
+                            .gender(GenderEnum.MEN)
                             .phone("010-1111-2222")
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
@@ -39,7 +40,7 @@ public class DummyDataLoader {
                             .nickname("dummynick2")
                             .university("Dummy University")
                             .studentId("DUMMY1002")
-                            .gender("F")
+                            .gender(GenderEnum.WOMEN)
                             .phone("010-3333-4444")
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
@@ -52,7 +53,7 @@ public class DummyDataLoader {
                             .nickname("dummynick3")
                             .university("Dummy University")
                             .studentId("DUMMY1003")
-                            .gender("M")
+                            .gender(GenderEnum.MEN)
                             .phone("010-5555-6666")
                             .role(MemberRoleEnum.STUDENT)
                             .createdAt(LocalDate.now())
