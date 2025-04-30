@@ -1,5 +1,6 @@
 package com.capstone.rentit.member.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.GenderEnum;
@@ -19,6 +20,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
@@ -38,6 +41,9 @@ class MemberServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private MemberService memberService;
@@ -230,17 +236,22 @@ class MemberServiceTest {
         Student mock = mock(Student.class);
         when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
 
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
+
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("new");
-        form.setProfileImg("img.png");
+        form.setProfileImgFile(file);
         form.setNickname("nn");
         form.setPhone("010");
 
-        doNothing().when(mock).update(form);
+        when(fileStorageService.store(file)).thenReturn("");
+        doNothing().when(mock).update(form, "");
 
         memberService.updateMember(ID, form);
 
-        verify(mock).update(form);
+        verify(fileStorageService).store(file);
+        verify(mock).update(form, "");
     }
 
     @Test @DisplayName("업데이트 시 ID 없으면 MemberNotFoundException")
@@ -259,7 +270,7 @@ class MemberServiceTest {
 
         CompanyUpdateForm badForm = new CompanyUpdateForm();
         doThrow(new MemberTypeMismatchException("회원 유형이 일치하지 않습니다."))
-                .when(mock).update(any(MemberUpdateForm.class));
+                .when(mock).update(any(MemberUpdateForm.class), anyString());
 
         assertThatThrownBy(() -> memberService.updateMember(ID, badForm))
                 .isInstanceOf(MemberTypeMismatchException.class)

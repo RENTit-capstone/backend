@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -251,9 +252,11 @@ class MemberControllerTest {
     void updateMember_success() throws Exception {
         // given
         long id = 1L;
+        MockMultipartFile file = new MockMultipartFile(
+                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
-        form.setProfileImg("updated.jpg");
+        form.setProfileImgFile(file);
         form.setNickname("updatedNick");
         form.setPhone("010-9876-5432");
 
