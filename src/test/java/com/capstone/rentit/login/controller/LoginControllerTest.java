@@ -5,8 +5,11 @@ import com.capstone.rentit.login.dto.LoginRequest;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.dto.StudentDto;
+import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.member.status.GenderEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -61,8 +64,15 @@ class LoginControllerTest {
         String email = "test@example.com";
         String rawPw = "password";
 
-        when(memberService.findByEmail(email))
-                .thenReturn(Optional.of(mock(Student.class)));
+        StudentDto stubUser = StudentDto.builder()
+                .memberId(1L)
+                .name("testUser")
+                .email(email)
+                .role(MemberRoleEnum.STUDENT)
+                .build();
+
+        when(memberService.getMemberByEmail(email))
+                .thenReturn(stubUser);
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(email, rawPw);
@@ -106,8 +116,8 @@ class LoginControllerTest {
     void login_unregistered_email() throws Exception {
         // given
         String email = "nouser@example.com";
-        when(memberService.findByEmail(email))
-                .thenReturn(Optional.empty());
+        when(memberService.getMemberByEmail(email))
+                .thenThrow(new MemberNotFoundException("존재하지 않는 사용자 이메일 입니다."));
 
         LoginRequest req = new LoginRequest();
         req.setEmail(email);
@@ -120,7 +130,7 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.data").isEmpty())
-                .andExpect(jsonPath("$.message").value("등록되지 않은 이메일입니다."));
+                .andExpect(jsonPath("$.message").value("존재하지 않는 사용자 이메일 입니다."));
     }
 
     @DisplayName("로그인 실패 - 잘못된 비밀번호")
@@ -128,8 +138,15 @@ class LoginControllerTest {
     void login_wrong_password() throws Exception {
         // given
         String email = "test2@example.com";
-        when(memberService.findByEmail(email))
-                .thenReturn(Optional.of(mock(Student.class)));
+        StudentDto stubUser = StudentDto.builder()
+                .memberId(1L)
+                .name("testUser")
+                .email(email)
+                .role(MemberRoleEnum.STUDENT)
+                .build();
+
+        when(memberService.getMemberByEmail(email))
+                .thenReturn(stubUser);
         when(authenticationManager.authenticate(any()))
                 .thenThrow(new BadCredentialsException(""));
 
