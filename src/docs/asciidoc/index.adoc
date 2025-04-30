@@ -146,7 +146,7 @@ include::{snippets}/update-member/response-fields.adoc[]
 include::{snippets}/update-member/http-response.adoc[]
 
 === 회원 프로필 수정
-PUT /api/v1/members/profile-image
+POST /api/v1/members/profile-image
 
 ==== 요청 파트
 include::{snippets}/update-member-profile/request-parts.adoc[]
