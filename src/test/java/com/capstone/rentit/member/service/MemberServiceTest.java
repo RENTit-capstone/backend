@@ -10,6 +10,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
+import com.capstone.rentit.register.exception.EmailAlreadyRegisteredException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -283,6 +285,36 @@ class MemberServiceTest {
         assertThatThrownBy(() -> memberService.deleteMember(ID))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
+    }
+
+    @Test @DisplayName("이미 등록된 이메일 확인 성공")
+    void ensureEmailNotRegistered_success() {
+        // given
+        when(memberRepository.findByEmail("new@example.com"))
+                .thenReturn(Optional.empty());
+
+        // when / then
+        assertDoesNotThrow(() ->
+                memberService.ensureEmailNotRegistered("new@example.com")
+        );
+
+        verify(memberRepository, times(1)).findByEmail("new@example.com");
+    }
+
+    @Test @DisplayName("등록된 이메일이 있으면 EmailAlreadyRegisteredException")
+    void ensureEmailNotRegistered_notFound() {
+        // given
+        when(memberRepository.findByEmail("exist@example.com"))
+                .thenReturn(Optional.of(mock(Member.class)));
+
+        // when / then
+        EmailAlreadyRegisteredException ex = assertThrows(
+                EmailAlreadyRegisteredException.class,
+                () -> memberService.ensureEmailNotRegistered("exist@example.com")
+        );
+        assertEquals("이미 등록된 이메일입니다.", ex.getMessage());
+
+        verify(memberRepository, times(1)).findByEmail("exist@example.com");
     }
 
     // — 헬퍼 메서드 —

@@ -7,9 +7,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.capstone.rentit.register.exception.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,218 +33,265 @@ public class UnivCertServiceTest {
     @InjectMocks
     private UnivCertService univCertService;
 
+    private static final String BASE = "https://univcert.com/api/v1";
+
     @BeforeEach
-    public void setUp() {
-        // apiKey는 application.yml 대신 테스트 환경에서 임의의 값("dummy-key")으로 설정
-        ReflectionTestUtils.setField(univCertService, "apiKey", "dummy-key");
+    void setUp() {
+        // @Value로 주입되는 apiKey 설정
+        ReflectionTestUtils.setField(univCertService, "apiKey", "test-key");
     }
 
-    @Test
-    public void testCheckUniversity_success() {
-        // given
-        String univName = "Test University";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("validateUniversity")
+    class ValidateUniversity {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: 예외 없이 반환")
+        void success() {
+            Map<String, Object> body = Map.of("success", true);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.checkUniversity(univName);
+            when(restTemplate.postForEntity(eq(BASE + "/check"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertTrue(result);
+            assertDoesNotThrow(() ->
+                    univCertService.validateUniversity("AnyUniversity")
+            );
+        }
+
+        @Test
+        @DisplayName("실패: InvalidUniversityException 발생")
+        void failure() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/check"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            assertThrows(InvalidUniversityException.class, () ->
+                    univCertService.validateUniversity("BadUniversity")
+            );
+        }
+
+        @Test
+        @DisplayName("응답 바디 null: UnivServiceException 발생")
+        void nullBody() {
+            ResponseEntity<Map> resp = new ResponseEntity<>(null, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/check"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.validateUniversity("Any")
+            );
+            assertEquals("외부 인증 서비스 응답이 비어 있습니다.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("RestTemplate 예외: UnivServiceException 발생")
+        void restClientException() {
+            when(restTemplate.postForEntity(anyString(), any(), eq(Map.class)))
+                    .thenThrow(new RuntimeException("timeout"));
+
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.validateUniversity("Any")
+            );
+            assertTrue(ex.getMessage().contains("외부 인증 서비스 호출 중 오류가 발생했습니다."));
+        }
     }
 
-    @Test
-    public void testCheckUniversity_failure() {
-        // given
-        String univName = "Test University";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("sendCertification")
+    class SendCertification {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: 예외 없이 반환")
+        void success() {
+            Map<String, Object> body = Map.of("success", true);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.checkUniversity(univName);
+            when(restTemplate.postForEntity(eq(BASE + "/certify"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertFalse(result);
+            assertDoesNotThrow(() ->
+                    univCertService.sendCertification("a@b.com", "Uni", false)
+            );
+        }
+
+        @Test
+        @DisplayName("실패: CertificationSendFailureException 발생")
+        void failure() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/certify"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            assertThrows(CertificationSendFailureException.class, () ->
+                    univCertService.sendCertification("a@b.com", "Uni", false)
+            );
+        }
     }
 
-    @Test
-    public void testCertify_success() {
-        // given
-        String email = "user@test.com";
-        String univ = "Test University";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("verifyCode")
+    class VerifyCode {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: 예외 없이 반환")
+        void success() {
+            Map<String, Object> body = Map.of("success", true);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.certify(email, univ, false);
+            when(restTemplate.postForEntity(eq(BASE + "/certifycode"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertTrue(result);
+            assertDoesNotThrow(() ->
+                    univCertService.verifyCode("a@b.com", "Uni", 12345)
+            );
+        }
+
+        @Test
+        @DisplayName("실패: InvalidVerificationCodeException 발생")
+        void failure() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/certifycode"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            assertThrows(InvalidVerificationCodeException.class, () ->
+                    univCertService.verifyCode("a@b.com", "Uni", 12345)
+            );
+        }
     }
 
-    @Test
-    public void testCertify_failure() {
-        // given
-        String email = "user@test.com";
-        String univ = "Test University";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("ensureCertified")
+    class EnsureCertified {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: 예외 없이 반환")
+        void success() {
+            Map<String, Object> body = Map.of("success", true);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.certify(email, univ, false);
+            when(restTemplate.postForEntity(eq(BASE + "/status"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertFalse(result);
+            assertDoesNotThrow(() ->
+                    univCertService.ensureCertified("a@b.com")
+            );
+        }
+
+        @Test
+        @DisplayName("실패: UnivNotCertifiedException 발생")
+        void failure() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/status"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            assertThrows(UnivNotCertifiedException.class, () ->
+                    univCertService.ensureCertified("a@b.com")
+            );
+        }
     }
 
-    @Test
-    public void testCertifyCode_success() {
-        // given
-        String email = "user@test.com";
-        String univ = "Test University";
-        int code = 123456;
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("clearAll")
+    class ClearAll {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: 예외 없이 반환")
+        void success() {
+            Map<String, Object> body = Map.of("success", true);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.certifyCode(email, univ, code);
+            when(restTemplate.postForEntity(eq(BASE + "/clear"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertTrue(result);
+            assertDoesNotThrow(() ->
+                    univCertService.clearAll()
+            );
+        }
+
+        @Test
+        @DisplayName("실패: UnivServiceException 발생")
+        void failure() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
+
+            when(restTemplate.postForEntity(eq(BASE + "/clear"), any(), eq(Map.class)))
+                    .thenReturn(resp);
+
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.clearAll()
+            );
+            assertEquals("인증 데이터 초기화에 실패했습니다.", ex.getMessage());
+        }
     }
 
-    @Test
-    public void testCertifyCode_failure() {
-        // given
-        String email = "user@test.com";
-        String univ = "Test University";
-        int code = 123456;
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+    @Nested
+    @DisplayName("showAll")
+    class ShowAll {
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+        @Test
+        @DisplayName("성공: data 반환")
+        void success() {
+            List<String> dummy = List.of("a", "b");
+            Map<String, Object> body = new HashMap<>();
+            body.put("success", true);
+            body.put("data", dummy);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        // when
-        boolean result = univCertService.certifyCode(email, univ, code);
+            when(restTemplate.postForEntity(eq(BASE + "/certifiedlist"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // then
-        assertFalse(result);
-    }
+            Object result = univCertService.showAll();
+            assertSame(dummy, result);
+        }
 
-    @Test
-    public void testIsCertified_success() {
-        // given
-        String email = "user@test.com";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        @Test
+        @DisplayName("실패(success=false): UnivServiceException 발생")
+        void failureSuccessFalse() {
+            Map<String, Object> body = Map.of("success", false);
+            ResponseEntity<Map> resp = new ResponseEntity<>(body, HttpStatus.OK);
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+            when(restTemplate.postForEntity(eq(BASE + "/certifiedlist"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        // when
-        boolean result = univCertService.isCertified(email);
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.showAll()
+            );
+            assertEquals("인증 정보 조회에 실패했습니다.", ex.getMessage());
+        }
 
-        // then
-        assertTrue(result);
-    }
+        @Test
+        @DisplayName("null body: UnivServiceException 발생")
+        void nullBody() {
+            ResponseEntity<Map> resp = new ResponseEntity<>(null, HttpStatus.OK);
 
-    @Test
-    public void testIsCertified_failure() {
-        // given
-        String email = "user@test.com";
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+            when(restTemplate.postForEntity(eq(BASE + "/certifiedlist"), any(), eq(Map.class)))
+                    .thenReturn(resp);
 
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.showAll()
+            );
+            assertEquals("외부 인증 서비스 응답이 비어 있습니다.", ex.getMessage());
+        }
 
-        // when
-        boolean result = univCertService.isCertified(email);
+        @Test
+        @DisplayName("RestTemplate 예외: UnivServiceException 발생")
+        void restClientException() {
+            when(restTemplate.postForEntity(anyString(), any(), eq(Map.class)))
+                    .thenThrow(new RuntimeException("network error"));
 
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    public void testClearAll_success() {
-        // given
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
-
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
-
-        // when
-        boolean result = univCertService.clearAll();
-
-        // then
-        assertTrue(result);
-    }
-
-    @Test
-    public void testClearAll_failure() {
-        // given
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
-
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
-
-        // when
-        boolean result = univCertService.clearAll();
-
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    public void testShowAll_success() {
-        // given
-        Map<String, Object> data = new HashMap<>();
-        data.put("key", "value");
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        responseBody.put("data", data);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
-
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
-
-        // when
-        Object result = univCertService.showAll();
-
-        // then
-        assertEquals(data, result);
-    }
-
-    @Test
-    public void testShowAll_failure() {
-        // given
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", false);
-        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
-
-        when(restTemplate.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(responseEntity);
-
-        // when
-        Object result = univCertService.showAll();
-
-        // then
-        assertEquals("error", result);
+            UnivServiceException ex = assertThrows(UnivServiceException.class, () ->
+                    univCertService.showAll()
+            );
+            assertTrue(ex.getMessage().contains("외부 인증 서비스 호출 중 오류가 발생했습니다."));
+        }
     }
 }
