@@ -27,11 +27,11 @@ public class Company extends Member {
     private String companyName;
 
     @Override
-    public void update(MemberUpdateForm form) {
+    public void update(MemberUpdateForm form, String profileImg) {
         if (!(form instanceof CompanyUpdateForm f)) {
             throw new MemberTypeMismatchException("회사 정보 수정 폼이 아닙니다.");
         }
-        super.updateEntity(form.getName(), form.getProfileImg());
+        super.updateEntity(form.getName(), profileImg);
         if (companyName != null) {
             this.companyName = companyName;
         }

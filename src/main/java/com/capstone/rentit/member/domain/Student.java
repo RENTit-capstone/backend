@@ -65,11 +65,11 @@ public class Student extends Member {
     }
 
     @Override
-    public void update(MemberUpdateForm form) {
+    public void update(MemberUpdateForm form, String profileImg) {
         if (!(form instanceof StudentUpdateForm f)) {
             throw new MemberTypeMismatchException("학생 정보 수정 폼이 아닙니다.");
         }
-        updateEntity(form.getName(), form.getProfileImg());
+        updateEntity(form.getName(), profileImg);
         if (nickname != null) {
             this.nickname = nickname;
         }

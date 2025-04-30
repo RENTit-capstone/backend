@@ -26,11 +26,11 @@ public class StudentCouncilMember extends Member {
     private String university;
 
     @Override
-    public void update(MemberUpdateForm form) {
+    public void update(MemberUpdateForm form, String profileImg) {
         if (!(form instanceof StudentCouncilMemberUpdateForm f)) {
             throw new MemberTypeMismatchException("학생회 정보 수정 폼이 아닙니다.");
         }
-        super.updateEntity(f.getName(), f.getProfileImg());
+        super.updateEntity(f.getName(), profileImg);
     }
 
     public static StudentCouncilMember createEntity(StudentCouncilMemberCreateForm form, String encodedPassword) {
