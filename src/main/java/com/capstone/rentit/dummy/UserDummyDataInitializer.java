@@ -1,0 +1,86 @@
+package com.capstone.rentit.dummy;
+
+import com.capstone.rentit.member.domain.Company;
+import com.capstone.rentit.member.domain.Student;
+import com.capstone.rentit.member.domain.StudentCouncilMember;
+import com.capstone.rentit.member.repository.MemberRepository;
+import com.capstone.rentit.member.status.MemberRoleEnum;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Component
+@RequiredArgsConstructor
+public class UserDummyDataInitializer implements ApplicationRunner {
+
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        if (memberRepository.count() > 0) {
+            return;
+        }
+
+        final int STUDENT_COUNT = 5;
+        final int COMPANY_COUNT = 3;
+        final int COUNCIL_COUNT = 2;
+
+        LocalDate today = LocalDate.now();
+
+        // 1) 학생 생성
+        for (int i = 1; i <= STUDENT_COUNT; i++) {
+            Student stu = Student.builder()
+                    .email(String.format("student%02d@example.com", i))
+                    .password(passwordEncoder.encode("password"))
+                    .name("Student " + i)
+                    .role(MemberRoleEnum.STUDENT)
+                    .locked(false)
+                    .createdAt(today)
+                    .studentId("S" + (1000 + i))
+                    .university("University " + i)
+                    .nickname("stuNick" + i)
+                    .phone(String.format("010-1234-%04d", ThreadLocalRandom.current().nextInt(0,10000)))
+                    .build();
+            memberRepository.save(stu);
+        }
+
+        // 2) 기업 생성
+        for (int i = 1; i <= COMPANY_COUNT; i++) {
+            Company comp = Company.builder()
+                    .email(String.format("company%02d@example.com", i))
+                    .password(passwordEncoder.encode("password"))
+                    .name("Company " + i)
+                    .role(MemberRoleEnum.COMPANY)
+                    .locked(false)
+                    .createdAt(today)
+                    .companyName("CompName" + i)
+                    .build();
+            memberRepository.save(comp);
+        }
+
+        // 3) 학생회 회원 생성
+        for (int i = 1; i <= COUNCIL_COUNT; i++) {
+            StudentCouncilMember council = StudentCouncilMember.builder()
+                    .email(String.format("council%02d@example.com", i))
+                    .password(passwordEncoder.encode("password"))
+                    .name("Council " + i)
+                    .role(MemberRoleEnum.COUNCIL)
+                    .locked(false)
+                    .createdAt(today)
+                    .build();
+            memberRepository.save(council);
+        }
+
+        System.out.printf("[UserDummyDataInitializer] Generated %d students, %d companies, %d councils.%n",
+                STUDENT_COUNT, COMPANY_COUNT, COUNCIL_COUNT);
+    }
+}
