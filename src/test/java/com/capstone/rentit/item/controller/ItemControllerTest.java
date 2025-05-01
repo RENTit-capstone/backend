@@ -169,6 +169,8 @@ class ItemControllerTest {
                                         .description("최대 대여 가격"),
                                 parameterWithName("status").optional()
                                         .description("물품 상태 필터 (예: AVAILABLE, OUT)"),
+                                parameterWithName("ownerRoles").optional()
+                                        .description("물품 소유자 역할 필터 (예: STUDENT, COMPANY, COUNCIL; 여러 값 전달 가능)"),
                                 parameterWithName("page")
                                         .description("페이지 번호 (0부터 시작)"),
                                 parameterWithName("size")
