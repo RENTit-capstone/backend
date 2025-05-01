@@ -1,12 +1,14 @@
 package com.capstone.rentit.item.dto;
 
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +25,5 @@ public class ItemSearchForm {
     private Integer maxPrice;
 
     private ItemStatusEnum status;
+    private List<MemberRoleEnum> ownerRoles;
 }

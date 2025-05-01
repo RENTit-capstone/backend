@@ -2,6 +2,7 @@ package com.capstone.rentit.item.domain;
 
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,10 @@ public class Item {
 
     @Column(nullable = false)
     private Long ownerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ownerId", insertable = false, updatable = false)
+    private Member owner;
 
     @Column(length = 50, nullable = false)
     private String name;
