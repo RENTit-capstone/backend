@@ -1,6 +1,6 @@
 package com.capstone.rentit.member.controller;
 
-import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -59,6 +59,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MemberControllerTest {
 
     @Autowired MockMvc mockMvc;
+
+    @MockitoBean
+    private FileStorageService fileStorageService;
+
     @Autowired ObjectMapper objectMapper;
 
     @MockitoBean
@@ -115,7 +119,7 @@ class MemberControllerTest {
         given(memberService.createMember(any(StudentCreateForm.class)))
                 .willReturn(generatedId);
         given(memberService.getMemberById(generatedId))
-                .willReturn(MemberDto.fromEntity(student));
+                .willReturn(MemberDto.fromEntity(student, ""));
 
         // when
         ResultActions result = mockMvc.perform(post("/api/v1/admin/members")
@@ -169,7 +173,7 @@ class MemberControllerTest {
                 .createdAt(LocalDate.now())
                 .build();
         given(memberService.getAllMembers())
-                .willReturn(Collections.singletonList(MemberDto.fromEntity(student)));
+                .willReturn(Collections.singletonList(MemberDto.fromEntity(student, "")));
 
         // when
         ResultActions result = mockMvc.perform(get("/api/v1/admin/members")
@@ -193,7 +197,6 @@ class MemberControllerTest {
                                 fieldWithPath("data[].gender").type(JsonFieldType.STRING).description("학생 성별"),
                                 fieldWithPath("data[].studentId").type(JsonFieldType.STRING).description("학생 학번"),
                                 fieldWithPath("data[].university").type(JsonFieldType.STRING).description("학생 소속 대학"),
-                                fieldWithPath("data[].phone").type(JsonFieldType.STRING).description("학생 연락처"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
@@ -219,7 +222,7 @@ class MemberControllerTest {
                 .createdAt(LocalDate.now())
                 .build();
         given(memberService.getMemberById(id))
-                .willReturn(MemberDto.fromEntity(student));
+                .willReturn(MemberDto.fromEntity(student, ""));
 
         // when
         ResultActions result = mockMvc.perform(get("/api/v1/members/{id}", id)
@@ -243,7 +246,6 @@ class MemberControllerTest {
                                 fieldWithPath("data.gender").type(JsonFieldType.STRING).description("학생 성별"),
                                 fieldWithPath("data.studentId").type(JsonFieldType.STRING).description("학생 학번"),
                                 fieldWithPath("data.university").type(JsonFieldType.STRING).description("학생 소속 대학"),
-                                fieldWithPath("data.phone").type(JsonFieldType.STRING).description("학생 연락처"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
@@ -432,7 +434,6 @@ class MemberControllerTest {
                                 fieldWithPath("data.gender").type(JsonFieldType.STRING).description("회원 성별"),
                                 fieldWithPath("data.studentId").type(JsonFieldType.STRING).description("학생 학번"),
                                 fieldWithPath("data.university").type(JsonFieldType.STRING).description("학생 소속 대학"),
-                                fieldWithPath("data.phone").type(JsonFieldType.STRING).description("회원 연락처"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
                         )
                 ));
