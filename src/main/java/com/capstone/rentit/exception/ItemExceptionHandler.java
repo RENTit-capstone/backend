@@ -1,6 +1,7 @@
 package com.capstone.rentit.exception;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.item.exception.ItemImageMissingException;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,12 @@ public class ItemExceptionHandler {
     @ExceptionHandler(ItemUnauthorizedException.class)
     public CommonResponse<Void> handleUnauthorized(ItemUnauthorizedException ex) {
         log.warn("Unauthorized access: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
+    @ExceptionHandler(ItemImageMissingException.class)
+    public CommonResponse<Void> handleMissedImage(ItemImageMissingException ex) {
+        log.warn("Item don't have images: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 
