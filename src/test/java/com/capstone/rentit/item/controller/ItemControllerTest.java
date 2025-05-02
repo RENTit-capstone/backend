@@ -1,12 +1,12 @@
 package com.capstone.rentit.item.controller;
 
+import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.member.dto.StudentDto;
+import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
-import com.capstone.rentit.item.dto.ItemCreateForm;
-import com.capstone.rentit.item.dto.ItemDto;
-import com.capstone.rentit.item.dto.ItemSearchForm;
-import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
@@ -31,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +62,8 @@ class ItemControllerTest {
     private ItemService itemService;
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
+    @MockitoBean
+    private FileStorageService fileStorageService;
     @MockitoBean
     private MemberDetailsService memberDetailsService;
 
@@ -118,21 +121,35 @@ class ItemControllerTest {
     @Test
     void getAllItems() throws Exception {
         // Given
-        ItemDto dto1 = ItemDto.builder()
-                .itemId(1L).ownerId(1L).name("One").itemImg("url1").price(1000)
+        MemberDto owner1 = StudentDto.builder()
+                .memberId(1001L).email("owner1@email.com").gender(GenderEnum.MEN)
+                .name("owner_name").nickname("owner_nickname")
+                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
+                .studentId("0000000").university("owner_univ")
+                .locked(false).createdAt(LocalDate.now())
+                .build();
+        MemberDto owner2 = StudentDto.builder()
+                .memberId(1002L).email("owner2@email.com").gender(GenderEnum.MEN)
+                .name("owner_name").nickname("owner_nickname")
+                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
+                .studentId("0000000").university("owner_univ")
+                .locked(false).createdAt(LocalDate.now())
+                .build();
+        ItemSearchResponse dto1 = ItemSearchResponse.builder()
+                .itemId(1L).owner(owner1).name("One").itemImg("url1").price(1000)
                 .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description1")
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
-        ItemDto dto2 = ItemDto.builder()
-                .itemId(2L).ownerId(2L).name("Two").itemImg("url2").price(2000)
+        ItemSearchResponse dto2 = ItemSearchResponse.builder()
+                .itemId(2L).owner(owner2).name("Two").itemImg("url2").price(2000)
                 .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description2")
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(2))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
-        List<ItemDto> list = Arrays.asList(dto1, dto2);
+        List<ItemSearchResponse> list = Arrays.asList(dto1, dto2);
         Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
-        Page<ItemDto> page = new PageImpl<>(list, pageable, 2);
+        Page<ItemSearchResponse> page = new PageImpl<>(list, pageable, 2);
         given(itemService.getAllItems(any(ItemSearchForm.class), any(Pageable.class)))
                 .willReturn(page);
 
@@ -178,48 +195,40 @@ class ItemControllerTest {
                                         .description("정렬 기준 (예: createdAt,desc)")
                         ),
                         responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN)
-                                        .description("API 호출 성공 여부"),
-                                fieldWithPath("data.content[].itemId").type(JsonFieldType.NUMBER)
-                                        .description("물품 ID"),
-                                fieldWithPath("data.content[].ownerId").type(JsonFieldType.NUMBER)
-                                        .description("소유자 ID"),
-                                fieldWithPath("data.content[].name").type(JsonFieldType.STRING)
-                                        .description("물품 이름"),
-                                fieldWithPath("data.content[].itemImg").type(JsonFieldType.STRING)
-                                        .description("이미지 URL"),
-                                fieldWithPath("data.content[].description").type(JsonFieldType.STRING)
-                                        .description("상세 설명"),
-                                fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER)
-                                        .description("대여 가격"),
-                                fieldWithPath("data.content[].status").type(JsonFieldType.STRING)
-                                        .description("물품 상태"),
-                                fieldWithPath("data.content[].damagedPolicy").type(JsonFieldType.STRING)
-                                        .description("파손 정책"),
-                                fieldWithPath("data.content[].returnPolicy").type(JsonFieldType.STRING)
-                                        .description("반납 정책"),
-                                fieldWithPath("data.content[].startDate").type(JsonFieldType.STRING)
-                                        .description("시작일"),
-                                fieldWithPath("data.content[].endDate").type(JsonFieldType.STRING)
-                                        .description("종료일"),
-                                fieldWithPath("data.content[].createdAt").type(JsonFieldType.STRING)
-                                        .description("등록일"),
-                                fieldWithPath("data.content[].updatedAt").type(JsonFieldType.STRING)
-                                        .description("수정일"),
-                                fieldWithPath("message").type(JsonFieldType.STRING)
-                                        .description("응답 메시지 (성공 시 빈 문자열)"),
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data.content[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
+                                fieldWithPath("data.content[].owner.memberId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data.content[].owner.email").type(JsonFieldType.STRING).description("소유자 이메일"),
+                                fieldWithPath("data.content[].owner.name").type(JsonFieldType.STRING).description("소유자 이름"),
+                                fieldWithPath("data.content[].owner.role").type(JsonFieldType.STRING).description("소유자 역할"),
+                                fieldWithPath("data.content[].owner.profileImg").optional().type(JsonFieldType.STRING).description("소유자 프로필 이미지 URL"),
+                                fieldWithPath("data.content[].owner.createdAt").type(JsonFieldType.STRING).description("소유자 등록일"),
+                                fieldWithPath("data.content[].owner.locked").type(JsonFieldType.BOOLEAN).description("소유자 계정 잠금 여부"),
+                                fieldWithPath("data.content[].owner.nickname").type(JsonFieldType.STRING).description("소유자 회원 닉네임"),
+                                fieldWithPath("data.content[].owner.gender").type(JsonFieldType.STRING).description("소유자 회원 성별"),
+                                fieldWithPath("data.content[].owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
+                                fieldWithPath("data.content[].owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
+                                fieldWithPath("data.content[].name").type(JsonFieldType.STRING).description("물품 이름"),
+                                fieldWithPath("data.content[].itemImg").type(JsonFieldType.STRING).description("이미지 URL"),
+                                fieldWithPath("data.content[].description").type(JsonFieldType.STRING).description("상세 설명"),
+                                fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER).description("대여 가격"),
+                                fieldWithPath("data.content[].status").type(JsonFieldType.STRING).description("물품 상태"),
+                                fieldWithPath("data.content[].damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
+                                fieldWithPath("data.content[].returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
+                                fieldWithPath("data.content[].startDate").type(JsonFieldType.STRING).description("시작일"),
+                                fieldWithPath("data.content[].endDate").type(JsonFieldType.STRING).description("종료일"),
+                                fieldWithPath("data.content[].createdAt").type(JsonFieldType.STRING).description("등록일"),
+                                fieldWithPath("data.content[].updatedAt").type(JsonFieldType.STRING).description("수정일"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지 (성공 시 빈 문자열)"),
 
                                 fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER).description("현재 페이지 번호"),
                                 fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER).description("페이지 크기"),
                                 fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER).description("페이지 오프셋"),
                                 fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN).description("페이징 여부"),
                                 fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN).description("비페이징 여부"),
-                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN)
-                                        .description("페이지 내 정렬 정보가 비어있는지 여부"),
-                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN)
-                                        .description("페이지 내 정렬이 적용되었는지 여부"),
-                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN)
-                                        .description("페이지 내 정렬이 미적용되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN).description("페이지 내 정렬 정보가 비어있는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN).description("페이지 내 정렬이 적용되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN).description("페이지 내 정렬이 미적용되었는지 여부"),
 
                                 fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN).description("전체 정렬 정보 비어있는지 여부"),
                                 fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN).description("전체 정렬 적용 여부"),
@@ -245,8 +254,15 @@ class ItemControllerTest {
     void getItem() throws Exception {
         // Given
         long id = 5L;
-        ItemDto dto = ItemDto.builder()
-                .itemId(id).ownerId(1L).name("Single").itemImg("url")
+        MemberDto owner1 = StudentDto.builder()
+                .memberId(1001L).email("owner1@email.com").gender(GenderEnum.MEN)
+                .name("owner_name").nickname("owner_nicname")
+                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
+                .studentId("0000000").university("owner_univ")
+                .locked(false).createdAt(LocalDate.now())
+                .build();
+        ItemSearchResponse dto = ItemSearchResponse.builder()
+                .itemId(id).owner(owner1).name("Single").itemImg("url")
                 .damagedPolicy("dp").returnPolicy("rp").description("dto description").price(1000)
                 .status(ItemStatusEnum.AVAILABLE).startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
@@ -264,7 +280,17 @@ class ItemControllerTest {
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
-                                fieldWithPath("data.ownerId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data.owner.memberId").type(JsonFieldType.NUMBER).description("소유자 ID"),
+                                fieldWithPath("data.owner.email").type(JsonFieldType.STRING).description("소유자 이메일"),
+                                fieldWithPath("data.owner.name").type(JsonFieldType.STRING).description("소유자 이름"),
+                                fieldWithPath("data.owner.role").type(JsonFieldType.STRING).description("소유자 역할"),
+                                fieldWithPath("data.owner.profileImg").optional().type(JsonFieldType.STRING).description("소유자 프로필 이미지 URL"),
+                                fieldWithPath("data.owner.createdAt").type(JsonFieldType.STRING).description("소유자 등록일"),
+                                fieldWithPath("data.owner.locked").type(JsonFieldType.BOOLEAN).description("소유자 계정 잠금 여부"),
+                                fieldWithPath("data.owner.nickname").type(JsonFieldType.STRING).description("소유자 회원 닉네임"),
+                                fieldWithPath("data.owner.gender").type(JsonFieldType.STRING).description("소유자 회원 성별"),
+                                fieldWithPath("data.owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
+                                fieldWithPath("data.owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
                                 fieldWithPath("data.itemImg").type(JsonFieldType.STRING).description("이미지"),
                                 fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
@@ -306,9 +332,9 @@ class ItemControllerTest {
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
 
         when(itemService.getItem(id)).thenReturn(
-                ItemDto.builder()
+                ItemSearchResponse.builder()
                         .itemId(id)
-                        .ownerId(id)
+                        .owner(StudentDto.builder().memberId(1001L).build())
                         .build()
         );
         doNothing().when(itemService)
@@ -362,9 +388,9 @@ class ItemControllerTest {
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
 
         when(itemService.getItem(id)).thenReturn(
-                ItemDto.builder()
+                ItemSearchResponse.builder()
                         .itemId(id)
-                        .ownerId(id)
+                        .owner(StudentDto.builder().memberId(1001L).build())
                         .build()
         );
         doNothing().when(itemService).deleteItem(any(MemberDto.class), eq(id));

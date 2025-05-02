@@ -1,16 +1,15 @@
 package com.capstone.rentit.item.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.domain.Item;
-import com.capstone.rentit.item.dto.ItemCreateForm;
-import com.capstone.rentit.item.dto.ItemDto;
-import com.capstone.rentit.item.dto.ItemSearchForm;
-import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
+import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.StudentDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +35,9 @@ class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private ItemService itemService;
@@ -70,6 +72,7 @@ class ItemServiceTest {
         sampleItem = Item.builder()
                 .itemId(42L)
                 .ownerId(createForm.getOwnerId())
+                .owner(Student.builder().memberId(createForm.getOwnerId()).build())
                 .name(createForm.getName())
                 .itemImg(createForm.getItemImg())
                 .description(createForm.getDescription())
@@ -135,6 +138,7 @@ class ItemServiceTest {
         Item other = Item.builder()
                 .itemId(99L)
                 .ownerId(101L)
+                .owner(Student.builder().memberId(101L).build())
                 .name("Other")
                 .itemImg("o.jpg")
                 .description("o desc")
@@ -151,11 +155,11 @@ class ItemServiceTest {
                 .willReturn(itemPage);
 
         // when
-        Page<ItemDto> dtoPage = itemService.getAllItems(new ItemSearchForm(), pageable);
+        Page<ItemSearchResponse> dtoPage = itemService.getAllItems(new ItemSearchForm(), pageable);
 
         // then
         assertThat(dtoPage).hasSize(2)
-                .extracting(ItemDto::getName)
+                .extracting(ItemSearchResponse::getName)
                 .containsExactlyInAnyOrder("Sample", "Other");
         then(itemRepository).should().search(any(ItemSearchForm.class), eq(pageable));
     }
@@ -173,12 +177,12 @@ class ItemServiceTest {
         given(itemRepository.search(form, pageable)).willReturn(itemPage);
 
         // when
-        Page<ItemDto> dtoPage = itemService.getAllItems(form, pageable);
+        Page<ItemSearchResponse> dtoPage = itemService.getAllItems(form, pageable);
 
         // then
         assertThat(dtoPage).hasSize(1)
                 .first()
-                .extracting(ItemDto::getName)
+                .extracting(ItemSearchResponse::getName)
                 .isEqualTo("Sample");
         then(itemRepository).should().search(form, pageable);
     }
@@ -191,7 +195,7 @@ class ItemServiceTest {
                 .willReturn(Optional.of(sampleItem));
 
         // when
-        ItemDto dto = itemService.getItem(sampleItem.getItemId());
+        ItemSearchResponse dto = itemService.getItem(sampleItem.getItemId());
 
         // then
         assertThat(dto.getItemId()).isEqualTo(sampleItem.getItemId());
