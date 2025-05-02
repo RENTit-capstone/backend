@@ -50,16 +50,16 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
-    public void updateMember(Long id, MemberUpdateForm form) {
+    public void updateMember(Long id, MemberUpdateForm form, MultipartFile image) {
         Member member = findMemberById(id);
-
         member.update(form);
+        uploadProfileImage(member, image);
     }
-    public void updateProfileImage(Long id, MultipartFile file) {
-        Member member = findMemberById(id);
-        String objectKey = fileStorageService.store(file);
-
-        member.updateProfile(objectKey);
+    private void uploadProfileImage(Member member, MultipartFile image) {
+        if(image != null && !image.isEmpty()) {
+            String objectKey = fileStorageService.store(image);
+            member.updateProfile(objectKey);
+        }
     }
 
     /** 6) 회원 삭제 */
