@@ -34,19 +34,19 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberDto getMemberById(Long id) {
         Member member = findMemberById(id);
-        return MemberDto.fromEntity(member);
+        return MemberDto.fromEntity(member, fileStorageService.generatePresignedUrl(member.getProfileImg()));
     }
 
     @Transactional(readOnly = true)
     public MemberDto getMemberByEmail(String email) {
         Member member = findMemberByEmail(email);
-        return MemberDto.fromEntity(member);
+        return MemberDto.fromEntity(member, fileStorageService.generatePresignedUrl(member.getProfileImg()));
     }
 
     @Transactional(readOnly = true)
     public List<MemberDto> getAllMembers() {
         return memberRepository.findAll().stream()
-                .map(MemberDto::fromEntity)
+                .map(member -> MemberDto.fromEntity(member, fileStorageService.generatePresignedUrl(member.getProfileImg())))
                 .collect(Collectors.toList());
     }
 

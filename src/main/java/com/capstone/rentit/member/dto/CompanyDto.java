@@ -9,13 +9,13 @@ import lombok.experimental.SuperBuilder;
 public class CompanyDto extends MemberDto {
     private String companyName;
 
-    public static CompanyDto fromEntity(Company entity) {
+    public static CompanyDto fromEntity(Company entity, String presignedUrl) {
         return CompanyDto.builder()
                 .memberId(entity.getMemberId())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .role(entity.getRole())
-                .profileImg(entity.getProfileImg())
+                .profileImg(presignedUrl)
                 .createdAt(entity.getCreatedAt())
                 .locked(entity.isLocked())
                 .companyName(entity.getCompanyName())

@@ -12,22 +12,20 @@ public class StudentDto extends MemberDto {
     private GenderEnum gender;
     private String studentId;
     private String university;
-    private String phone;
 
-    public static StudentDto fromEntity(Student entity) {
+    public static StudentDto fromEntity(Student entity, String presignedUrl) {
         return StudentDto.builder()
                 .memberId(entity.getMemberId())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .role(entity.getRole())
-                .profileImg(entity.getProfileImg())
+                .profileImg(presignedUrl)
                 .createdAt(entity.getCreatedAt())
                 .locked(entity.isLocked())
                 .nickname(entity.getNickname())
                 .gender(entity.getGender())
                 .studentId(entity.getStudentId())
                 .university(entity.getUniversity())
-                .phone(entity.getPhone())
                 .build();
     }
 }
