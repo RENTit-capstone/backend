@@ -2,6 +2,7 @@ package com.capstone.rentit.item.service;
 
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.dto.*;
+import com.capstone.rentit.item.exception.ItemImageMissingException;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
 import com.capstone.rentit.item.status.ItemStatusEnum;
@@ -24,10 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -152,6 +150,31 @@ class ItemServiceTest {
         assertThat(id).isEqualTo(sampleItem.getItemId());
         then(itemRepository).should(times(1)).save(any(Item.class));
         then(fileStorageService).should(times(2)).store(any(MultipartFile.class));
+    }
+
+    @DisplayName("createItem: images가 비어 있으면 ItemImageMissingException")
+    @Test
+    void createItem_noImages_thenThrowMissingImage() {
+        // given
+        given(itemRepository.save(any(Item.class)))
+                .willAnswer(inv -> {
+                    Item arg = inv.getArgument(0);
+                    return Item.builder()
+                            .itemId(1L)
+                            .ownerId(arg.getOwnerId())
+                            .name(arg.getName())
+                            .build();
+                });
+
+        // when & then
+        assertThatThrownBy(() ->
+                itemService.createItem(
+                        ownerMember.getMemberId(),
+                        createForm,
+                        Collections.emptyList()
+                ))
+                .isInstanceOf(ItemImageMissingException.class)
+                .hasMessage("물품 이미지가 없습니다.");
     }
 
     @DisplayName("getAllItems: 저장된 모든 아이템을 DTO 목록으로 반환")
