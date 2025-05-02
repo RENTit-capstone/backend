@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +27,11 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final FileStorageService fileStorageService;
 
-    public Long createItem(ItemCreateForm form) {
-        Item item = Item.createItem(form);
+    public Long createItem(Long memberId, ItemCreateForm form, List<MultipartFile> images) {
+        Item item = Item.createItem(memberId, form);
         Item savedItem = itemRepository.save(item);
+
+        uploadItemImages(item, images);
         return savedItem.getItemId();
     }
 
@@ -36,21 +39,27 @@ public class ItemService {
     public Page<ItemSearchResponse> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
         Page<Item> page = itemRepository.search(searchForm, pageable);
         return page.map(item ->
-                ItemSearchResponse.fromEntity(item, fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
+                ItemSearchResponse.fromEntity(item,
+                        item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                        fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
     }
 
     @Transactional(readOnly = true)
     public ItemSearchResponse getItem(Long itemId) {
         Item item = findItem(itemId);
-        return ItemSearchResponse.fromEntity(item, fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
+        return ItemSearchResponse.fromEntity(item,
+                item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
     }
 
-    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {
+    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form, List<MultipartFile> images) {
         Item item = findItem(itemId);
         assertOwner(item, loginMember.getMemberId());
 
         item.updateItem(form);
-        itemRepository.save(item);
+
+        item.clearImageKeys();
+        uploadItemImages(item, images);
     }
 
     public void deleteItem(MemberDto loginMember, Long itemId) {
@@ -70,6 +79,15 @@ public class ItemService {
     private void assertOwner(Item item, Long userId) {
         if (!item.getOwnerId().equals(userId)) {
             throw new ItemUnauthorizedException("자신의 소유 물품이 아닙니다.");
+        }
+    }
+
+    private void uploadItemImages(Item item, List<MultipartFile> images){
+        if(images != null && !images.isEmpty()) {
+            images.forEach(file -> {
+                String key = fileStorageService.store(file);
+                item.addImageKey(key);
+            });
         }
     }
 }

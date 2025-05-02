@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class ItemSearchResponse {
     private Long itemId;
     private MemberDto owner;
     private String name;
-    private String itemImg;
+    private List<String> imageUrls;
     private String description;
     private Integer price;
     private ItemStatusEnum status;
@@ -27,12 +28,12 @@ public class ItemSearchResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ItemSearchResponse fromEntity(Item item, String presignedUrl) {
+    public static ItemSearchResponse fromEntity(Item item, List<String> imageUrls, String ownerProfileImg) {
         return ItemSearchResponse.builder()
                 .itemId(item.getItemId())
-                .owner(MemberDto.fromEntity(item.getOwner(), presignedUrl))
+                .owner(MemberDto.fromEntity(item.getOwner(), ownerProfileImg))
                 .name(item.getName())
-                .itemImg(item.getItemImg())
+                .imageUrls(imageUrls)
                 .description(item.getDescription())
                 .price(item.getPrice())
                 .status(item.getStatus())

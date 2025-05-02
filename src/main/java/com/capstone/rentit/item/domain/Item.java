@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,8 +30,12 @@ public class Item {
     @Column(length = 50, nullable = false)
     private String name;
 
-    @Column(length = 255)
-    private String itemImg;
+    @ElementCollection
+    @CollectionTable(name = "item_image_keys",
+            joinColumns = @JoinColumn(name = "item_id"))
+    @Column(name = "object_key", nullable = false, length = 255)
+    @Builder.Default
+    private List<String> imageKeys = new ArrayList<>();
 
     @Column(length = 500, nullable = false)
     private String description;
@@ -52,11 +58,10 @@ public class Item {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static Item createItem(ItemCreateForm form){
+    public static Item createItem(Long ownerId, ItemCreateForm form){
         return Item.builder()
-                .ownerId(form.getOwnerId())
+                .ownerId(ownerId)
                 .name(form.getName())
-                .itemImg(form.getItemImg())
                 .description(form.getDescription())
                 .status(form.getStatus())
                 .damagedPolicy(form.getDamagedPolicy())
@@ -71,8 +76,6 @@ public class Item {
     public void updateItem(ItemUpdateForm form){
         if(form.getName() != null)
             this.name = form.getName();
-        if(form.getItemImg() != null)
-            this.itemImg = form.getItemImg();
         if(form.getDescription() != null)
             this.description = form.getDescription();
         if(form.getPrice() != null)
@@ -94,5 +97,13 @@ public class Item {
 
     public void updateOut(){
         status = ItemStatusEnum.OUT;
+    }
+
+    public void addImageKey(String key) {
+        this.imageKeys.add(key);
+    }
+
+    public void clearImageKeys() {           // (업데이트 시 활용)
+        this.imageKeys.clear();
     }
 }

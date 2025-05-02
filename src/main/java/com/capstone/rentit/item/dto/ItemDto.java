@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class ItemDto {
     private Long itemId;
     private Long ownerId;
     private String name;
-    private String itemImg;
+    private List<String> imageKeys;
     private String description;
     private Integer price;
     private ItemStatusEnum status;
@@ -31,7 +32,7 @@ public class ItemDto {
                 .itemId(item.getItemId())
                 .ownerId(item.getOwnerId())
                 .name(item.getName())
-                .itemImg(item.getItemImg())
+                .imageKeys(item.getImageKeys())
                 .description(item.getDescription())
                 .price(item.getPrice())
                 .status(item.getStatus())
