@@ -54,8 +54,8 @@ public class ItemController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
-            @RequestPart ItemUpdateForm form,
-            @RequestPart("images") List<MultipartFile> images,
+            @RequestPart(value = "form", required = false) ItemUpdateForm form,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Login MemberDto loginMember) {
         itemService.updateItem(loginMember, itemId, form, images);
         return CommonResponse.success(null);

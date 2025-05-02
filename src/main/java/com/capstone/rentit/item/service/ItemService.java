@@ -4,6 +4,7 @@ import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
+import com.capstone.rentit.item.exception.ItemImageMissingException;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
 import com.capstone.rentit.item.repository.ItemRepository;
@@ -31,6 +32,7 @@ public class ItemService {
         Item item = Item.createItem(memberId, form);
         Item savedItem = itemRepository.save(item);
 
+        assertItemImage(images);
         uploadItemImages(item, images);
         return savedItem.getItemId();
     }
@@ -57,9 +59,7 @@ public class ItemService {
         assertOwner(item, loginMember.getMemberId());
 
         item.updateItem(form);
-
-        item.clearImageKeys();
-        uploadItemImages(item, images);
+        updateItemImages(item, images);
     }
 
     public void deleteItem(MemberDto loginMember, Long itemId) {
@@ -82,8 +82,24 @@ public class ItemService {
         }
     }
 
+    private void assertItemImage(List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) {
+            throw new ItemImageMissingException("물품 이미지가 없습니다.");
+        }
+    }
+
     private void uploadItemImages(Item item, List<MultipartFile> images){
         if(images != null && !images.isEmpty()) {
+            images.forEach(file -> {
+                String key = fileStorageService.store(file);
+                item.addImageKey(key);
+            });
+        }
+    }
+
+    private void updateItemImages(Item item, List<MultipartFile> images){
+        if(images != null && !images.isEmpty()) {
+            item.clearImageKeys();
             images.forEach(file -> {
                 String key = fileStorageService.store(file);
                 item.addImageKey(key);

@@ -74,6 +74,7 @@ public class Item {
     }
 
     public void updateItem(ItemUpdateForm form){
+        if(form == null) return;
         if(form.getName() != null)
             this.name = form.getName();
         if(form.getDescription() != null)
