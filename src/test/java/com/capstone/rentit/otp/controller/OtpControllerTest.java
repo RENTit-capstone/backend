@@ -1,5 +1,6 @@
 package com.capstone.rentit.otp.controller;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
@@ -44,14 +45,14 @@ class OtpControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private OtpService otpService;
-
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
     @MockitoBean
     MemberDetailsService memberDetailsService;
+    @MockitoBean
+    private FileStorageService fileStorageService;
 
     @WithMockUser(roles = "USER")
     @Test
