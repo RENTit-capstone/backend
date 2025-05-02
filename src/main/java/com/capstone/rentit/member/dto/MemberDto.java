@@ -23,13 +23,13 @@ public abstract class MemberDto {
     LocalDate createdAt;
     Boolean locked;
 
-    public static MemberDto fromEntity(Member m) {
+    public static MemberDto fromEntity(Member m, String presignedUrl) {
         if (m instanceof Student s) {
-            return StudentDto.fromEntity(s);
+            return StudentDto.fromEntity(s, presignedUrl);
         } else if (m instanceof StudentCouncilMember scm) {
-            return StudentCouncilMemberDto.fromEntity(scm);
+            return StudentCouncilMemberDto.fromEntity(scm, presignedUrl);
         } else if (m instanceof Company c) {
-            return CompanyDto.fromEntity(c);
+            return CompanyDto.fromEntity(c, presignedUrl);
         } else {
             throw new MemberTypeMismatchException("지원하지 않는 회원 타입입니다.");
         }
