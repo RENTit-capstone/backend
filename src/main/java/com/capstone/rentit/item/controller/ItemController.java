@@ -1,10 +1,7 @@
 package com.capstone.rentit.item.controller;
 
 import com.capstone.rentit.common.CommonResponse;
-import com.capstone.rentit.item.dto.ItemCreateForm;
-import com.capstone.rentit.item.dto.ItemDto;
-import com.capstone.rentit.item.dto.ItemSearchForm;
-import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -13,8 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -26,34 +25,39 @@ public class ItemController {
     private final ItemService itemService;
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/items")
-    public CommonResponse<Long> createItem(@RequestBody ItemCreateForm form) {
-        Long itemId = itemService.createItem(form);
+    @PostMapping(path = "/items",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<Long> createItem(@Login MemberDto loginMember,
+                                           @RequestPart("form") ItemCreateForm form,
+                                           @RequestPart("images") List<MultipartFile> images) {
+        Long itemId = itemService.createItem(loginMember.getMemberId(), form, images);
         return CommonResponse.success(itemId);
     }
 
     @GetMapping("/items")
-    public CommonResponse<Page<ItemDto>> getAllItems(
+    public CommonResponse<Page<ItemSearchResponse>> getAllItems(
             @ModelAttribute ItemSearchForm searchForm,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        Page<ItemDto> page = itemService.getAllItems(searchForm, pageable);
+        Page<ItemSearchResponse> page = itemService.getAllItems(searchForm, pageable);
         return CommonResponse.success(page);
     }
 
     @GetMapping("/items/{itemId}")
-    public CommonResponse<ItemDto> getItem(@PathVariable("itemId") Long itemId) {
-        ItemDto item = itemService.getItem(itemId);
+    public CommonResponse<ItemSearchResponse> getItem(@PathVariable("itemId") Long itemId) {
+        ItemSearchResponse item = itemService.getItem(itemId);
         return CommonResponse.success(item);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/items/{itemId}")
+    @PutMapping(path = "/items/{itemId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
-            @RequestBody ItemUpdateForm form,
-            @Login MemberDto loginMember) throws AccessDeniedException {
-        itemService.updateItem(loginMember, itemId, form);
+            @RequestPart ItemUpdateForm form,
+            @RequestPart("images") List<MultipartFile> images,
+            @Login MemberDto loginMember) {
+        itemService.updateItem(loginMember, itemId, form, images);
         return CommonResponse.success(null);
     }
 
@@ -61,7 +65,7 @@ public class ItemController {
     @DeleteMapping("/items/{itemId}")
     public CommonResponse<Void> deleteItem(
             @PathVariable("itemId") Long itemId,
-            @Login MemberDto loginMember) throws AccessDeniedException {
+            @Login MemberDto loginMember) {
         itemService.deleteItem(loginMember, itemId);
         return CommonResponse.success(null);
     }

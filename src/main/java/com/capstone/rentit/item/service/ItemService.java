@@ -1,6 +1,7 @@
 package com.capstone.rentit.item.service;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,44 +25,41 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final FileStorageService fileStorageService;
 
-    public Long createItem(ItemCreateForm form) {
-        Item item = Item.builder()
-                .ownerId(form.getOwnerId())
-                .name(form.getName())
-                .itemImg(form.getItemImg())
-                .description(form.getDescription())
-                .categoryId(form.getCategoryId())
-                .status(form.getStatus())
-                .damagedPolicy(form.getDamagedPolicy())
-                .returnPolicy(form.getReturnPolicy())
-                .startDate(form.getStartDate())
-                .endDate(form.getEndDate())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+    public Long createItem(Long memberId, ItemCreateForm form, List<MultipartFile> images) {
+        Item item = Item.createItem(memberId, form);
         Item savedItem = itemRepository.save(item);
+
+        uploadItemImages(item, images);
         return savedItem.getItemId();
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemDto> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
+    public Page<ItemSearchResponse> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
         Page<Item> page = itemRepository.search(searchForm, pageable);
-        return page.map(ItemDto::fromEntity);
+        return page.map(item ->
+                ItemSearchResponse.fromEntity(item,
+                        item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                        fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
     }
 
     @Transactional(readOnly = true)
-    public ItemDto getItem(Long itemId) {
+    public ItemSearchResponse getItem(Long itemId) {
         Item item = findItem(itemId);
-        return ItemDto.fromEntity(item);
+        return ItemSearchResponse.fromEntity(item,
+                item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
     }
 
-    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {
+    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form, List<MultipartFile> images) {
         Item item = findItem(itemId);
         assertOwner(item, loginMember.getMemberId());
 
         item.updateItem(form);
-        itemRepository.save(item);
+
+        item.clearImageKeys();
+        uploadItemImages(item, images);
     }
 
     public void deleteItem(MemberDto loginMember, Long itemId) {
@@ -80,6 +79,15 @@ public class ItemService {
     private void assertOwner(Item item, Long userId) {
         if (!item.getOwnerId().equals(userId)) {
             throw new ItemUnauthorizedException("자신의 소유 물품이 아닙니다.");
+        }
+    }
+
+    private void uploadItemImages(Item item, List<MultipartFile> images){
+        if(images != null && !images.isEmpty()) {
+            images.forEach(file -> {
+                String key = fileStorageService.store(file);
+                item.addImageKey(key);
+            });
         }
     }
 }

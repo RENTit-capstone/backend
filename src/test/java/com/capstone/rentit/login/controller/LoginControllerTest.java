@@ -1,5 +1,6 @@
 package com.capstone.rentit.login.controller;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.login.dto.JwtTokens;
 import com.capstone.rentit.login.dto.LoginRequest;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
@@ -56,6 +57,8 @@ class LoginControllerTest {
     private AuthenticationManager authenticationManager;
     @MockitoBean
     private JwtTokenProvider tokenProvider;
+    @MockitoBean
+    private FileStorageService fileStorageService;
 
     @DisplayName("로그인 성공")
     @Test

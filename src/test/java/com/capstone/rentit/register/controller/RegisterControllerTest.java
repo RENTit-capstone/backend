@@ -1,8 +1,10 @@
 package com.capstone.rentit.register.controller;
 
 import com.capstone.rentit.config.WebConfig;
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
+import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -54,21 +56,18 @@ class RegisterControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @MockitoBean
     private UnivCertService univCertService;
-
     @MockitoBean
     private MemberService memberService;
-
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
-
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean
+    private FileStorageService fileStorageService;
 
     @BeforeEach
     void setUp() throws Exception {

@@ -57,6 +57,7 @@ public class NcpObjectStorageService implements FileStorageService {
 
     @Override
     public String generatePresignedUrl(String objectKey) {
+        if(objectKey == null || objectKey.isEmpty()) return "";
         GetObjectRequest getReq = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)

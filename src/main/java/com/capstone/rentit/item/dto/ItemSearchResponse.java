@@ -2,6 +2,7 @@ package com.capstone.rentit.item.dto;
 
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.member.dto.MemberDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +13,11 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ItemDto {
+public class ItemSearchResponse {
     private Long itemId;
-    private Long ownerId;
+    private MemberDto owner;
     private String name;
-    private List<String> imageKeys;
+    private List<String> imageUrls;
     private String description;
     private Integer price;
     private ItemStatusEnum status;
@@ -27,12 +28,12 @@ public class ItemDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ItemDto fromEntity(Item item) {
-        return ItemDto.builder()
+    public static ItemSearchResponse fromEntity(Item item, List<String> imageUrls, String ownerProfileImg) {
+        return ItemSearchResponse.builder()
                 .itemId(item.getItemId())
-                .ownerId(item.getOwnerId())
+                .owner(MemberDto.fromEntity(item.getOwner(), ownerProfileImg))
                 .name(item.getName())
-                .imageKeys(item.getImageKeys())
+                .imageUrls(imageUrls)
                 .description(item.getDescription())
                 .price(item.getPrice())
                 .status(item.getStatus())

@@ -1,5 +1,6 @@
 package com.capstone.rentit.item.domain;
 
+import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.member.domain.Member;
@@ -7,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,13 +30,15 @@ public class Item {
     @Column(length = 50, nullable = false)
     private String name;
 
-    @Column(length = 255)
-    private String itemImg;
+    @ElementCollection
+    @CollectionTable(name = "item_image_keys",
+            joinColumns = @JoinColumn(name = "item_id"))
+    @Column(name = "object_key", nullable = false, length = 255)
+    @Builder.Default
+    private List<String> imageKeys = new ArrayList<>();
 
     @Column(length = 500, nullable = false)
     private String description;
-
-    private Long categoryId;
 
     private Integer price;
 
@@ -53,15 +58,26 @@ public class Item {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public static Item createItem(Long ownerId, ItemCreateForm form){
+        return Item.builder()
+                .ownerId(ownerId)
+                .name(form.getName())
+                .description(form.getDescription())
+                .status(form.getStatus())
+                .damagedPolicy(form.getDamagedPolicy())
+                .returnPolicy(form.getReturnPolicy())
+                .startDate(form.getStartDate())
+                .endDate(form.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
     public void updateItem(ItemUpdateForm form){
         if(form.getName() != null)
             this.name = form.getName();
-        if(form.getItemImg() != null)
-            this.itemImg = form.getItemImg();
         if(form.getDescription() != null)
             this.description = form.getDescription();
-        if(form.getCategoryId() != null)
-            this.categoryId = form.getCategoryId();
         if(form.getPrice() != null)
             this.price = form.getPrice();
         if(form.getDamagedPolicy() != null)
@@ -81,5 +97,13 @@ public class Item {
 
     public void updateOut(){
         status = ItemStatusEnum.OUT;
+    }
+
+    public void addImageKey(String key) {
+        this.imageKeys.add(key);
+    }
+
+    public void clearImageKeys() {           // (업데이트 시 활용)
+        this.imageKeys.clear();
     }
 }

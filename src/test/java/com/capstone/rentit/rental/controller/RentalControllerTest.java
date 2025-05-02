@@ -1,5 +1,6 @@
 package com.capstone.rentit.rental.controller;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
@@ -57,6 +58,7 @@ class RentalControllerTest {
     @MockitoBean RentalService rentalService;
     @MockitoBean JwtTokenProvider jwtTokenProvider;
     @MockitoBean MemberDetailsService memberDetailsService;
+    @MockitoBean FileStorageService fileStorageService;
 
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/v1/rentals - 대여 요청 성공")

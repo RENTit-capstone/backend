@@ -9,13 +9,13 @@ import lombok.experimental.SuperBuilder;
 public class StudentCouncilMemberDto extends MemberDto {
     private String university;
 
-    public static StudentCouncilMemberDto fromEntity(StudentCouncilMember entity) {
+    public static StudentCouncilMemberDto fromEntity(StudentCouncilMember entity, String presignedUrl) {
         return StudentCouncilMemberDto.builder()
                 .memberId(entity.getMemberId())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .role(entity.getRole())
-                .profileImg(entity.getProfileImg())
+                .profileImg(presignedUrl)
                 .createdAt(entity.getCreatedAt())
                 .locked(entity.isLocked())
                 .university(entity.getUniversity())
