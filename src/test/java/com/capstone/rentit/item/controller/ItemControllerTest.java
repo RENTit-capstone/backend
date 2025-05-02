@@ -3,7 +3,9 @@ package com.capstone.rentit.item.controller;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.member.dto.MemberSearchResponse;
 import com.capstone.rentit.member.dto.StudentDto;
+import com.capstone.rentit.member.dto.StudentSearchResponse;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
@@ -136,19 +138,12 @@ class ItemControllerTest {
     @Test
     void getAllItems() throws Exception {
         // Given
-        MemberDto owner = StudentDto.builder()
-                .memberId(1001L).email("a@b.c").gender(GenderEnum.MEN)
-                .name("홍길동").nickname("길동")
-                .profileImg("pfUrl").role(MemberRoleEnum.STUDENT)
-                .studentId("20231234").university("Korea Univ.")
-                .locked(false).createdAt(LocalDate.now())
-                .build();
-        MemberDto owner2 = StudentDto.builder()
-                .memberId(1002L).email("a2@b.c").gender(GenderEnum.MEN)
-                .name("홍길동2").nickname("길동2")
-                .profileImg("pfUrl2").role(MemberRoleEnum.STUDENT)
-                .studentId("20231235").university("Korea Univ.")
-                .locked(false).createdAt(LocalDate.now())
+        MemberSearchResponse owner = StudentSearchResponse.builder()
+                .memberId(1001L).nickname("owner1")
+                .profileImg("pfUrl").university("Korea Univ.").build();
+        MemberSearchResponse owner2 = StudentSearchResponse.builder()
+                .memberId(1002L).nickname("owner2")
+                .profileImg("pfUrl2").university("Korea Univ.")
                 .build();
         ItemSearchResponse dto = ItemSearchResponse.builder()
                 .itemId(1L).owner(owner).name("One")
@@ -214,15 +209,8 @@ class ItemControllerTest {
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data.content[].itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
                                 fieldWithPath("data.content[].owner.memberId").type(JsonFieldType.NUMBER).description("소유자 ID"),
-                                fieldWithPath("data.content[].owner.email").type(JsonFieldType.STRING).description("소유자 이메일"),
-                                fieldWithPath("data.content[].owner.name").type(JsonFieldType.STRING).description("소유자 이름"),
-                                fieldWithPath("data.content[].owner.role").type(JsonFieldType.STRING).description("소유자 역할"),
                                 fieldWithPath("data.content[].owner.profileImg").optional().type(JsonFieldType.STRING).description("소유자 프로필 이미지 URL"),
-                                fieldWithPath("data.content[].owner.createdAt").type(JsonFieldType.STRING).description("소유자 등록일"),
-                                fieldWithPath("data.content[].owner.locked").type(JsonFieldType.BOOLEAN).description("소유자 계정 잠금 여부"),
                                 fieldWithPath("data.content[].owner.nickname").type(JsonFieldType.STRING).description("소유자 회원 닉네임"),
-                                fieldWithPath("data.content[].owner.gender").type(JsonFieldType.STRING).description("소유자 회원 성별"),
-                                fieldWithPath("data.content[].owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
                                 fieldWithPath("data.content[].owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
                                 fieldWithPath("data.content[].name").type(JsonFieldType.STRING).description("물품 이름"),
                                 fieldWithPath("data.content[].imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
@@ -272,11 +260,9 @@ class ItemControllerTest {
         long id = 5L;
         ItemSearchResponse dto = ItemSearchResponse.builder()
                 .itemId(id)
-                .owner(StudentDto.builder()
-                        .memberId(1001L).email("owner@email.com").profileImg("url1")
-                        .createdAt(LocalDate.now()).locked(false).nickname("owner")
-                        .gender(GenderEnum.MEN).studentId("1000000").university("univ")
-                        .name("owner").role(MemberRoleEnum.STUDENT).build())
+                .owner(StudentSearchResponse.builder()
+                        .memberId(1001L).profileImg("url1")
+                        .nickname("owner").university("univ").build())
                 .name("Single")
                 .description("desc").price(1000)
                 .imageUrls(List.of("urlA"))
@@ -300,15 +286,8 @@ class ItemControllerTest {
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
                                 fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("물품 ID"),
                                 fieldWithPath("data.owner.memberId").type(JsonFieldType.NUMBER).description("소유자 ID"),
-                                fieldWithPath("data.owner.email").type(JsonFieldType.STRING).description("소유자 이메일"),
-                                fieldWithPath("data.owner.name").type(JsonFieldType.STRING).description("소유자 이름"),
-                                fieldWithPath("data.owner.role").type(JsonFieldType.STRING).description("소유자 역할"),
                                 fieldWithPath("data.owner.profileImg").optional().type(JsonFieldType.STRING).description("소유자 프로필 이미지 URL"),
-                                fieldWithPath("data.owner.createdAt").type(JsonFieldType.STRING).description("소유자 등록일"),
-                                fieldWithPath("data.owner.locked").type(JsonFieldType.BOOLEAN).description("소유자 계정 잠금 여부"),
                                 fieldWithPath("data.owner.nickname").type(JsonFieldType.STRING).description("소유자 회원 닉네임"),
-                                fieldWithPath("data.owner.gender").type(JsonFieldType.STRING).description("소유자 회원 성별"),
-                                fieldWithPath("data.owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
                                 fieldWithPath("data.owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
                                 fieldWithPath("data.imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
