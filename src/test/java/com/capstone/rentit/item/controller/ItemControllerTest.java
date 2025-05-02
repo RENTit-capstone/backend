@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,8 +39,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -72,41 +72,56 @@ class ItemControllerTest {
     @Test
     void createItem() throws Exception {
         // Given
-        ItemCreateForm form = new ItemCreateForm();
-        form.setOwnerId(1L);
-        form.setName("Sample Item");
-        form.setItemImg("http://example.com/item.jpg");
-        form.setDescription("Sample description");
-        form.setPrice(2000);
-        form.setStatus(ItemStatusEnum.AVAILABLE);
-        form.setDamagedPolicy("No damage allowed");
-        form.setReturnPolicy("Return within 3 days");
-        form.setStartDate(LocalDateTime.of(2025,1,1,9,0));
-        form.setEndDate(LocalDateTime.of(2025,1,8,18,0));
+        ItemCreateForm form = ItemCreateForm.builder()
+                .name("Sample Item")
+                .description("Sample description")
+                .price(2000)
+                .status(ItemStatusEnum.AVAILABLE)
+                .damagedPolicy("No damage")
+                .returnPolicy("Return in 3 days")
+                .startDate(LocalDateTime.of(2025,1,1,9,0))
+                .endDate(LocalDateTime.of(2025,1,8,18,0))
+                .build();
 
-        when(itemService.createItem(any(ItemCreateForm.class))).thenReturn(42L);
+        given(itemService.createItem(anyLong(), any(ItemCreateForm.class), anyList())).willReturn(42L);
+
+        MockMultipartFile jsonPart = new MockMultipartFile(
+                "form", "", "application/json",
+                objectMapper.writeValueAsBytes(form));
+
+        MockMultipartFile img1 = new MockMultipartFile(
+                "images", "a.jpg", "image/jpeg", "dummy".getBytes());
+        MockMultipartFile img2 = new MockMultipartFile(
+                "images", "b.jpg", "image/jpeg", "dummy".getBytes());
+
+        Student login = Student.builder().memberId(123L).role(MemberRoleEnum.STUDENT).build();
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                new MemberDetails(login), null, List.of());
 
         // When / Then
-        mockMvc.perform(post("/api/v1/items")
+        mockMvc.perform(multipart("/api/v1/items")
+                        .file(jsonPart)
+                        .file(img1).file(img2)
                         .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(form)))
+                        .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").value(42))
                 .andExpect(jsonPath("$.message").value(""))
                 .andDo(document("create-item",
-                        requestFields(
-                                fieldWithPath("ownerId").type(JsonFieldType.NUMBER).description("물품 소유자 ID"),
+                        requestParts(
+                                partWithName("form").description("ItemCreateForm JSON"),
+                                partWithName("images").description("업로드 이미지 파일들 (1개 이상)")
+                        ),
+                        requestPartFields("form",
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("물품 이름"),
-                                fieldWithPath("itemImg").type(JsonFieldType.STRING).description("물품 이미지 URL"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("물품 상세 설명"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
-                                fieldWithPath("status").type(JsonFieldType.STRING).description("물품 상태"),
+                                fieldWithPath("status").type(JsonFieldType.STRING).description("물품 상태(`AVAILABLE`,`OUT` 등)"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
-                                fieldWithPath("startDate").type(JsonFieldType.STRING).description("대여 가능 시작일 (ISO)"),
-                                fieldWithPath("endDate").type(JsonFieldType.STRING).description("대여 가능 종료일 (ISO)")
+                                fieldWithPath("startDate").type(JsonFieldType.STRING).description("대여 가능 시작일(ISO-8601)"),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description("대여 가능 종료일(ISO-8601)")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
@@ -121,35 +136,46 @@ class ItemControllerTest {
     @Test
     void getAllItems() throws Exception {
         // Given
-        MemberDto owner1 = StudentDto.builder()
-                .memberId(1001L).email("owner1@email.com").gender(GenderEnum.MEN)
-                .name("owner_name").nickname("owner_nickname")
-                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
-                .studentId("0000000").university("owner_univ")
+        MemberDto owner = StudentDto.builder()
+                .memberId(1001L).email("a@b.c").gender(GenderEnum.MEN)
+                .name("홍길동").nickname("길동")
+                .profileImg("pfUrl").role(MemberRoleEnum.STUDENT)
+                .studentId("20231234").university("Korea Univ.")
                 .locked(false).createdAt(LocalDate.now())
                 .build();
         MemberDto owner2 = StudentDto.builder()
-                .memberId(1002L).email("owner2@email.com").gender(GenderEnum.MEN)
-                .name("owner_name").nickname("owner_nickname")
-                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
-                .studentId("0000000").university("owner_univ")
+                .memberId(1002L).email("a2@b.c").gender(GenderEnum.MEN)
+                .name("홍길동2").nickname("길동2")
+                .profileImg("pfUrl2").role(MemberRoleEnum.STUDENT)
+                .studentId("20231235").university("Korea Univ.")
                 .locked(false).createdAt(LocalDate.now())
                 .build();
-        ItemSearchResponse dto1 = ItemSearchResponse.builder()
-                .itemId(1L).owner(owner1).name("One").itemImg("url1").price(1000)
-                .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description1")
-                .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
-                .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
+        ItemSearchResponse dto = ItemSearchResponse.builder()
+                .itemId(1L).owner(owner).name("One")
+                .description("desc").price(1000)
+                .imageUrls(List.of("url1", "url2"))
+                .status(ItemStatusEnum.AVAILABLE)
+                .damagedPolicy("dp").returnPolicy("rp")
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(1))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
         ItemSearchResponse dto2 = ItemSearchResponse.builder()
-                .itemId(2L).owner(owner2).name("Two").itemImg("url2").price(2000)
-                .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description2")
-                .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(2))
-                .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
+                .itemId(2L).owner(owner2).name("Two")
+                .description("desc2").price(1000)
+                .imageUrls(List.of("url3", "url4"))
+                .status(ItemStatusEnum.AVAILABLE)
+                .damagedPolicy("dp2").returnPolicy("rp2")
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(1))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
-        List<ItemSearchResponse> list = Arrays.asList(dto1, dto2);
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
-        Page<ItemSearchResponse> page = new PageImpl<>(list, pageable, 2);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ItemSearchResponse> page =
+                new PageImpl<>(List.of(dto, dto2), pageable, 1);
+
         given(itemService.getAllItems(any(ItemSearchForm.class), any(Pageable.class)))
                 .willReturn(page);
 
@@ -173,26 +199,16 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data.totalElements").value(2))
                 .andDo(document("get-all-items",
                         relaxedQueryParameters(
-                                parameterWithName("keyword").optional()
-                                        .description("검색 키워드 (물품명 또는 상세 설명 포함)"),
-                                parameterWithName("startDate").optional()
-                                        .description("대여 가능 시작일 (ISO-8601 형식)"),
-                                parameterWithName("endDate").optional()
-                                        .description("대여 가능 종료일 (ISO-8601 형식)"),
-                                parameterWithName("minPrice").optional()
-                                        .description("최소 대여 가격"),
-                                parameterWithName("maxPrice").optional()
-                                        .description("최대 대여 가격"),
-                                parameterWithName("status").optional()
-                                        .description("물품 상태 필터 (예: AVAILABLE, OUT)"),
-                                parameterWithName("ownerRoles").optional()
-                                        .description("물품 소유자 역할 필터 (예: STUDENT, COMPANY, COUNCIL; 여러 값 전달 가능)"),
-                                parameterWithName("page")
-                                        .description("페이지 번호 (0부터 시작)"),
-                                parameterWithName("size")
-                                        .description("페이지 크기"),
-                                parameterWithName("sort")
-                                        .description("정렬 기준 (예: createdAt,desc)")
+                                parameterWithName("keyword").optional().description("검색 키워드 (물품명 또는 상세 설명 포함)"),
+                                parameterWithName("startDate").optional().description("대여 가능 시작일 (ISO-8601 형식)"),
+                                parameterWithName("endDate").optional().description("대여 가능 종료일 (ISO-8601 형식)"),
+                                parameterWithName("minPrice").optional().description("최소 대여 가격"),
+                                parameterWithName("maxPrice").optional().description("최대 대여 가격"),
+                                parameterWithName("status").optional().description("물품 상태 필터 (예: AVAILABLE, OUT)"),
+                                parameterWithName("ownerRoles").optional().description("물품 소유자 역할 필터 (예: STUDENT, COMPANY, COUNCIL; 여러 값 전달 가능)"),
+                                parameterWithName("page").description("페이지 번호 (0부터 시작)"),
+                                parameterWithName("size").description("페이지 크기"),
+                                parameterWithName("sort").description("정렬 기준 (예: createdAt,desc)")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
@@ -209,7 +225,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.content[].owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
                                 fieldWithPath("data.content[].owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
                                 fieldWithPath("data.content[].name").type(JsonFieldType.STRING).description("물품 이름"),
-                                fieldWithPath("data.content[].itemImg").type(JsonFieldType.STRING).description("이미지 URL"),
+                                fieldWithPath("data.content[].imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
                                 fieldWithPath("data.content[].description").type(JsonFieldType.STRING).description("상세 설명"),
                                 fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.content[].status").type(JsonFieldType.STRING).description("물품 상태"),
@@ -254,20 +270,23 @@ class ItemControllerTest {
     void getItem() throws Exception {
         // Given
         long id = 5L;
-        MemberDto owner1 = StudentDto.builder()
-                .memberId(1001L).email("owner1@email.com").gender(GenderEnum.MEN)
-                .name("owner_name").nickname("owner_nicname")
-                .profileImg("profile url").role(MemberRoleEnum.STUDENT)
-                .studentId("0000000").university("owner_univ")
-                .locked(false).createdAt(LocalDate.now())
-                .build();
         ItemSearchResponse dto = ItemSearchResponse.builder()
-                .itemId(id).owner(owner1).name("Single").itemImg("url")
-                .damagedPolicy("dp").returnPolicy("rp").description("dto description").price(1000)
-                .status(ItemStatusEnum.AVAILABLE).startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
-                .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
-                .build();
-        when(itemService.getItem(id)).thenReturn(dto);
+                .itemId(id)
+                .owner(StudentDto.builder()
+                        .memberId(1001L).email("owner@email.com").profileImg("url1")
+                        .createdAt(LocalDate.now()).locked(false).nickname("owner")
+                        .gender(GenderEnum.MEN).studentId("1000000").university("univ")
+                        .name("owner").role(MemberRoleEnum.STUDENT).build())
+                .name("Single")
+                .description("desc").price(1000)
+                .imageUrls(List.of("urlA"))
+                .status(ItemStatusEnum.AVAILABLE)
+                .damagedPolicy("dp").returnPolicy("rp")
+                .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now()).build();
+
+        given(itemService.getItem(id)).willReturn(dto);
 
         // When / Then
         mockMvc.perform(get("/api/v1/items/{id}", id)
@@ -292,7 +311,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.owner.studentId").type(JsonFieldType.STRING).description("소유자 학생 학번"),
                                 fieldWithPath("data.owner.university").type(JsonFieldType.STRING).description("소유자 학생 소속 대학"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
-                                fieldWithPath("data.itemImg").type(JsonFieldType.STRING).description("이미지"),
+                                fieldWithPath("data.imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
                                 fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
                                 fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.status").type(JsonFieldType.STRING).description("상태"),
@@ -312,52 +331,55 @@ class ItemControllerTest {
     @Test
     void updateItem() throws Exception {
         long id = 7L;
-        ItemUpdateForm form = new ItemUpdateForm();
-        form.setName("Updated");
-        form.setItemImg("newUrl");
-        form.setDescription("newDesc");
-        form.setPrice(2000);
-        form.setDamagedPolicy("dp2");
-        form.setReturnPolicy("rp2");
-        form.setStartDate(LocalDateTime.now());
-        form.setEndDate(LocalDateTime.now().plusDays(2));
+
+        ItemUpdateForm form = ItemUpdateForm.builder()
+                .name("Updated")
+                .description("newDesc")
+                .price(2000)
+                .damagedPolicy("dp2")
+                .returnPolicy("rp2")
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(2))
+                .build();
+
+        willDoNothing().given(itemService)
+                .updateItem(any(MemberDto.class), eq(id),
+                        any(ItemUpdateForm.class), anyList());
 
         // given
-        Student loginMember = Student.builder()
-                .memberId(id)
-                .email("student@example.com")
-                .role(MemberRoleEnum.STUDENT)
-                .build();
-        MemberDetails details = new MemberDetails(loginMember);
-        Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
+        Student login = Student.builder().memberId(123L).role(MemberRoleEnum.STUDENT).build();
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                new MemberDetails(login), null, List.of());
 
-        when(itemService.getItem(id)).thenReturn(
-                ItemSearchResponse.builder()
-                        .itemId(id)
-                        .owner(StudentDto.builder().memberId(1001L).build())
-                        .build()
-        );
-        doNothing().when(itemService)
-                .updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class));
+        MockMultipartFile jsonPart = new MockMultipartFile(
+                "form", "", "application/json",
+                objectMapper.writeValueAsBytes(form));
+
+        MockMultipartFile img = new MockMultipartFile(
+                "images", "z.jpg", "image/jpeg", "dummy".getBytes());
 
         // when
-        ResultActions result = mockMvc.perform(put("/api/v1/items/{id}", id)
-                .with(csrf())
-                .with(authentication(auth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(form)));
+        ResultActions result = mockMvc.perform(multipart("/api/v1/items/{id}", id)
+                .file(jsonPart).file(img)
+                .with(request -> { request.setMethod("PUT"); return request; })
+                .with(csrf()).with(authentication(auth)));
+
 
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("update-item",
-                        requestFields(
+                        requestParts(
+                                partWithName("form").description("ItemUpdateForm JSON"),
+                                partWithName("images").optional()
+                                        .description("교체/추가 이미지 파일 (0개 이상)")
+                        ),
+                        requestPartFields("form",
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("수정할 이름"),
-                                fieldWithPath("itemImg").type(JsonFieldType.STRING).description("수정할 이미지"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("수정할 설명"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
-                                fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("수정할 파손정책"),
-                                fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("수정할 반납정책"),
+                                fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
+                                fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
                                 fieldWithPath("startDate").type(JsonFieldType.STRING).description("수정할 시작일"),
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description("수정할 종료일")
                         ),
@@ -369,31 +391,21 @@ class ItemControllerTest {
                 ));
 
         // then: service 호출 검증
-        verify(itemService).updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class));
+        verify(itemService).updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class), anyList());
     }
 
     @WithMockUser(roles = "USER")
     @DisplayName("DELETE /api/v1/items/{id} - 물품 삭제")
     @Test
     void deleteItem() throws Exception {
+        //given
         long id = 9L;
+        willDoNothing().given(itemService)
+                .deleteItem(any(MemberDto.class), eq(id));
 
-        // given
-        Student loginMember = Student.builder()
-                .memberId(id)
-                .email("student@example.com")
-                .role(MemberRoleEnum.STUDENT)
-                .build();
-        MemberDetails details = new MemberDetails(loginMember);
-        Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-
-        when(itemService.getItem(id)).thenReturn(
-                ItemSearchResponse.builder()
-                        .itemId(id)
-                        .owner(StudentDto.builder().memberId(1001L).build())
-                        .build()
-        );
-        doNothing().when(itemService).deleteItem(any(MemberDto.class), eq(id));
+        Student login = Student.builder().memberId(321L).role(MemberRoleEnum.STUDENT).build();
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                new MemberDetails(login), null, List.of());
 
         // when
         ResultActions result = mockMvc.perform(delete("/api/v1/items/{id}", id)
