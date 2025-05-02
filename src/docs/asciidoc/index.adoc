@@ -131,10 +131,12 @@ include::{snippets}/admin-create-member-success/response-fields.adoc[]
 include::{snippets}/admin-create-member-success/http-response.adoc[]
 
 === 회원 수정
-PUT /api/v1/members/{id}
+PUT /api/v1/members
 
-==== 요청 필드
-include::{snippets}/update-member/request-fields.adoc[]
+==== 요청 파트
+include::{snippets}/update-member/request-parts.adoc[]
+form 세부 필드
+include::{snippets}/update-member/request-part-form-fields.adoc[]
 
 ==== HTTP 요청
 include::{snippets}/update-member/http-request.adoc[]
@@ -144,21 +146,6 @@ include::{snippets}/update-member/response-fields.adoc[]
 
 ==== HTTP 응답
 include::{snippets}/update-member/http-response.adoc[]
-
-=== 회원 프로필 수정
-POST /api/v1/members/profile-image
-
-==== 요청 파트
-include::{snippets}/update-member-profile/request-parts.adoc[]
-
-==== HTTP 요청
-include::{snippets}/update-member-profile/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/update-member-profile/response-fields.adoc[]
-
-==== HTTP 응답
-include::{snippets}/update-member-profile/http-response.adoc[]
 
 === 회원 삭제
 DELETE /api/v1/admin/members/{id}
