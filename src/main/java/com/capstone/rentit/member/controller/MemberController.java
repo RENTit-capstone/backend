@@ -6,6 +6,7 @@ import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,18 +49,12 @@ public class MemberController {
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/members")
+    @PutMapping(path = "/members",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<?> updateMember(@Login MemberDto loginMember,
-                                          @RequestBody MemberUpdateForm updateForm) {
-        memberService.updateMember(loginMember.getMemberId(), updateForm);
-        return CommonResponse.success(null);
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/members/profile-image")
-    public CommonResponse<String> uploadProfileImage(@Login MemberDto loginMember,
-                                                     @RequestParam("profileImg") MultipartFile profileImg) {
-        memberService.updateProfileImage(loginMember.getMemberId(), profileImg);
+                                          @RequestPart(value = "form", required = false) MemberUpdateForm form,
+                                          @RequestPart(value = "image", required = false) MultipartFile image) {
+        memberService.updateMember(loginMember.getMemberId(), form, image);
         return CommonResponse.success(null);
     }
 

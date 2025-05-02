@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +58,8 @@ class MemberServiceTest {
     private static final String RAW_PW = "rawPassword";
     private static final String ENC_PW = "encPassword";
     private static final Long   ID    = 42L;
+    MockMultipartFile mockImage = new MockMultipartFile("img1", "img1.jpg",
+            "image/jpeg", "dummy".getBytes());
 
     @Test @DisplayName("학생 회원 생성 성공")
     void createStudentMember() {
@@ -237,6 +241,8 @@ class MemberServiceTest {
     void updateMember_success() {
         Student mock = mock(Student.class);
         when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
+        when(fileStorageService.store(any(MultipartFile.class)))
+                .thenReturn("new1");
 
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("new");
@@ -245,7 +251,7 @@ class MemberServiceTest {
 
         doNothing().when(mock).update(form);
 
-        memberService.updateMember(ID, form);
+        memberService.updateMember(ID, form, mockImage);
 
         verify(mock).update(form);
     }
@@ -254,35 +260,7 @@ class MemberServiceTest {
     void updateMember_notFound() {
         when(memberRepository.findById(ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.updateMember(ID, new StudentUpdateForm()))
-                .isInstanceOf(MemberNotFoundException.class)
-                .hasMessage("존재하지 않는 사용자 ID 입니다.");
-    }
-
-    @Test @DisplayName("회원 정보 업데이트 성공")
-    void updateMemberProfile_success() {
-        Student mock = mock(Student.class);
-        when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
-
-        MockMultipartFile file = new MockMultipartFile(
-                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-
-        when(fileStorageService.store(file)).thenReturn("");
-
-        memberService.updateProfileImage(ID, file);
-
-        verify(fileStorageService).store(file);
-        verify(mock).updateProfile("");
-    }
-
-    @Test @DisplayName("업데이트 시 ID 없으면 MemberNotFoundException")
-    void updateMemberProfile_notFound() {
-        when(memberRepository.findById(ID)).thenReturn(Optional.empty());
-
-        MockMultipartFile file = new MockMultipartFile(
-                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-
-        assertThatThrownBy(() -> memberService.updateProfileImage(ID, file))
+        assertThatThrownBy(() -> memberService.updateMember(ID, new StudentUpdateForm(), mockImage))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
     }
@@ -296,7 +274,7 @@ class MemberServiceTest {
         doThrow(new MemberTypeMismatchException("회원 유형이 일치하지 않습니다."))
                 .when(mock).update(any(MemberUpdateForm.class));
 
-        assertThatThrownBy(() -> memberService.updateMember(ID, badForm))
+        assertThatThrownBy(() -> memberService.updateMember(ID, badForm, mockImage))
                 .isInstanceOf(MemberTypeMismatchException.class)
                 .hasMessage("회원 유형이 일치하지 않습니다.");
     }

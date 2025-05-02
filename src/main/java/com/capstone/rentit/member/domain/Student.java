@@ -56,6 +56,7 @@ public class Student extends Member {
 
     @Override
     public void update(MemberUpdateForm form) {
+        if(form == null) return;
         if (!(form instanceof StudentUpdateForm f)) {
             throw new MemberTypeMismatchException("학생 정보 수정 폼이 아닙니다.");
         }
