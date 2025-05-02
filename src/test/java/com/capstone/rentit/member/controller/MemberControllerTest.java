@@ -34,6 +34,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDate;
@@ -257,9 +258,6 @@ class MemberControllerTest {
     void updateMember_success() throws Exception {
         // given
         long id = 1L;
-        MockMultipartFile file = new MockMultipartFile(
-                "profile","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
         form.setNickname("updatedNick");
@@ -283,20 +281,28 @@ class MemberControllerTest {
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
 
         doNothing().when(memberService)
-                .updateMember(eq(id), any(StudentUpdateForm.class));
+                .updateMember(eq(id), any(StudentUpdateForm.class), any(MultipartFile.class));
 
+        MockMultipartFile jsonPart = new MockMultipartFile(
+                "form", "", "application/json",
+                objectMapper.writeValueAsBytes(form));
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "a.jpg", "image/jpeg", "dummy".getBytes());
         // when
-        ResultActions result = mockMvc.perform(put("/api/v1/members")
-                .with(authentication(auth))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(form)));
+        ResultActions result = mockMvc.perform(multipart("/api/v1/members", id)
+                .file(jsonPart).file(image)
+                .with(request -> { request.setMethod("PUT"); return request; })
+                .with(csrf()).with(authentication(auth)));
 
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("update-member",
-                        requestFields(
+                        requestParts(
+                                partWithName("form").description("MemberUpdateForm JSON"),
+                                partWithName("image").optional().description("교체 이미지 파일 (1개)")
+                        ),
+                        requestPartFields("form",
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("변경할 이름"),
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("변경할 닉네임"),
                                 fieldWithPath("phone").type(JsonFieldType.STRING).description("변경할 연락처"),
@@ -310,57 +316,6 @@ class MemberControllerTest {
                 ));
     }
 
-    @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/members/profile-image → 로그인 회원 프로필 업데이트")
-    @Test
-    void updateMemberProfile_success() throws Exception {
-        // given
-        long id = 1L;
-        MockMultipartFile file = new MockMultipartFile(
-                "profileImg","profile.jpg", MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-
-        Student updated = Student.builder()
-                .memberId(id)
-                .email("student@example.com")
-                .profileImg("")
-                .role(MemberRoleEnum.STUDENT)
-                .build();
-
-        MemberDetails details = new MemberDetails(updated);
-        Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-
-        doNothing().when(memberService).updateProfileImage(id, file);
-
-        // when
-        ResultActions result = mockMvc.perform(multipart("/api/v1/members/profile-image")
-                .file(file)
-                .with(request -> {
-                    request.setMethod("POST");
-                    return request;
-                })
-                .with(authentication(auth))
-                .with(csrf())
-        );
-
-        // then
-        result.andExpect(status().isOk())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isEmpty())
-                .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("update-member-profile",
-                        requestParts(
-                                partWithName("profileImg").attributes(key("type").value("file")).description("프로필 이미지")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
-                        )
-                ));
-
-        verify(memberService).updateProfileImage(id, file);
-    }
     @WithMockUser(roles = "ADMIN")
     @DisplayName("DELETE /api/v1/admin/members/{id} → 회원 삭제")
     @Test
