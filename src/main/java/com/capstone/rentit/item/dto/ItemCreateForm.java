@@ -13,7 +13,6 @@ public class ItemCreateForm {
     private String name;
     private String itemImg;
     private String description;
-    private Long categoryId;
     private Integer price;
     private ItemStatusEnum status;
     private String damagedPolicy;

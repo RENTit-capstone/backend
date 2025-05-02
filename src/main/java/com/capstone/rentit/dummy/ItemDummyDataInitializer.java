@@ -48,7 +48,6 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                         .ownerId(owner.getMemberId())
                         .name(String.format("%s's Item #%d", owner.getName(), j))
                         .description("이 물품은 더미 데이터로 생성되었습니다.")
-                        .categoryId((long) ThreadLocalRandom.current().nextInt(1, 6))  // 1~5번 카테고리
                         .price(ThreadLocalRandom.current().nextInt(500, 5001))       // 500원 ~ 5000원
                         .status(randomStatus())
                         .startDate(now.minusDays(ThreadLocalRandom.current().nextInt(0, 3)))

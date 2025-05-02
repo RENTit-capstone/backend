@@ -60,7 +60,6 @@ class ItemServiceTest {
         createForm.setName("Sample");
         createForm.setItemImg("img.jpg");
         createForm.setDescription("desc");
-        createForm.setCategoryId(1L);
         createForm.setPrice(1000);
         createForm.setStatus(ItemStatusEnum.AVAILABLE);
         createForm.setDamagedPolicy("DP");
@@ -74,7 +73,6 @@ class ItemServiceTest {
                 .name(createForm.getName())
                 .itemImg(createForm.getItemImg())
                 .description(createForm.getDescription())
-                .categoryId(createForm.getCategoryId())
                 .price(createForm.getPrice())
                 .status(createForm.getStatus())
                 .damagedPolicy(createForm.getDamagedPolicy())
@@ -87,7 +85,6 @@ class ItemServiceTest {
         updateForm.setName("Updated");
         updateForm.setItemImg("new.jpg");
         updateForm.setDescription("new desc");
-        updateForm.setCategoryId(2L);
         updateForm.setPrice(2000);
         updateForm.setDamagedPolicy("DP2");
         updateForm.setReturnPolicy("RP2");
@@ -115,7 +112,6 @@ class ItemServiceTest {
                             .itemImg(arg.getItemImg())
                             .description(arg.getDescription())
                             .price(arg.getPrice())
-                            .categoryId(arg.getCategoryId())
                             .status(arg.getStatus())
                             .damagedPolicy(arg.getDamagedPolicy())
                             .returnPolicy(arg.getReturnPolicy())
@@ -142,7 +138,6 @@ class ItemServiceTest {
                 .name("Other")
                 .itemImg("o.jpg")
                 .description("o desc")
-                .categoryId(2L)
                 .price(1000)
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("DPo")
@@ -234,7 +229,6 @@ class ItemServiceTest {
 
         assertThat(saved.getName()).isEqualTo(updateForm.getName());
         assertThat(saved.getItemImg()).isEqualTo(updateForm.getItemImg());
-        assertThat(saved.getCategoryId()).isEqualTo(updateForm.getCategoryId());
         assertThat(saved.getDamagedPolicy()).isEqualTo(updateForm.getDamagedPolicy());
     }
 

@@ -33,8 +33,6 @@ public class Item {
     @Column(length = 500, nullable = false)
     private String description;
 
-    private Long categoryId;
-
     private Integer price;
 
     @Enumerated(EnumType.STRING)
@@ -60,8 +58,6 @@ public class Item {
             this.itemImg = form.getItemImg();
         if(form.getDescription() != null)
             this.description = form.getDescription();
-        if(form.getCategoryId() != null)
-            this.categoryId = form.getCategoryId();
         if(form.getPrice() != null)
             this.price = form.getPrice();
         if(form.getDamagedPolicy() != null)

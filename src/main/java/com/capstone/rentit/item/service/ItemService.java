@@ -30,7 +30,6 @@ public class ItemService {
                 .name(form.getName())
                 .itemImg(form.getItemImg())
                 .description(form.getDescription())
-                .categoryId(form.getCategoryId())
                 .status(form.getStatus())
                 .damagedPolicy(form.getDamagedPolicy())
                 .returnPolicy(form.getReturnPolicy())

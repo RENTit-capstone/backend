@@ -11,7 +11,6 @@ public class ItemUpdateForm {
     private String name;
     private String itemImg;
     private String description;
-    private Long categoryId;
     private Integer price;
     private String damagedPolicy;
     private String returnPolicy;

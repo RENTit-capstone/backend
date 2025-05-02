@@ -74,7 +74,6 @@ class ItemControllerTest {
         form.setName("Sample Item");
         form.setItemImg("http://example.com/item.jpg");
         form.setDescription("Sample description");
-        form.setCategoryId(1L);
         form.setPrice(2000);
         form.setStatus(ItemStatusEnum.AVAILABLE);
         form.setDamagedPolicy("No damage allowed");
@@ -99,7 +98,6 @@ class ItemControllerTest {
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("물품 이름"),
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("물품 이미지 URL"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("물품 상세 설명"),
-                                fieldWithPath("categoryId").type(JsonFieldType.NUMBER).description("물품 카테고리 ID"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("물품 상태"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
@@ -121,14 +119,14 @@ class ItemControllerTest {
     void getAllItems() throws Exception {
         // Given
         ItemDto dto1 = ItemDto.builder()
-                .itemId(1L).ownerId(1L).name("One").itemImg("url1").description("desc1")
-                .categoryId(1L).status(ItemStatusEnum.AVAILABLE).damagedPolicy("p1").returnPolicy("r1").price(1000)
+                .itemId(1L).ownerId(1L).name("One").itemImg("url1").price(1000)
+                .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description1")
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         ItemDto dto2 = ItemDto.builder()
-                .itemId(2L).ownerId(2L).name("Two").itemImg("url2").description("desc2")
-                .categoryId(2L).status(ItemStatusEnum.OUT).damagedPolicy("p2").returnPolicy("r2").price(2000)
+                .itemId(2L).ownerId(2L).name("Two").itemImg("url2").price(2000)
+                .status(ItemStatusEnum.AVAILABLE).damagedPolicy("dp").returnPolicy("rp").description("dto description2")
                 .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(2))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
@@ -192,8 +190,6 @@ class ItemControllerTest {
                                         .description("이미지 URL"),
                                 fieldWithPath("data.content[].description").type(JsonFieldType.STRING)
                                         .description("상세 설명"),
-                                fieldWithPath("data.content[].categoryId").type(JsonFieldType.NUMBER)
-                                        .description("카테고리 ID"),
                                 fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER)
                                         .description("대여 가격"),
                                 fieldWithPath("data.content[].status").type(JsonFieldType.STRING)
@@ -251,9 +247,8 @@ class ItemControllerTest {
         long id = 5L;
         ItemDto dto = ItemDto.builder()
                 .itemId(id).ownerId(1L).name("Single").itemImg("url")
-                .description("desc").categoryId(1L).status(ItemStatusEnum.AVAILABLE).price(1000)
-                .damagedPolicy("dp").returnPolicy("rp")
-                .startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
+                .damagedPolicy("dp").returnPolicy("rp").description("dto description").price(1000)
+                .status(ItemStatusEnum.AVAILABLE).startDate(LocalDateTime.now()).endDate(LocalDateTime.now().plusDays(1))
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
                 .build();
         when(itemService.getItem(id)).thenReturn(dto);
@@ -273,7 +268,6 @@ class ItemControllerTest {
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
                                 fieldWithPath("data.itemImg").type(JsonFieldType.STRING).description("이미지"),
                                 fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
-                                fieldWithPath("data.categoryId").type(JsonFieldType.NUMBER).description("카테고리"),
                                 fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.status").type(JsonFieldType.STRING).description("상태"),
                                 fieldWithPath("data.damagedPolicy").type(JsonFieldType.STRING).description("파손정책"),
@@ -296,7 +290,6 @@ class ItemControllerTest {
         form.setName("Updated");
         form.setItemImg("newUrl");
         form.setDescription("newDesc");
-        form.setCategoryId(2L);
         form.setPrice(2000);
         form.setDamagedPolicy("dp2");
         form.setReturnPolicy("rp2");
@@ -336,7 +329,6 @@ class ItemControllerTest {
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("수정할 이름"),
                                 fieldWithPath("itemImg").type(JsonFieldType.STRING).description("수정할 이미지"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("수정할 설명"),
-                                fieldWithPath("categoryId").type(JsonFieldType.NUMBER).description("수정할 카테고리"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("수정할 파손정책"),
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("수정할 반납정책"),

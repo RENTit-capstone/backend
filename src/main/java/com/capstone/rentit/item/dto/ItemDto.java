@@ -17,7 +17,6 @@ public class ItemDto {
     private String name;
     private String itemImg;
     private String description;
-    private Long categoryId;
     private Integer price;
     private ItemStatusEnum status;
     private String damagedPolicy;
@@ -34,7 +33,6 @@ public class ItemDto {
                 .name(item.getName())
                 .itemImg(item.getItemImg())
                 .description(item.getDescription())
-                .categoryId(item.getCategoryId())
                 .price(item.getPrice())
                 .status(item.getStatus())
                 .damagedPolicy(item.getDamagedPolicy())
