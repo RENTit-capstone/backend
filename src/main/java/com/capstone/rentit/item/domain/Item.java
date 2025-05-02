@@ -1,5 +1,6 @@
 package com.capstone.rentit.item.domain;
 
+import com.capstone.rentit.item.dto.ItemCreateForm;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.item.dto.ItemUpdateForm;
 import com.capstone.rentit.member.domain.Member;
@@ -50,6 +51,22 @@ public class Item {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public static Item createItem(ItemCreateForm form){
+        return Item.builder()
+                .ownerId(form.getOwnerId())
+                .name(form.getName())
+                .itemImg(form.getItemImg())
+                .description(form.getDescription())
+                .status(form.getStatus())
+                .damagedPolicy(form.getDamagedPolicy())
+                .returnPolicy(form.getReturnPolicy())
+                .startDate(form.getStartDate())
+                .endDate(form.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
     public void updateItem(ItemUpdateForm form){
         if(form.getName() != null)

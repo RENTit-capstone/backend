@@ -1,10 +1,7 @@
 package com.capstone.rentit.item.controller;
 
 import com.capstone.rentit.common.CommonResponse;
-import com.capstone.rentit.item.dto.ItemCreateForm;
-import com.capstone.rentit.item.dto.ItemDto;
-import com.capstone.rentit.item.dto.ItemSearchForm;
-import com.capstone.rentit.item.dto.ItemUpdateForm;
+import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -33,17 +30,17 @@ public class ItemController {
     }
 
     @GetMapping("/items")
-    public CommonResponse<Page<ItemDto>> getAllItems(
+    public CommonResponse<Page<ItemSearchResponse>> getAllItems(
             @ModelAttribute ItemSearchForm searchForm,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        Page<ItemDto> page = itemService.getAllItems(searchForm, pageable);
+        Page<ItemSearchResponse> page = itemService.getAllItems(searchForm, pageable);
         return CommonResponse.success(page);
     }
 
     @GetMapping("/items/{itemId}")
-    public CommonResponse<ItemDto> getItem(@PathVariable("itemId") Long itemId) {
-        ItemDto item = itemService.getItem(itemId);
+    public CommonResponse<ItemSearchResponse> getItem(@PathVariable("itemId") Long itemId) {
+        ItemSearchResponse item = itemService.getItem(itemId);
         return CommonResponse.success(item);
     }
 

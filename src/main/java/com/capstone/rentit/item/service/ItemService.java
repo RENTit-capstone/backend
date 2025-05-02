@@ -1,6 +1,7 @@
 package com.capstone.rentit.item.service;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
@@ -23,35 +24,25 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final FileStorageService fileStorageService;
 
     public Long createItem(ItemCreateForm form) {
-        Item item = Item.builder()
-                .ownerId(form.getOwnerId())
-                .name(form.getName())
-                .itemImg(form.getItemImg())
-                .description(form.getDescription())
-                .status(form.getStatus())
-                .damagedPolicy(form.getDamagedPolicy())
-                .returnPolicy(form.getReturnPolicy())
-                .startDate(form.getStartDate())
-                .endDate(form.getEndDate())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        Item item = Item.createItem(form);
         Item savedItem = itemRepository.save(item);
         return savedItem.getItemId();
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemDto> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
+    public Page<ItemSearchResponse> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
         Page<Item> page = itemRepository.search(searchForm, pageable);
-        return page.map(ItemDto::fromEntity);
+        return page.map(item ->
+                ItemSearchResponse.fromEntity(item, fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
     }
 
     @Transactional(readOnly = true)
-    public ItemDto getItem(Long itemId) {
+    public ItemSearchResponse getItem(Long itemId) {
         Item item = findItem(itemId);
-        return ItemDto.fromEntity(item);
+        return ItemSearchResponse.fromEntity(item, fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
     }
 
     public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {

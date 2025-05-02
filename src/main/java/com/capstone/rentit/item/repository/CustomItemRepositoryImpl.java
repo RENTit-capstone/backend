@@ -5,6 +5,7 @@ import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.domain.QMember;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -35,7 +36,17 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
 
     @Override
     public Page<Item> search(ItemSearchForm form, Pageable pageable) {
-        Predicate predicate = ExpressionUtils.allOf(
+        Predicate filters = buildBasicFilters(form);
+        BooleanExpression roleFilter  = buildRoleFilter(form.getOwnerRoles());
+
+        long count = countBy(filters, roleFilter);
+        List<Item> content = findContentBy(filters, roleFilter, pageable);
+
+        return new PageImpl<>(content, pageable, count);
+    }
+
+    private Predicate buildBasicFilters(ItemSearchForm form) {
+        return ExpressionUtils.allOf(
                 keywordContains(form.getKeyword()),
                 startDateGoe(form.getStartDate()),
                 endDateLoe(form.getEndDate()),
@@ -43,34 +54,49 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                 priceLoe(form.getMaxPrice()),
                 statusEq(form.getStatus())
         );
+    }
 
-        boolean hasRoleFilter = form.getOwnerRoles() != null && !form.getOwnerRoles().isEmpty();
+    private BooleanExpression buildRoleFilter(List<MemberRoleEnum> roles) {
+        return (roles != null && !roles.isEmpty()) ? member.role.in(roles) : null;
+    }
 
-        if (pageable.isUnpaged()) {
-            JPAQuery<Item> uq = queryFactory.selectFrom(item);
-            uq = applyOwnerAndRoles(uq, form.getOwnerRoles());
-            List<Item> all = uq
-                    .where(predicate)
-                    .orderBy(defaultOrder())
-                    .fetch();
-            return new PageImpl<>(all);
+    private long countBy(Predicate filters, BooleanExpression roleFilter) {
+        JPAQuery<Long> q = queryFactory
+                .select(item.count())
+                .from(item);
+
+        if (roleFilter != null) {
+            q.join(item.owner, member)
+                    .where(roleFilter);
         }
 
-        JPAQuery<Long> countQ = queryFactory.select(item.count()).from(item);
-        countQ = applyOwnerAndRoles(countQ, form.getOwnerRoles());
-        Long total = countQ.where(predicate).fetchOne();
-        long count = total != null ? total : 0L;
+        Long c = q.where(filters).fetchOne();
+        return c != null ? c : 0L;
+    }
 
-        JPAQuery<Item> contentQ = queryFactory.selectFrom(item);
-        contentQ = applyOwnerAndRoles(contentQ, form.getOwnerRoles());
-        List<Item> content = contentQ
-                .where(predicate)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(orderSpecifier(pageable))
-                .fetch();
+    private List<Item> findContentBy(Predicate filters,
+                                     BooleanExpression roleFilter,
+                                     Pageable pageable) {
 
-        return new PageImpl<>(content, pageable, count);
+        JPAQuery<Item> q = queryFactory
+                .select(item)
+                .from(item);
+
+        q.join(item.owner, member).fetchJoin();
+
+        if (roleFilter != null) {
+            q.where(roleFilter);
+        }
+
+        q.where(filters)
+                .orderBy(orderSpecifier(pageable));
+
+        if (!pageable.isUnpaged()) {
+            q.offset(pageable.getOffset())
+                    .limit(pageable.getPageSize());
+        }
+
+        return q.fetch();
     }
 
     private OrderSpecifier<?> defaultOrder() {
@@ -115,15 +141,5 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
 
     private BooleanExpression priceLoe(Integer max) {
         return max != null ? item.price.loe(max) : null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> JPAQuery<T> applyOwnerAndRoles(JPAQuery<T> query, List<MemberRoleEnum> roles) {
-        if (roles != null && !roles.isEmpty()) {
-            query = (JPAQuery<T>) query
-                    .join(item.owner, member)
-                    .where(member.role.in(roles));
-        }
-        return query;
     }
 }
