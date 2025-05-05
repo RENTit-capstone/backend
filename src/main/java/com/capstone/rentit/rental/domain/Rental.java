@@ -1,5 +1,7 @@
 package com.capstone.rentit.rental.domain;
 
+import com.capstone.rentit.item.domain.Item;
+import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +28,18 @@ public class Rental {
 
     @Column(name = "renter_id", nullable = false)
     private Long renterId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", insertable = false, updatable = false)
+    private Member ownerMember;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "renter_id", insertable = false, updatable = false)
+    private Member renterMember;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+    private Item item;
 
     @Column(name = "request_date", nullable = false)
     private LocalDateTime requestDate;
