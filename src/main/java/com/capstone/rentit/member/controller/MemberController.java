@@ -5,6 +5,7 @@ import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
+import com.capstone.rentit.member.dto.MyProfileResponse;
 import com.capstone.rentit.member.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -68,7 +69,8 @@ public class MemberController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/members/me")
-    public CommonResponse<MemberDto> getLoginMember(@Login MemberDto memberDto) {
-        return CommonResponse.success(memberDto);
+    public CommonResponse<MyProfileResponse> getLoginMember(@Login MemberDto memberDto) {
+        MyProfileResponse myProfileResponse = memberService.getMyProfile(memberDto.getMemberId());
+        return CommonResponse.success(myProfileResponse);
     }
 }
