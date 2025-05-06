@@ -54,11 +54,13 @@ public abstract class Member {
     private Set<Item> items = new LinkedHashSet<>();
 
     @OneToMany(mappedBy="ownerMember", fetch = FetchType.LAZY)
+    @Builder.Default
     @Fetch(FetchMode.SUBSELECT)
     @OrderBy("requestDate DESC")
     private Set<Rental> ownedRentals = new LinkedHashSet<>();
 
     @OneToMany(mappedBy="renterMember", fetch = FetchType.LAZY)
+    @Builder.Default
     @Fetch(FetchMode.SUBSELECT)
     @OrderBy("requestDate DESC")
     private Set<Rental> rentedRentals = new LinkedHashSet<>();
