@@ -1,13 +1,21 @@
 package com.capstone.rentit.member.domain;
 
+import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.rental.domain.Rental;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -38,6 +46,24 @@ public abstract class Member {
 
     @Column
     private LocalDate createdAt;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @OrderBy("createdAt DESC")
+    @OrderColumn(name = "item_idx")
+    private Set<Item> items = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy="ownerMember", fetch = FetchType.LAZY)
+    @Builder.Default
+    @Fetch(FetchMode.SUBSELECT)
+    @OrderBy("requestDate DESC")
+    private Set<Rental> ownedRentals = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy="renterMember", fetch = FetchType.LAZY)
+    @Builder.Default
+    @Fetch(FetchMode.SUBSELECT)
+    @OrderBy("requestDate DESC")
+    private Set<Rental> rentedRentals = new LinkedHashSet<>();
 
     @Column
     private boolean locked;

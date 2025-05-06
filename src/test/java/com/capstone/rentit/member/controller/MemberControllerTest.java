@@ -1,9 +1,11 @@
 package com.capstone.rentit.member.controller;
 
 import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.dto.ItemBriefResponse;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.member.dto.MyProfileResponse;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
@@ -12,6 +14,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.StudentCreateForm;
 import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.rental.dto.RentalBriefResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
@@ -345,17 +350,13 @@ class MemberControllerTest {
     @Test
     void getLoginMember_success() throws Exception {
         // given
+        Long memberId = 99L;
         Student student = Student.builder()
-                .memberId(99L)
-                .email("login@student.com")
-                .name("Login Student")
-                .nickname("loginNick")
-                .phone("010-1111-1111")
-                .university("Test University")
-                .studentId("S12345678")
-                .gender(GenderEnum.MEN)
-                .role(MemberRoleEnum.STUDENT)
-                .locked(false)
+                .memberId(memberId).email("login@student.com")
+                .name("Login Student").nickname("loginNick")
+                .phone("010-1111-1111").university("Test University")
+                .studentId("S12345678").gender(GenderEnum.MEN)
+                .role(MemberRoleEnum.STUDENT).locked(false)
                 .createdAt(LocalDate.of(2025, 4, 16))
                 .build();
 
@@ -363,6 +364,33 @@ class MemberControllerTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities())
         );
+
+        MyProfileResponse fakeProfile = MyProfileResponse.builder()
+                .memberId(memberId)
+                .email("login@student.com")
+                .name("Login Student")
+                .profileImg("profile_img_url")
+                .items(List.of(
+                        ItemBriefResponse.builder()
+                                .itemId(10L).name("item1")
+                                .build()
+                ))
+                .ownedRentals(List.of(
+                        RentalBriefResponse.builder()
+                                .rentalId(100L).itemName("item1")
+                                .requestDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(3))
+                                .build()
+                ))
+                .rentedRentals(List.of(
+                        RentalBriefResponse.builder()
+                                .rentalId(101L).itemName("item2")
+                                .requestDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(3))
+                                .build()
+                ))
+                .build();
+
+        given(memberService.getMyProfile(memberId))
+                .willReturn(fakeProfile);
 
         // when
         ResultActions result = mockMvc.perform(get("/api/v1/members/me")
@@ -377,19 +405,58 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.data.name").value("Login Student"))
                 .andDo(document("get-login-member",
                         responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("로그인 회원 ID"),
-                                fieldWithPath("data.email").type(JsonFieldType.STRING).description("로그인 회원 이메일"),
-                                fieldWithPath("data.name").type(JsonFieldType.STRING).description("로그인 회원 이름"),
-                                fieldWithPath("data.role").type(JsonFieldType.STRING).description("로그인 회원 역할"),
-                                fieldWithPath("data.profileImg").optional().type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                                fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("회원 등록일"),
-                                fieldWithPath("data.locked").type(JsonFieldType.BOOLEAN).description("계정 잠금 여부"),
-                                fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("회원 닉네임"),
-                                fieldWithPath("data.gender").type(JsonFieldType.STRING).description("회원 성별"),
-                                fieldWithPath("data.studentId").type(JsonFieldType.STRING).description("학생 학번"),
-                                fieldWithPath("data.university").type(JsonFieldType.STRING).description("학생 소속 대학"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("회원 ID"),
+                                fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
+                                fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
+                                fieldWithPath("data.role").type(JsonFieldType.NULL).description("역할 (현재 null)"),
+                                fieldWithPath("data.profileImg").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
+                                fieldWithPath("data.createdAt").type(JsonFieldType.NULL).description("가입일자 (현재 null)"),
+
+                                subsectionWithPath("data.items").type(JsonFieldType.ARRAY).description("등록한 아이템 목록"),
+                                fieldWithPath("data.items[].itemId").type(JsonFieldType.NUMBER).description("아이템 ID"),
+                                fieldWithPath("data.items[].name").type(JsonFieldType.STRING).description("아이템 이름"),
+                                fieldWithPath("data.items[].price").type(JsonFieldType.NULL).description("가격 (현재 null)"),
+                                fieldWithPath("data.items[].status").type(JsonFieldType.NULL).description("상태 (현재 null)"),
+                                fieldWithPath("data.items[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.items[].createdAt").type(JsonFieldType.NULL).description("등록일자 (현재 null)"),
+
+                                subsectionWithPath("data.ownedRentals").type(JsonFieldType.ARRAY).description("소유자로서 대여된 목록"),
+                                fieldWithPath("data.ownedRentals[].rentalId").type(JsonFieldType.NUMBER).description("대여 거래 ID"),
+                                fieldWithPath("data.ownedRentals[].itemName").type(JsonFieldType.STRING).description("아이템 이름"),
+                                fieldWithPath("data.ownedRentals[].ownerName").type(JsonFieldType.NULL).description("소유자 이름 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].renterName").type(JsonFieldType.NULL).description("대여자 이름 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].status").type(JsonFieldType.NULL).description("대여 상태 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].requestDate").type(JsonFieldType.STRING).description("대여 요청일시"),
+                                fieldWithPath("data.ownedRentals[].startDate").type(JsonFieldType.NULL).description("대여 시작일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].dueDate").type(JsonFieldType.STRING).description("반납 예정일시"),
+                                fieldWithPath("data.ownedRentals[].approvedDate").type(JsonFieldType.NULL).description("승인일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].rejectedDate").type(JsonFieldType.NULL).description("거부일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].leftAt").type(JsonFieldType.NULL).description("락커 입고일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].pickedUpAt").type(JsonFieldType.NULL).description("수령일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].returnedAt").type(JsonFieldType.NULL).description("반납일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].retrievedAt").type(JsonFieldType.NULL).description("락커 인출일시 (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].owner").type(JsonFieldType.BOOLEAN).description("내가 소유자인지 여부"),
+
+                                subsectionWithPath("data.rentedRentals").type(JsonFieldType.ARRAY).description("대여자로서 빌린 목록"),
+                                fieldWithPath("data.rentedRentals[].rentalId").type(JsonFieldType.NUMBER).description("대여 거래 ID"),
+                                fieldWithPath("data.rentedRentals[].itemName").type(JsonFieldType.STRING).description("아이템 이름"),
+                                fieldWithPath("data.rentedRentals[].ownerName").type(JsonFieldType.NULL).description("소유자 이름 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].renterName").type(JsonFieldType.NULL).description("대여자 이름 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].status").type(JsonFieldType.NULL).description("대여 상태 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].requestDate").type(JsonFieldType.STRING).description("대여 요청일시"),
+                                fieldWithPath("data.rentedRentals[].startDate").type(JsonFieldType.NULL).description("대여 시작일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].dueDate").type(JsonFieldType.STRING).description("반납 예정일시"),
+                                fieldWithPath("data.rentedRentals[].approvedDate").type(JsonFieldType.NULL).description("승인일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].rejectedDate").type(JsonFieldType.NULL).description("거부일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].leftAt").type(JsonFieldType.NULL).description("락커 입고일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].pickedUpAt").type(JsonFieldType.NULL).description("수령일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].returnedAt").type(JsonFieldType.NULL).description("반납일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].retrievedAt").type(JsonFieldType.NULL).description("락커 인출일시 (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].owner").type(JsonFieldType.BOOLEAN).description("내가 소유자인지 여부"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공시 빈 문자열")
                         )
                 ));
     }

@@ -1,6 +1,9 @@
 package com.capstone.rentit.member.service;
 
 import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.item.domain.Item;
+import com.capstone.rentit.item.dto.ItemBriefResponse;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.GenderEnum;
@@ -12,6 +15,9 @@ import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.register.exception.EmailAlreadyRegisteredException;
+import com.capstone.rentit.rental.domain.Rental;
+import com.capstone.rentit.rental.dto.RentalBriefResponse;
+import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +32,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -326,6 +333,133 @@ class MemberServiceTest {
         assertEquals("이미 등록된 이메일입니다.", ex.getMessage());
 
         verify(memberRepository, times(1)).findByEmail("exist@example.com");
+    }
+
+    @Test
+    @DisplayName("존재하는 회원이면 MyProfileResponse 에 매핑된 DTO 반환")
+    void getMyProfile_whenMemberExists_thenReturnMappedDto() {
+        // given
+        long memberId = 42L;
+
+        // Member 엔티티 준비
+        Student member = Student.builder()
+                .memberId(memberId)
+                .email("foo@bar.com")
+                .name("홍길동")
+                .password("pw")
+                .role(MemberRoleEnum.STUDENT)
+                .university("OO대학교")
+                .studentId("20250001")
+                .build();
+
+        // 1) 내가 등록한 아이템
+        Item item = Item.builder()
+                .itemId(100L)
+                .name("드릴")
+                .ownerId(memberId)
+                .description("전동 드릴")
+                .status(ItemStatusEnum.AVAILABLE)
+                .returnPolicy("반납정책")
+                .damagedPolicy("파손정책")
+                .build();
+        member.getItems().add(item);
+
+        // 2) 내가 소유자로서 빌려준 대여
+        Rental owned = Rental.builder()
+                .rentalId(200L)
+                .item(item)            // 연관관계 편의 메서드 없이 직접 세팅
+                .ownerMember(member)
+                .renterMember(
+                        Student.builder()
+                                .memberId(43L)
+                                .email("bar@baz.com").name("임차인")
+                                .password("pw").role(MemberRoleEnum.STUDENT)
+                                .university("OO대").studentId("20250002")
+                                .build()
+                )
+                .requestDate(LocalDateTime.now())
+                .startDate(LocalDateTime.now())
+                .dueDate(LocalDateTime.now())
+                .status(RentalStatusEnum.APPROVED)
+                .build();
+        member.getOwnedRentals().add(owned);
+
+        // 3) 내가 대여자로서 빌린 대여
+        Rental rented = Rental.builder()
+                .rentalId(300L)
+                .item(
+                        Item.builder()
+                                .itemId(101L)
+                                .name("체인톱")
+                                .ownerId(43L)
+                                .description("목재 절단용")
+                                .status(ItemStatusEnum.AVAILABLE)
+                                .returnPolicy("반납정책")
+                                .damagedPolicy("파손정책")
+                                .build()
+                )
+                .ownerMember(
+                        Student.builder()
+                                .memberId(44L)
+                                .email("baz@foo.com").name("소유자")
+                                .password("pw").role(MemberRoleEnum.STUDENT)
+                                .university("OO대").studentId("20250003")
+                                .build()
+                )
+                .renterMember(member)
+                .requestDate(LocalDateTime.now())
+                .startDate(LocalDateTime.now())
+                .dueDate(LocalDateTime.now())
+                .status(RentalStatusEnum.APPROVED)
+                .build();
+        member.getRentedRentals().add(rented);
+
+        when(memberRepository.findProfileWithAll(memberId))
+                .thenReturn(Optional.of(member));
+
+        // when
+        MyProfileResponse dto = memberService.getMyProfile(memberId);
+
+        // then: 기본 필드
+        assertThat(dto.getMemberId()).isEqualTo(memberId);
+        assertThat(dto.getEmail()).isEqualTo("foo@bar.com");
+        assertThat(dto.getName()).isEqualTo("홍길동");
+
+        // then: items 매핑 검증
+        List<ItemBriefResponse> items = dto.getItems();
+        assertThat(items).hasSize(1);
+        assertThat(items.get(0).getItemId()).isEqualTo(100L);
+        assertThat(items.get(0).getName()).isEqualTo("드릴");
+
+        // then: owned rentals 매핑 검증
+        List<RentalBriefResponse> ownedDtos = dto.getOwnedRentals();
+        assertThat(ownedDtos).hasSize(1);
+        assertThat(ownedDtos.get(0).getRentalId()).isEqualTo(200L);
+        assertThat(ownedDtos.get(0).getItemName()).isEqualTo("드릴");
+        assertThat(ownedDtos.get(0).isOwner()).isTrue();
+
+        // then: rented rentals 매핑 검증
+        List<RentalBriefResponse> rentedDtos = dto.getRentedRentals();
+        assertThat(rentedDtos).hasSize(1);
+        assertThat(rentedDtos.get(0).getRentalId()).isEqualTo(300L);
+        assertThat(rentedDtos.get(0).getItemName()).isEqualTo("체인톱");
+        assertThat(rentedDtos.get(0).isOwner()).isFalse();
+
+        verify(memberRepository).findProfileWithAll(memberId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원이면 MemberNotFoundException 발생")
+    void getMyProfile_whenNotFound_thenThrow() {
+        long memberId = 99L;
+        when(memberRepository.findProfileWithAll(memberId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.getMyProfile(memberId))
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage("존재하지 않는 사용자 ID 입니다.");
+
+        verify(memberRepository).findProfileWithAll(memberId);
     }
 
     // — 헬퍼 메서드 —

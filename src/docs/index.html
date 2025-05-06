@@ -603,7 +603,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=y-SPdew91-Xaj01LQq5aaBJxPwqxEVzwKNo_EwIdSRdjF-aer9y8RdVf4NH36X59cYNuDSFCEjLVIGjdHOpcdjR-LyVScoOs HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=j7JRjfHSLAi_EGhth7YtNeCqF_s9M-rASoNhsXQY59yHKv--u9RpvsG2FT-SKAoIs5sZUIaaOpoLVdvterdTiRAt1-SzS5qL HTTP/1.1
 Content-Type: application/json
 Content-Length: 190
 Host: localhost:8080
@@ -697,7 +697,7 @@ Content-Length: 39
 <h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=3ijcV4P___T9xvlwAtvUM97PqJYcHytydXix-nEBlpw7B5c3vxDoNbLNnJLQpMBEMvbgBe_7hfQoKxJfQEyGy0ky9PpaYvFU HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=M-bsaZTNvveAr2sYqPwdg-i8xaD5quorVFmXFjLKweulA_8ZB9bZD_Gs3Jatzg0rm9Ep54mO6MHPnNoGZj-iJVb7-I6QNMso HTTP/1.1
 Content-Type: application/json
 Content-Length: 38
 Host: localhost:8080
@@ -796,7 +796,7 @@ Content-Length: 95
 <h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=R-D5uXHQMourRzD1lbIurgDzd1BBT21xo6C2rb8kf3F5qS3MJNjB2kToBL-GcADD9p8anDOXWmh0LAxclJiAz4cdTUVJnh6o HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=oaGS_uuMvB0RMx06nFse1AYKZ_b79AiX29o507yg3tjClMJKlsSgzN27jn48BS5ZpHYqtTBvSs_CxDy6ueIB4YmW7uijo_ov HTTP/1.1
 Content-Type: application/json
 Content-Length: 49
 Host: localhost:8080
@@ -1333,7 +1333,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=LmUYkGiGk1Vjpjplqnh3p8EJGTiSopy86S696TjgDNRgJ3LhGVMso1y38mVOwwNdklVDk_EwNFmrlKSR2xnYilnVbeUDFRSE HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=kZTmo4NzCgO558drUhJ6isVL5GA9ctFwT8eMK8ADgCW31NKEo6TRkOEQOTKUgfBYYT9O7vMqyQIMR-ZdfP_qSvdmsRaH5uu8 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
@@ -1623,27 +1623,27 @@ Host: localhost:8080</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.memberId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">로그인 회원 ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회원 ID</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.email</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">로그인 회원 이메일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">로그인 회원 이름</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.role</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">로그인 회원 역할</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">역할 (현재 null)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.profileImg</code></p></td>
@@ -1652,38 +1652,218 @@ Host: localhost:8080</code></pre>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.createdAt</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 등록일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">가입일자 (현재 null)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.locked</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">등록한 아이템 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].itemId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이템 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이템 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].price</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">가격 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">상태 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].thumbnailUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items[].createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">등록일자 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">소유자로서 대여된 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].rentalId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 거래 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].itemName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이템 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].ownerName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">소유자 이름 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].renterName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여자 이름 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 상태 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].requestDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 요청일시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 시작일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].dueDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 예정일시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].approvedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">승인일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].rejectedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">거부일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].leftAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">락커 입고일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].pickedUpAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">수령일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].returnedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].retrievedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">락커 인출일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].thumbnailUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].owner</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">계정 잠금 여부</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">내가 소유자인지 여부</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.nickname</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 닉네임</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여자로서 빌린 목록</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.gender</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 성별</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].rentalId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 거래 ID</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.studentId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].itemName</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">학생 학번</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이템 이름</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].ownerName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">소유자 이름 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].renterName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여자 이름 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 상태 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].requestDate</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">학생 소속 대학</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 요청일시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대여 시작일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].dueDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 예정일시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].approvedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">승인일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].rejectedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">거부일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].leftAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">락커 입고일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].pickedUpAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">수령일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].returnedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].retrievedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">락커 인출일시 (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].thumbnailUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].owner</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">내가 소유자인지 여부</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공시 빈 문자열</p></td>
 </tr>
 </tbody>
 </table>
@@ -2159,7 +2339,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=MWXTMNRx75jEiW4kJitCW7WpxS3KjNSxaxeScznebHbX3n6OB1HqBLUQifrpsF4cRQZ2PtOZ6E-u7uycUiGiEFzvXkex6Ua3 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=T2Eob3WDv_JHBe5nNxV01WzX0J4sPgtJ81ATCDYO4OmZqRp5flMQWxPhiJBqZNoEUjhAs1zm_f8bCjtkwGMqalc8hdqtynwc HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2370,7 +2550,7 @@ Host: localhost:8080
 Content-Disposition: form-data; name=form
 Content-Type: application/json
 
-{"name":"Updated","description":"newDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-05-03T01:29:39.2027711","endDate":"2025-05-05T01:29:39.2027711"}
+{"name":"Updated","description":"newDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-05-06T22:49:16.7284654","endDate":"2025-05-08T22:49:16.7284654"}
 --6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
 Content-Disposition: form-data; name=images; filename=z.jpg
 Content-Type: image/jpeg
@@ -2447,7 +2627,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=jHDOpiWo__pKqYiEOcv0fXrRwQG097QVJjo7NqTVHNm2EN5Cv0P6xRzLmcNnkOnmDObARE7h7GCEx4E4RV4CApCzeO-DJrgn</code></pre>
+_csrf=YpbCs0tzxTXVXtqTuwEHEiDNNxYvaxD-FajPlRrTrbuoG-CDU_L31n1F_FT4b7-rjCwzIEb_Gi8bXSXTJ8r7pSPkmI7Kedjm</code></pre>
 </div>
 </div>
 </div>
@@ -2561,12 +2741,12 @@ _csrf=jHDOpiWo__pKqYiEOcv0fXrRwQG097QVJjo7NqTVHNm2EN5Cv0P6xRzLmcNnkOnmDObARE7h7G
 <h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=ZgN72ExStuY7uUlg95YgccJ5ALW9wu-lMD_2fLWjFgzm0O0SB2AfuylrjtMW2nwEk7sURKcaLdfe8NeIAlnPTtfBdzvQ54km HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=kIX4czcVOBgo4JRmuo59ON6xnw19cFHSst0HwYC15QzXqwkS9ebBFQIkACAFhvZR2KNJD7_SsjVLRGX_guk_9LaC1D7gzzlz HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 123
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-05-04T01:29:48.6005679","dueDate":"2025-05-10T01:29:48.6005679"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-05-07T22:49:25.5777306","dueDate":"2025-05-13T22:49:25.5777306"}</code></pre>
 </div>
 </div>
 </div>
@@ -2899,7 +3079,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=XxlKceq2YUMR2a1ZaDzk4Ur0bn6WPyUo4KBSfjzrhsxGUN_PaClzEtLUUHY87ZlsDRHQ0yzFQxz3XUQF1ZlnT1qN4v11Nu6u HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=O9WlYjyeuNwgPDPrm8KHijCfhw-IBB23W808VNvlzes92xhoDuyWVA372roNDwaI_--z7gepqja6NXmaOPhdYO_U_94Euihe HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3033,7 +3213,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=aTUwd3G45sU_ZzSApfRZkP4vgfRDkMWTBNbEDESutLf7HRLUD1dWT0OLg_ISV1K3w9ltpZtNrJYnqaS-MeDybSDN0NbCLHbt</code></pre>
+_csrf=_HWlnSy366AQ079bw0BTpdQVz9rQF1TZsCY4ZXxcR06nO-DSxESTqhXS05I9548-8W1nnOMk4rjiLjH0h0cMA0puI3bBX9Sx</code></pre>
 </div>
 </div>
 </div>
@@ -3086,7 +3266,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=W1rVYoeLBF6v_MT4kKqU6HVhVkuF9oAbtUe46cMCnFSfojN_a2O0Vbe5N2-CnfCao4eg0RdReym3z7c21CSI3fNnrzKslwBO</code></pre>
+_csrf=PfC4fT8CkWbv8XyhVS68N9dEIIbNIfTREwU7ptb6Xy1SSiIXCsiMTAlgqVLCx0nFZQOIVeBxDb76FsP8KjFdwOWebRo2eBEl</code></pre>
 </div>
 </div>
 </div>
@@ -3139,7 +3319,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=hxAKS8L0_fFcnsIMFg4spL3RlXjRM9RlF5aasn4F8ihtbLpg5XM8LaPFzJVxrqFtIyMYldniuBnoUexIL6X-gBxjlkwICYhT</code></pre>
+_csrf=5nPBO_enfYq7-X0RiIsaeGWtbcPPoM1OA-esy1__2P_fHIuEhxGnDZTEHOyWmBh3u6YuHFSdQKH7maxjNYOeqW7G78ftfby0</code></pre>
 </div>
 </div>
 </div>
@@ -3213,7 +3393,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=Cua6_P-PtP95bkTgRovFssjL3Pmm9MVpeNWRE32IgzyU52nvO9Dfn5y21p5UCiKEdKbx16zy8cGSxPVEHbSoJxvu51r20lza</code></pre>
+_csrf=niGI7R7xyD332MYs2GTbVzMAOpK_78ibIBa4fQCZ7IkWJNzhqRewjyqQ8A3a7qUb6knvZARlF6uJi_22Ei-BTTKqibwgFeXV</code></pre>
 </div>
 </div>
 </div>
@@ -3266,7 +3446,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=jpPRj4vn72pXSGe7hVaHZGoQz3jyDbWc_APBjJYScwZRN_O6t6u167_W2156KVaJsHuzVQ914kGXO9Gxnzr0tPRzS2RnB5aP</code></pre>
+_csrf=9rjCeSo1Y-gQLd2XXODtpmbGn-gr1W28gG-INXAh5AKdN5Djk9yhSxJQBdE9S-6ua83ZxwfwstAe5g-RuVm5BkNDgWakBafT</code></pre>
 </div>
 </div>
 </div>
@@ -3418,7 +3598,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=mVkCG1ZiVKZrsWLH1nS7VQxRs1gID5SUNguZwr_2YoaJKhDE_D81I25VY8dGgFvz5lmPZTVinmBpOfW5ATuppIqSU-K-GyWn</code></pre>
+_csrf=aHTc1q6g0xukPyGyuUAr8hiQMwmHl_ZVB2ohM1aRJu1xj1LgCUXrtJiR5nqJWRDQ220fxXmpHjDj8sN4ZVwVBWWnE91E6WXX</code></pre>
 </div>
 </div>
 </div>
@@ -3466,7 +3646,7 @@ _csrf=mVkCG1ZiVKZrsWLH1nS7VQxRs1gID5SUNguZwr_2YoaJKhDE_D81I25VY8dGgFvz5lmPZTVinm
 <h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=LWlT8PVHok8SCO9CGMeCSqKMdovfPYy1L96_cSEc0FicGot0HVA3xpEimnw_Oo5wfeq2LJC_W-m6Bb-YGbrZSRMo4Dn5ebhD HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=peiPQdc-wqCWYLOP6qBNxdHXqap2lSDE10vM7bm4CLztBWLblIu_cLJfppG7WNW3j415obWyhMtO8UTptXmujouKMY6IYFu4 HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3605,7 +3785,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=wBnZ36bGvJ3jZ6iCtkZIjxxgywi9TGeP89YEvIz1aT3x9cRR9yrh68KghfvOV5i70mt8v3pZ5mmKdAWix-Zm3-mQCw7GzKVp</code></pre>
+_csrf=yzSlm429zs9IgxvZ8k24bLV2iw6bWhu8tR-X-fVbmUDM-PVw-wTDqrWI-Kllsy_oxGCMWIEQpjeoYi2R0XugmMRj-HD7zMxF</code></pre>
 </div>
 </div>
 </div>
@@ -3697,7 +3877,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=2SyxhVos_twgP9ZjJSQC5XoIbQsEwUukQtSmgvindP_AhW-L6BnQ4WwczukNDbMCEgk2hE9uQDMwoniJdLWXt5nGEsqj5ljo</code></pre>
+_csrf=pZTG1lhC_j7u-h7RhDUAXxgHCGT2IcU-2g0I5sACZJri9GSLna31sm0jy1rDyi63sxg0aikxJV2UQKETuT8_hPMwAqjUw1S4</code></pre>
 </div>
 </div>
 </div>
