@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 public class RentalBriefResponse {
 
     private Long rentalId;
+    private String itemName;
+    private String ownerName;
+    private String renterName;
     private RentalStatusEnum status;
     private LocalDateTime requestDate;
     private LocalDateTime startDate;
@@ -30,6 +33,9 @@ public class RentalBriefResponse {
     public static RentalBriefResponse fromEntity(Rental rental, String presignedUrl, boolean asOwner) {
         return RentalBriefResponse.builder()
                 .rentalId(rental.getRentalId())
+                .itemName(rental.getItem().getName())
+                .ownerName(rental.getOwnerMember().getName())
+                .renterName(rental.getRenterMember().getName())
                 .status(rental.getStatus())
                 .requestDate(rental.getRequestDate())
                 .startDate(rental.getStartDate())
