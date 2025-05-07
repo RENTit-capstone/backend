@@ -5,8 +5,10 @@ import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
+import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
 import com.capstone.rentit.rental.dto.RentalSearchForm;
@@ -25,6 +27,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -183,6 +186,62 @@ class RentalServiceTest {
         given(renter.getMemberId()).willReturn(20L);
         RentalDto dto2 = rentalService.getRental(5L, renter);
         assertThat(dto2.getRentalId()).isEqualTo(5L);
+    }
+
+    @Test
+    @DisplayName("리포지토리에서 조회된 렌탈을 DTO 로 매핑하여 반환한다")
+    void findEligibleRentals_mapsEntityToDto() {
+        // given
+        Long memberId = 42L;
+        RentalLockerAction action = RentalLockerAction.PICK_UP_BY_RENTER;
+
+        Rental sample = Rental.builder()
+                .rentalId(123L)
+                .ownerId(99L)
+                .renterId(memberId)
+                .itemId(555L)
+                .item(Item.builder().itemId(555L).name("test item").ownerId(99L).build())
+                .status(RentalStatusEnum.LEFT_IN_LOCKER)
+                .requestDate(LocalDateTime.of(2025,5,1,10,30))
+                .dueDate(LocalDateTime.of(2025,5,8,10,30))
+                .startDate(LocalDateTime.of(2025,5,2,10,30))
+                .build();
+
+        given(rentalRepository.findEligibleRentals(memberId, action))
+                .willReturn(List.of(sample));
+
+        // when
+        List<RentalBriefResponseForLocker> dtos =
+                rentalService.findEligibleRentals(memberId, action);
+
+        // then
+        then(rentalRepository).should().findEligibleRentals(memberId, action);
+        assertThat(dtos)
+                .hasSize(1)
+                .first()
+                .satisfies(dto -> {
+                    assertThat(dto.getRentalId()).isEqualTo(123L);
+                    assertThat(dto.getItemId()).isEqualTo(555L);
+                });
+    }
+
+    @Test
+    @DisplayName("리포지토리 조회 결과가 없으면 빈 리스트를 반환한다")
+    void findEligibleRentals_whenNoResults_thenReturnEmpty() {
+        // given
+        Long memberId = 7L;
+        RentalLockerAction action = RentalLockerAction.RETURN_BY_RENTER;
+
+        given(rentalRepository.findEligibleRentals(memberId, action))
+                .willReturn(Collections.emptyList());
+
+        // when
+        List<RentalBriefResponseForLocker> dtos =
+                rentalService.findEligibleRentals(memberId, action);
+
+        // then
+        then(rentalRepository).should().findEligibleRentals(memberId, action);
+        assertThat(dtos).isEmpty();
     }
 
     // ---- approve ----

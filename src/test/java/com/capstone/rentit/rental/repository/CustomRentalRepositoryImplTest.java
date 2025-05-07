@@ -3,6 +3,7 @@ package com.capstone.rentit.rental.repository;
 import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.status.MemberRoleEnum;
@@ -37,12 +38,12 @@ class CustomRentalRepositoryImplTest {
     @Autowired
     private EntityManager em;
 
-    private CustomRentalRepositoryImpl customRepo;
+    private CustomRentalRepositoryImpl rentalRepository;
 
     @BeforeEach
     void setUp() {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        customRepo = new CustomRentalRepositoryImpl(queryFactory);
+        rentalRepository = new CustomRentalRepositoryImpl(queryFactory);
     }
 
     @Test
@@ -62,7 +63,7 @@ class CustomRentalRepositoryImplTest {
         em.flush();
 
         // ─ when ─
-        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
                 user.getMemberId(), Collections.emptyList(), Pageable.unpaged());
 
         // ─ then ─
@@ -92,7 +93,7 @@ class CustomRentalRepositoryImplTest {
                 Sort.by("requestDate").descending());
 
         // ─ when ─
-        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
                 user.getMemberId(),
                 Arrays.asList(RentalStatusEnum.APPROVED, RentalStatusEnum.COMPLETED),
                 pg);
@@ -121,7 +122,7 @@ class CustomRentalRepositoryImplTest {
                 Sort.by("requestDate").ascending());
 
         // ─ when ─
-        Page<Rental> page = customRepo.findAllByUserIdAndStatuses(
+        Page<Rental> page = rentalRepository.findAllByUserIdAndStatuses(
                 user.getMemberId(),
                 Collections.singletonList(RentalStatusEnum.APPROVED),
                 pg);
@@ -129,6 +130,129 @@ class CustomRentalRepositoryImplTest {
         // ─ then ─
         assertThat(page.getTotalElements()).isEqualTo(3);
         assertThat(page.getContent()).containsExactly(r1, r2, r3);
+    }
+
+    @Test
+    @DisplayName("DROP_OFF_BY_OWNER: APPROVED 이고 startDate 가 과거인 ownerId 의 렌탈만 반환하고, requestDate DESC 정렬")
+    void findEligibleRentals_dropOffByOwner() {
+        // Arrange
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("owner");
+        Member renterA = saveMember("renterA");
+        Member renterB = saveMember("renterB");
+
+        // 매칭되는 두 개: (requestDate 내림차순으로 r2, r1 순)
+        Rental r1 = saveRental(owner, renterA, RentalStatusEnum.APPROVED, now.minusDays(2));
+        Rental r2 = saveRental(owner, renterB, RentalStatusEnum.APPROVED, now.minusDays(1));
+
+        // 매칭되지 않아야 할 것들
+        // 1) 다른 owner
+        saveRental(saveMember("otherOwner"), renterA, RentalStatusEnum.APPROVED, now.minusDays(3));
+        // 2) 잘못된 상태
+        saveRental(owner, renterA, RentalStatusEnum.REQUESTED, now.minusDays(3));
+        // 3) startDate 가 미래
+        Rental future = saveRental(owner, renterA, RentalStatusEnum.APPROVED, now.plusDays(1));
+
+        em.flush();
+        em.clear();
+
+        // Act
+        List<Rental> result =
+                rentalRepository.findEligibleRentals(owner.getMemberId(), RentalLockerAction.DROP_OFF_BY_OWNER);
+
+        // Assert
+        assertThat(result)
+                .hasSize(2)
+                .extracting(Rental::getRentalId)
+                .containsExactly(r2.getRentalId(), r1.getRentalId());
+    }
+
+    @Test
+    @DisplayName("PICK_UP_BY_RENTER: LEFT_IN_LOCKER 상태인 renterId 의 렌탈만 반환")
+    void findEligibleRentals_pickUpByRenter() {
+        // Arrange
+        LocalDateTime now = LocalDateTime.now();
+        Member ownerA = saveMember("ownerA");
+        Member ownerB = saveMember("ownerB");
+        Member renter = saveMember("renter");
+
+        Rental r1 = saveRental(ownerA, renter, RentalStatusEnum.LEFT_IN_LOCKER, now.minusHours(4));
+        Rental r2 = saveRental(ownerB, renter, RentalStatusEnum.LEFT_IN_LOCKER, now.minusHours(1));
+
+        // 제외 대상
+        saveRental(ownerA, saveMember("otherRenter"), RentalStatusEnum.LEFT_IN_LOCKER, now.minusHours(2));
+        saveRental(ownerA, renter, RentalStatusEnum.PICKED_UP, now.minusHours(3));
+
+        em.flush();
+        em.clear();
+
+        // Act
+        List<Rental> result =
+                rentalRepository.findEligibleRentals(renter.getMemberId(), RentalLockerAction.PICK_UP_BY_RENTER);
+
+        // Assert
+        assertThat(result)
+                .hasSize(2)
+                .extracting(Rental::getRentalId)
+                .containsExactly(r2.getRentalId(), r1.getRentalId());
+    }
+
+    @Test
+    @DisplayName("RETURN_BY_RENTER: PICKED_UP 상태인 renterId 의 렌탈만 반환")
+    void findEligibleRentals_returnByRenter() {
+        // Arrange
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("ownerX");
+        Member renter = saveMember("renterX");
+
+        Rental matching = saveRental(owner, renter, RentalStatusEnum.PICKED_UP, now.minusDays(1));
+
+        // 제외 대상
+        saveRental(owner, saveMember("otherRenter"), RentalStatusEnum.PICKED_UP, now.minusDays(2));
+        saveRental(owner, renter, RentalStatusEnum.LEFT_IN_LOCKER, now.minusHours(5));
+
+        em.flush();
+        em.clear();
+
+        // Act
+        List<Rental> result =
+                rentalRepository.findEligibleRentals(renter.getMemberId(), RentalLockerAction.RETURN_BY_RENTER);
+
+        // Assert
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .extracting(Rental::getRentalId)
+                .isEqualTo(matching.getRentalId());
+    }
+
+    @Test
+    @DisplayName("RETRIEVE_BY_OWNER: RETURNED_TO_LOCKER 상태인 ownerId 의 렌탈만 반환")
+    void findEligibleRentals_retrieveByOwner() {
+        // Arrange
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("ownerY");
+        Member renter = saveMember("renterY");
+
+        Rental matching = saveRental(owner, renter, RentalStatusEnum.RETURNED_TO_LOCKER, now.minusDays(1));
+
+        // 제외 대상
+        saveRental(saveMember("otherOwner"), renter, RentalStatusEnum.RETURNED_TO_LOCKER, now.minusHours(3));
+        saveRental(owner, renter, RentalStatusEnum.PICKED_UP, now.minusHours(2));
+
+        em.flush();
+        em.clear();
+
+        // Act
+        List<Rental> result =
+                rentalRepository.findEligibleRentals(owner.getMemberId(), RentalLockerAction.RETRIEVE_BY_OWNER);
+
+        // Assert
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .extracting(Rental::getRentalId)
+                .isEqualTo(matching.getRentalId());
     }
 
     // — 헬퍼 메서드: 중복 코드 방지 —
