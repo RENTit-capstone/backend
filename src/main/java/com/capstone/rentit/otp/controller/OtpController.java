@@ -24,13 +24,4 @@ public class OtpController {
         String code = otpService.generateOtp(memberDto.getEmail());
         return CommonResponse.success(code);
     }
-
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/otp/verify")
-    public CommonResponse<?> verifyOtp(
-            @Login MemberDto memberDto,
-            @RequestParam("code") String code) {
-        otpService.validateOtp(memberDto.getEmail(), code);
-        return CommonResponse.success(null);
-    }
 }
