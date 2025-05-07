@@ -381,17 +381,48 @@ include::{snippets}/otp-request/response-fields.adoc[]
 ==== HTTP 응답
 include::{snippets}/otp-request/http-response.adoc[]
 
-=== OTP 인증 요청
-GET /api/v1/auth/otp/verify
+== 사물함 관련 API
+=== 사물함 생성
+POST /api/v1/admin/lockers
 
-==== 쿼리 파라미터
-include::{snippets}/otp-verify/query-parameters.adoc[]
+==== 요청 필드
+include::{snippets}/admin-register-locker/request-fields.adoc[]
 
 ==== HTTP 요청
-include::{snippets}/otp-verify/http-request.adoc[]
+include::{snippets}/admin-register-locker/http-request.adoc[]
 
 ==== 응답 필드
-include::{snippets}/otp-verify/response-fields.adoc[]
+include::{snippets}/admin-register-locker/response-fields.adoc[]
 
 ==== HTTP 응답
-include::{snippets}/otp-verify/http-response.adoc[]
+include::{snippets}/admin-register-locker/http-response.adoc[]
+
+=== 사물함 조회
+GET /api/v1/admin/lockers
+
+==== 쿼리 파라미터
+include::{snippets}/admin-list-lockers/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/admin-list-lockers/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/admin-list-lockers/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/admin-list-lockers/http-response.adoc[]
+
+=== 사물함 개별 조회
+GET /api/v1/admin/lockers/{lockerId}
+
+==== path 파라미터
+include::{snippets}/admin-get-locker/path-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/admin-get-locker/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/admin-get-locker/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/admin-get-locker/http-response.adoc[]
