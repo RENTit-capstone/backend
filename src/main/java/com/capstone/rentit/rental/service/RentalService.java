@@ -5,11 +5,10 @@ import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.rental.domain.Rental;
-import com.capstone.rentit.rental.dto.RentalDto;
-import com.capstone.rentit.rental.dto.RentalRequestForm;
-import com.capstone.rentit.rental.dto.RentalSearchForm;
+import com.capstone.rentit.rental.dto.*;
 import com.capstone.rentit.rental.exception.*;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
@@ -22,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,6 +104,11 @@ public class RentalService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<RentalBriefResponseForLocker> findEligibleRentals(Long memberId, RentalLockerAction action) {
+        List<Rental> list = rentalRepository.findEligibleRentals(memberId, action);
+        return list.stream().map(RentalBriefResponseForLocker::fromEntity).toList();
+    }
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
     public void dropOffToLocker(Long rentalId, Long ownerId, Long lockerId) {

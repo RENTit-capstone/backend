@@ -1,8 +1,10 @@
 package com.capstone.rentit.rental.repository;
 
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.domain.QRental;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -53,6 +56,34 @@ public class CustomRentalRepositoryImpl implements CustomRentalRepository {
                 .fetch();
 
         return new PageImpl<>(content, pageable, count);
+    }
+
+    @Override
+    public List<Rental> findEligibleRentals(Long memberId, RentalLockerAction action) {
+        QRental r = QRental.rental;
+
+        BooleanBuilder b = new BooleanBuilder();
+
+        switch (action) {
+            case DROP_OFF_BY_OWNER -> {
+                b.and(r.ownerId.eq(memberId))
+                        .and(r.status.eq(RentalStatusEnum.APPROVED))
+                        .and(r.startDate.before(LocalDateTime.now()));
+            }
+            case PICK_UP_BY_RENTER -> {
+                b.and(r.renterId.eq(memberId))
+                        .and(r.status.eq(RentalStatusEnum.LEFT_IN_LOCKER));
+            }
+            case RETURN_BY_RENTER -> {
+                b.and(r.renterId.eq(memberId))
+                        .and(r.status.eq(RentalStatusEnum.PICKED_UP));
+            }
+            case RETRIEVE_BY_OWNER -> {
+                b.and(r.ownerId.eq(memberId))
+                        .and(r.status.eq(RentalStatusEnum.RETURNED_TO_LOCKER));
+            }
+        }
+        return queryFactory.selectFrom(r).where(b).orderBy(r.requestDate.desc()).fetch();
     }
 
     private OrderSpecifier<?> orderSpecifier(Pageable pageable) {
