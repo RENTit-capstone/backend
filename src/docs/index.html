@@ -498,7 +498,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_otp_api">OTP API</a>
 <ul class="sectlevel2">
 <li><a href="#_otp_요청">OTP 요청</a></li>
-<li><a href="#_otp_인증_요청">OTP 인증 요청</a></li>
+</ul>
+</li>
+<li><a href="#_사물함_관련_api">사물함 관련 API</a>
+<ul class="sectlevel2">
+<li><a href="#_사물함_생성">사물함 생성</a></li>
+<li><a href="#_사물함_조회">사물함 조회</a></li>
+<li><a href="#_사물함_개별_조회">사물함 개별 조회</a></li>
 </ul>
 </li>
 </ul>
@@ -603,7 +609,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=smWycSNpbcnpHK68VWZ7o4u9S6bS7oACxdCjcTZIINjF08JQ0FGKRBQIXPnEKJeJM0tPwL6FZp_gi-IvpumSSVd-FL72tfc1 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=jWWBOf9-_oTlHcz4BrDq_aqXSS8MHSJmsrK2rStPj9oFhq99tQTlCMZLyrfIJK2eY53emM6lZBZqKxVLgdOBm057v-k14J5I HTTP/1.1
 Content-Type: application/json
 Content-Length: 190
 Host: localhost:8080
@@ -697,7 +703,7 @@ Content-Length: 39
 <h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=F0dHLBTm0deIJnYUPADm9EBNJW8JLJDZ6-NtKOgN9fE26DEGLyZ-SnHVt-KlHkcmDy3SkHV1CA1qG6j0itpYEds_xcAF2gUx HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=KkvPhOsPiuvyl1AzRdda-ww6FKikGlGh1gkIv9-iSuOJxNXsT3r9vd0579zfoWcDfPpunzQIOcmWI2KMtGprje_HL9S-_OPY HTTP/1.1
 Content-Type: application/json
 Content-Length: 38
 Host: localhost:8080
@@ -796,7 +802,7 @@ Content-Length: 95
 <h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=_Y0JddgCpQ79uPvbWrrkLCAfFCSCXC0rsRi5M5Iswqfmmn8Cm-87FOk7kD7QjM24Y5fQHxInORy6bBQGg3qIBqJJo5DVo0s3 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=rh2R8RYicAFGEb8enOWpdLGmP4EjW02egmFhQEu3i_FUY1cbyCijxHJHRjRrd9os_cidTIDAEuARbC-zsQUFcX6B7pc2AmEq HTTP/1.1
 Content-Type: application/json
 Content-Length: 49
 Host: localhost:8080
@@ -1333,7 +1339,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=qeWwl-jCf964R379ycWGMDK6sirLuTY2LxnCKwYEBUtdkjO3kIGCpI3xRriVfkbP-uiyBgrYnxOv2AAbTX2kEzNnNi059gqD HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=yAgKwjn9YX76tWsPpqXWcjq9dAFsb7xwj_-39XXQ1SdEv2OS8D49-l_OWEvX0A03kojiRgjYWThYWtpd7syCxEzl5BFx3QCk HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
@@ -2339,7 +2345,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=AO4PBOlKTzGBmQSgiXXPf12i8kVXG6yAIibpeqCuZtXGrzILNdw4YN4rflCsr2KSv1j7R23G3ycxfZ-tGhXbQsbKUuSlmgA6 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=a3DsUxC_T_4Xt1KrJDGFSQbx1IZtrORS4NSDksurzyrDqZ3oWxLVMSSILZg60mCfQByxLTPD-b4IydR_1LWz8_uS-Bn6yKiN HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2550,7 +2556,7 @@ Host: localhost:8080
 Content-Disposition: form-data; name=form
 Content-Type: application/json
 
-{"name":"Updated","description":"newDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-05-08T01:09:41.8865422","endDate":"2025-05-10T01:09:41.8865422"}
+{"name":"Updated","description":"newDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-05-08T01:24:04.4860983","endDate":"2025-05-10T01:24:04.4860983"}
 --6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
 Content-Disposition: form-data; name=images; filename=z.jpg
 Content-Type: image/jpeg
@@ -2627,7 +2633,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=J7H4U7p5tdxFJS7nSV58UYbvlzZdmKR33at6YhZWJ2uqeaeLRYWcZItAjOloEEjXK3NIZeSJulRlqZdauZ5LWiFiEA2STpDu</code></pre>
+_csrf=X272zUyONOSFANBar-WtE3iaPIWCeSP62bbEwmR54awtpog1Zl2T_XnqDdCoOeVqy8iZdRuvEeTjGhvX7IH99Qcf0M8YxesN</code></pre>
 </div>
 </div>
 </div>
@@ -2741,12 +2747,12 @@ _csrf=J7H4U7p5tdxFJS7nSV58UYbvlzZdmKR33at6YhZWJ2uqeaeLRYWcZItAjOloEEjXK3NIZeSJul
 <h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=Mp2sr071rh7FrZ7XEFEOnCTEH0zflBV41cnkpg1muVd35YVqBqnNm3jDyCnonKvmInw6qxbyMnXt8XFV4PrTl2sH3zVB0LxZ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=mYp91f5vVC_eIW_lPkiNJe94D5qpK1dtz9xgaLpg4xTEfxv9q-lP7M8JMhnzQlaAB2W5EYtIIvueEjJA_LoEDtlVhiWlRirE HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 123
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-05-09T01:09:52.8406812","dueDate":"2025-05-15T01:09:52.8406812"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-05-09T01:24:15.3769425","dueDate":"2025-05-15T01:24:15.3769425"}</code></pre>
 </div>
 </div>
 </div>
@@ -3079,7 +3085,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=hsZ6ZcET_yOFVSsslnWlLZ7oY1XV5nCzLEGqAzCTqYefqutN4PJDB_ArxkCoZRJKpFiRGf3YTjTn1hGeHyLPZQD1nOOrn4l_ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=LPKEmF56RGGSd4Km-UhlgrKF2EXOXZu5xQgD7ieyDnAG9AtFSJS2rGpOfQK_QrbFmmVRsoHn9Xz2P_mU8z8330SLakdnwDt3 HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3213,7 +3219,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=oz07ZQ6Uc3C_czLqXj3N9CpHNEE57YC2MWnXqO3QCIqIGv65klsKVT_2EBSSQgeMaBD5wBh2GSNYjLObVFDmkY6xOLLreM-J</code></pre>
+_csrf=Jaw2SHFHOyMtYkBUG3J6Ylf4Jn5l_ajaI8JkreMRqoXR-gsLFJtTKUd_AhQAVHhgeF9OATabCx8Bz8v3EqddnNZwy7Xlwjlv</code></pre>
 </div>
 </div>
 </div>
@@ -3266,7 +3272,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=zkg_3wD4OGlkFx72RNgMdDzJ2VeH5D2dJMCsld5FzI-JU6Fvqy5bvmPIXV5JdH_FJvU4QVnx9DWzgA2wHfOcoeog9bq5ZpkO</code></pre>
+_csrf=1_HW5RJQ4FiRo9ErpjVdJS0MqHSJlA66Adz3PeuXo5Qn5SDv4MLlhHRo2WG8leETxBhpRkg4hUy6o2iXNu3PD9n2k6RBhxjf</code></pre>
 </div>
 </div>
 </div>
@@ -3319,7 +3325,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=Advr9w3aEg7pQK3sEAvKivepf1brJ-HAaxLqitJG4bWD76rdNOKPkz65dm3EIsuIcyb-7MGaUm_ZRtDtWyqPs7R314W11pPo</code></pre>
+_csrf=RznlJ2qesKgv4aptq-3g2w9bwVHoUda63suuG9xRzY5TCp4LJg3VFVKrgZ4ChJ9fk8DU7j1j7GnQNLSX7PuXfb1h9L5nM_o4</code></pre>
 </div>
 </div>
 </div>
@@ -3393,7 +3399,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=3qt6sd5MiqiOQBj1I-Ry4kQ8X0fR1cWK0uzQKFFww5oFbY0nuJhLh7op7J2jJn7HFclGh3xdciXls_Ont4ixHGNCoP42Xr8Q</code></pre>
+_csrf=oQkHueWxuqHOW5n4sOFL0nuU0cD-9COGL7Gh3ztWG7KxJtPIwmgy29SJ2cfjbqudgsx_5E-m_KLPlRarTtfC5l83I9SIQrKt</code></pre>
 </div>
 </div>
 </div>
@@ -3446,7 +3452,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=ldE6u67cKXFSifI-2kw-oF27boPW0LkNQp41G-AGjjLxMzMPpLdfic24H0l_uZEMvGEKxWvdQ-HusYwgdvoEfdJltweVUVI-</code></pre>
+_csrf=JVcwPRccwnaGP5u8bdKWjF0RZpOFfyEcXeoXpx7cU7U2cf6gF2dRX3Yu9xSrW6jYW_-ivDgpS_K2TUUxPt0vnibpZtYBQs6W</code></pre>
 </div>
 </div>
 </div>
@@ -3598,7 +3604,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=qhHsSxJKw0dHWGgTQ0rbXmsg1oKVWFdsciPKO_N5LQuhH7iayHDbcnB9pSNqaQtyJ2fvO1gQ-7vxOjNBEUCvDccdGWqQfoii</code></pre>
+_csrf=vZmUICaFeTgMrNNl3RAZDVtzKxRRtDOjHA2KcfvjSl2us6g-3_ryFhW0Gl4hnOoAuD0tO21GBixh1lGOLGjpRMvSLmyfhs0M</code></pre>
 </div>
 </div>
 </div>
@@ -3646,7 +3652,7 @@ _csrf=qhHsSxJKw0dHWGgTQ0rbXmsg1oKVWFdsciPKO_N5LQuhH7iayHDbcnB9pSNqaQtyJ2fvO1gQ-7
 <h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=IpWvkTOIv0WW_9DazK9xrhDEuu6mQO-SnchRMzT-BLdOYfLUQ_eWqAfuinO7nLW4qoJFm3Gnl9bHIou_rqwwA1ecZtJ-Usu2 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=KtRoKoAlbefR3Ig8sDLcAidwW2H3avvhB1Wjt5y1nR0ecJaKHuFaGrJDDIb87LAJ1R_oNhFEdgDDDJ7MM2HBgfnT_3kmSa68 HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3785,7 +3791,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=C-hSj2yIlb8y35XPe83MgXL-pJhWlQDXZvQB-fvP_zchyyC9bopquA6_rIYfvfH3Q-D4tUrMiaEyo2P6Xswwmpj_ngNArkSE</code></pre>
+_csrf=rkxTjWeJsxYfNkw10UOj0PDVErKG4LAM3Do8n79V1ifWaXfOzHg3ugW513IyUy5X4m6X5cfjP4vggoUhvQhfptlt7hTuC0T7</code></pre>
 </div>
 </div>
 </div>
@@ -3842,33 +3848,364 @@ Content-Length: 44
 </div>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_사물함_관련_api"><a class="link" href="#_사물함_관련_api">사물함 관련 API</a></h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="_otp_인증_요청"><a class="link" href="#_otp_인증_요청">OTP 인증 요청</a></h3>
+<h3 id="_사물함_생성"><a class="link" href="#_사물함_생성">사물함 생성</a></h3>
 <div class="paragraph">
-<p>GET /api/v1/auth/otp/verify</p>
+<p>POST /api/v1/admin/lockers</p>
 </div>
 <div class="sect3">
-<h4 id="_쿼리_파라미터_4"><a class="link" href="#_쿼리_파라미터_4">쿼리 파라미터</a></h4>
-<div class="paragraph">
-<p>Unresolved directive in index.adoc - include::C:/Users/ADMIN/Documents/Springboot Project/rentit_backend/build/generated-snippets/otp-verify/query-parameters.adoc[]</p>
-</div>
+<h4 id="_요청_필드_9"><a class="link" href="#_요청_필드_9">요청 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학교 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locationDescription</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 위치 상세 설명</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_http_요청_29"><a class="link" href="#_http_요청_29">HTTP 요청</a></h4>
-<div class="paragraph">
-<p>Unresolved directive in index.adoc - include::C:/Users/ADMIN/Documents/Springboot Project/rentit_backend/build/generated-snippets/otp-verify/http-request.adoc[]</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/lockers?_csrf=i4OZkuTxL4MZ-Kits4Z5mhSW3eShFsQ3rW_bXYoKaYzfmvXL7ub9p4bEG7Y0nZGagqtN-C2i8IbFIfcay1a6ar5rXuru_5Sp HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 85
+Host: localhost:8080
+
+{
+  "university" : "Seoul Univ",
+  "locationDescription" : "building 1, floor 3"
+}</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_응답_필드_29"><a class="link" href="#_응답_필드_29">응답 필드</a></h4>
-<div class="paragraph">
-<p>Unresolved directive in index.adoc - include::C:/Users/ADMIN/Documents/Springboot Project/rentit_backend/build/generated-snippets/otp-verify/response-fields.adoc[]</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">생성된 사물함 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_http_응답_12"><a class="link" href="#_http_응답_12">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 58
+
+{
+  "success" : true,
+  "data" : 5,
+  "message" : ""
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_사물함_조회"><a class="link" href="#_사물함_조회">사물함 조회</a></h3>
 <div class="paragraph">
-<p>Unresolved directive in index.adoc - include::C:/Users/ADMIN/Documents/Springboot Project/rentit_backend/build/generated-snippets/otp-verify/http-response.adoc[]</p>
+<p>GET /api/v1/admin/lockers</p>
+</div>
+<div class="sect3">
+<h4 id="_쿼리_파라미터_4"><a class="link" href="#_쿼리_파라미터_4">쿼리 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">검색할 학교 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>available</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용 가능 여부</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_30"><a class="link" href="#_http_요청_30">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/lockers?university=U&amp;available=true HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_30"><a class="link" href="#_응답_필드_30">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].lockerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학교 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].locationDescription</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 위치 상세 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].available</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용 가능 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].activatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 활성화 시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_13"><a class="link" href="#_http_응답_13">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 406
+
+{
+  "success" : true,
+  "data" : [ {
+    "lockerId" : 1,
+    "available" : true,
+    "university" : "U1",
+    "locationDescription" : "location1",
+    "activatedAt" : "2025-05-08T01:24:08.8735235"
+  }, {
+    "lockerId" : 2,
+    "available" : false,
+    "university" : "U2",
+    "locationDescription" : "location2",
+    "activatedAt" : "2025-05-08T01:24:08.8735235"
+  } ],
+  "message" : ""
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_사물함_개별_조회"><a class="link" href="#_사물함_개별_조회">사물함 개별 조회</a></h3>
+<div class="paragraph">
+<p>GET /api/v1/admin/lockers/{lockerId}</p>
+</div>
+<div class="sect3">
+<h4 id="_path_파라미터"><a class="link" href="#_path_파라미터">path 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/v1/admin/lockers/{lockerId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lockerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_31"><a class="link" href="#_http_요청_31">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/lockers/3 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_31"><a class="link" href="#_응답_필드_31">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.lockerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학교 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.locationDescription</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 위치 상세 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.available</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용 가능 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.activatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사물함 활성화 시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_14"><a class="link" href="#_http_응답_14">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 228
+
+{
+  "success" : true,
+  "data" : {
+    "lockerId" : 3,
+    "available" : true,
+    "university" : "U3",
+    "locationDescription" : "location3",
+    "activatedAt" : "2025-05-08T01:24:08.9752644"
+  },
+  "message" : ""
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -3878,7 +4215,7 @@ Content-Length: 44
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2025-05-03 01:02:50 +0900
+Last updated 2025-05-08 01:16:50 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
