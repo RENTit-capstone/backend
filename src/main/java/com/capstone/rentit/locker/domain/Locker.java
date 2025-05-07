@@ -26,11 +26,11 @@ public class Locker {
     @Column(length = 100)
     private String locationDescription;
 
-    @Column(nullable = false, updatable = false)
     private LocalDateTime activatedAt;
 
     public void changeAvailability(boolean available) {
         this.available = available;
+        if(available) activatedAt = LocalDateTime.now();
     }
 
     public static Locker createLocker(LockerCreateForm form){
