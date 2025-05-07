@@ -8,6 +8,6 @@ import java.time.Instant;
 @Getter
 @AllArgsConstructor
 public class OtpDto {
-    private String code;
+    private String identifier;
     private Instant expiresAt;
 }

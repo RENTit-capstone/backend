@@ -21,27 +21,30 @@ public class OtpService {
     private final Map<String, OtpDto> store = new ConcurrentHashMap<>();
 
     public String generateOtp(String identifier) {
-        String otp = buildNumericOtp(OTP_LENGTH);
-        Instant expiresAt = Instant.now().plus(OTP_TTL);
-        store.put(identifier, new OtpDto(otp, expiresAt));
+        String otp;
+        do { // 충돌 방지
+            otp = buildNumericOtp(OTP_LENGTH);
+        } while (store.containsKey(otp));
+
+        store.put(otp, new OtpDto(identifier, Instant.now().plus(OTP_TTL)));
         return otp;
     }
 
-    public void validateOtp(String identifier, String code)
-            throws OtpNotFoundException, OtpExpiredException, OtpMismatchException {
+    public String validateAndResolveIdentifier(String code, String identifier)
+            throws OtpNotFoundException, OtpExpiredException {
 
-        OtpDto otpDto = store.get(identifier);
-        if (otpDto == null) {
-            throw new OtpNotFoundException("해당 OTP 를 찾을 수 없습니다.");
-        }
-        if (Instant.now().isAfter(otpDto.getExpiresAt())) {
-            store.remove(identifier);
+        OtpDto dto = store.get(code);
+        if (dto == null) throw new OtpNotFoundException("OTP 를 찾을 수 없습니다.");
+        if (Instant.now().isAfter(dto.getExpiresAt())) {
+            store.remove(code);
             throw new OtpExpiredException("OTP 유효시간이 만료되었습니다.");
         }
-        if (!otpDto.getCode().equals(code)) {
-            throw new OtpMismatchException("입력한 OTP 코드가 일치하지 않습니다.");
+        if (!dto.getIdentifier().equals(identifier)) {
+            store.remove(code);
+            throw new OtpMismatchException("OTP 요청 사용자가 아닙니다.");
         }
-        store.remove(identifier);
+        store.remove(code);
+        return dto.getIdentifier();
     }
 
     private String buildNumericOtp(int length) {
