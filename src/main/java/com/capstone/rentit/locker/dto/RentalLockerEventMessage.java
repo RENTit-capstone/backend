@@ -6,6 +6,5 @@ public record RentalLockerEventMessage(
         Long lockerId,
         Long rentalId,
         Long memberId,
-        String imageKey,
         RentalLockerEventType type
 ) { }
