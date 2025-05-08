@@ -75,9 +75,6 @@ public class Rental {
     @Column(name = "locker_id")
     private Long lockerId;
 
-    @Column(name = "payment_id")
-    private Long paymentId;
-
     @Column(name = "return_image_url")
     private String returnImageUrl; //image object key
 
