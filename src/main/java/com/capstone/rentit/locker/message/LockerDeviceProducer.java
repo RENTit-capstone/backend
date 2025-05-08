@@ -26,8 +26,8 @@ public class LockerDeviceProducer {
     private final ObjectMapper   mapper;
 
     /* ---------- 공용 send ---------- */
-    private void send(Long lockerId, String suffix, Object payload) {
-        String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + lockerId + "/" + suffix;
+    private void send(Long deviceId, String suffix, Object payload) {
+        String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/" + suffix;
 
         // JSON 으로 변환
         String json;
@@ -40,34 +40,30 @@ public class LockerDeviceProducer {
         mqttOutboundChannel.send(
                 MessageBuilder.withPayload(json)
                         .setHeader(MqttHeaders.TOPIC, topic)
-                        .setHeader(MqttHeaders.QOS, 1)
                         .build()
         );
     }
 
     /* ---------- 비즈니스 메서드 ---------- */
 
-    public void pushEligibleRentals(Long lockerId,
+    public void pushEligibleRentals(Long deviceId,
                                     RentalLockerAction action,
                                     List<RentalBriefResponseForLocker> responses) {
-        send(lockerId, "eligible",
-                new EligibleRentalsEvent(lockerId, action, responses));
+        send(deviceId, "eligible", new EligibleRentalsEvent(deviceId, action, responses));
     }
 
-    public void pushAvailableLockers(Long lockerId,
+    public void pushAvailableLockers(Long deviceId,
                                      Long rentalId,
-                                     List<LockerDto> lockers) {
-        send(lockerId, "available",
-                new AvailableLockersEvent(lockerId, rentalId, lockers));
+                                     List<LockerBriefResponse> lockers) {
+        send(deviceId, "available", new AvailableLockersEvent(deviceId, rentalId, lockers));
     }
 
-    public void pushResult(Long lockerId,
+    public void pushResult(Long deviceId,
+                           Long lockerId,
                            Long rentalId,
                            boolean success,
                            String error) {
-        send(lockerId, "result",
-                new LockerActionResultEvent(lockerId, rentalId,
-                        success, success ? "" : error));
+        send(deviceId, "result", new LockerActionResultEvent(deviceId, lockerId, rentalId, success, success ? "" : error));
     }
 
     /* ---------- util ---------- */
