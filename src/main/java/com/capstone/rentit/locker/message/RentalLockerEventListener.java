@@ -1,39 +1,69 @@
 package com.capstone.rentit.locker.message;
 
-import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.locker.dto.RentalLockerEventMessage;
 import com.capstone.rentit.rental.service.RentalService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.mqtt.support.MqttHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
+/**
+ * MQTT Listener : 단말이 문을 닫은 뒤 보내는 RentalLockerEventMessage 수신
+ *  topic 예)  locker/event   또는  locker/event/{something}
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RentalLockerEventListener {
 
-    private final RentalService rentalService;
-    private final LockerDeviceProducer producer;
-    private final FileStorageService fileStorage;
+    private final ObjectMapper          mapper;
+    private final RentalService         rentalService;
+    private final LockerDeviceProducer  producer;
 
-    @RabbitListener(queues = "rental.locker.queue") // 기존 큐
-    public void consume(RentalLockerEventMessage message) {
-        log.info("RentalLockerEvent ▶ {}", message);
+    /** LockerMessagingConfig 에서 mqttInboundChannel = 단말→서버 모든 구독 */
+    @ServiceActivator(inputChannel = "mqttInboundChannel")
+    public void consume(Message<byte[]> mqttMsg) throws Exception {
+
+        MessageHeaders headers = mqttMsg.getHeaders();
+        String topic = headers.get(MqttHeaders.RECEIVED_TOPIC, String.class);
+
+        // event 토픽만 처리
+        if (!topic.startsWith("locker/event")) {
+            return;                 // 다른 메시지는 무시
+        }
+
+        RentalLockerEventMessage msg =
+                mapper.readValue(mqttMsg.getPayload(), RentalLockerEventMessage.class);
+
+        log.info("RentalLockerEvent ▶ {}", msg);
+
+        /* 라우팅용 deviceId (PICK_UP/RETRIEVE 시 이미 null 일 수 있음) */
+        Long routingLockerId =
+                msg.lockerId() != null
+                        ? msg.lockerId()
+                        : rentalService.getLockerIdOfRental(msg.rentalId());
 
         boolean ok  = false;
         String  err = null;
 
         try {
-            switch (message.type()) {
+            switch (msg.type()) {
                 case DROP_OFF_BY_OWNER ->
-                        rentalService.dropOffToLocker(message.rentalId(), message.memberId(), message.lockerId());
+                        rentalService.dropOffToLocker(
+                                msg.rentalId(), msg.memberId(), msg.lockerId());
                 case PICK_UP_BY_RENTER ->
-                        rentalService.pickUpByRenter(message.rentalId(), message.memberId());
+                        rentalService.pickUpByRenter(
+                                msg.rentalId(), msg.memberId());
                 case RETURN_TO_LOCKER ->
-                        rentalService.returnToLocker(message.rentalId(), message.memberId(), message.lockerId(), null);
+                        rentalService.returnToLocker(
+                                msg.rentalId(), msg.memberId(), msg.lockerId(), null);
                 case RETRIEVE_BY_OWNER ->
-                        rentalService.retrieveByOwner(message.rentalId(), message.memberId());
+                        rentalService.retrieveByOwner(
+                                msg.rentalId(), msg.memberId());
             }
             ok = true;
         } catch (Exception e) {
@@ -41,6 +71,7 @@ public class RentalLockerEventListener {
             err = e.getMessage();
         }
 
-        producer.pushResult(message.lockerId(), message.rentalId(), ok, err);
+        /* 성공 / 실패 결과 MQTT push */
+        producer.pushResult(routingLockerId, msg.rentalId(), ok, err);
     }
 }
