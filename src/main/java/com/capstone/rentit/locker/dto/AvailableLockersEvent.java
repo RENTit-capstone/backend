@@ -3,7 +3,7 @@ package com.capstone.rentit.locker.dto;
 import java.util.List;
 
 public record AvailableLockersEvent(
-        Long lockerId,
+        Long deviceId,
         Long rentalId,
-        List<LockerDto> lockers
+        List<LockerBriefResponse> lockers
 ) implements LockerDeviceEvent { }
