@@ -41,12 +41,6 @@ public class RentalLockerEventListener {
 
         log.info("RentalLockerEvent ▶ {}", msg);
 
-        /* 라우팅용 deviceId (PICK_UP/RETRIEVE 시 이미 null 일 수 있음) */
-        Long routingLockerId =
-                msg.lockerId() != null
-                        ? msg.lockerId()
-                        : rentalService.getLockerIdOfRental(msg.rentalId());
-
         boolean ok  = false;
         String  err = null;
 
@@ -72,6 +66,6 @@ public class RentalLockerEventListener {
         }
 
         /* 성공 / 실패 결과 MQTT push */
-        producer.pushResult(routingLockerId, msg.rentalId(), ok, err);
+        producer.pushResult(msg.deviceId(), msg.lockerId(), msg.rentalId(), ok, err);
     }
 }

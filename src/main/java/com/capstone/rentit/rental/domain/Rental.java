@@ -131,12 +131,14 @@ public class Rental {
     }
 
     /** 사물함 ID 를 갱신 */
-    public void assignLocker(Long lockerId) {
+    public void assignLocker(Long deviceId, Long lockerId) {
+        this.deviceId = deviceId;
         this.lockerId = lockerId;
     }
 
     /** 사물함 회수 */
     public void clearLocker() {
+        this.deviceId = null;
         this.lockerId = null;
     }
 
