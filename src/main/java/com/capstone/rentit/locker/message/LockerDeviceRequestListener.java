@@ -88,8 +88,11 @@ public class LockerDeviceRequestListener {
         log.info("send end");
     }
 
+
     private void sendAvailable(LockerDeviceRequest r) {
-        List<LockerDto> lockers = lockerService.findAvailableLockers(r.university());
+        // 단일 키오스크의 빈 칸만 물어보므로 deviceId, university 모두 조건에 사용
+        List<LockerBriefResponse> lockers =
+                lockerService.findAvailableLockers(r.deviceId(), r.university());
         producer.pushAvailableLockers(r.deviceId(), r.rentalId(), lockers);
     }
 }
