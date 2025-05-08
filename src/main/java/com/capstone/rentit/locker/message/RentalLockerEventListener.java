@@ -48,13 +48,13 @@ public class RentalLockerEventListener {
             switch (msg.type()) {
                 case DROP_OFF_BY_OWNER ->
                         rentalService.dropOffToLocker(
-                                msg.rentalId(), msg.memberId(), msg.lockerId());
+                                msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId());
                 case PICK_UP_BY_RENTER ->
                         rentalService.pickUpByRenter(
                                 msg.rentalId(), msg.memberId());
                 case RETURN_TO_LOCKER ->
                         rentalService.returnToLocker(
-                                msg.rentalId(), msg.memberId(), msg.lockerId(), null);
+                                msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId(), null);
                 case RETRIEVE_BY_OWNER ->
                         rentalService.retrieveByOwner(
                                 msg.rentalId(), msg.memberId());
