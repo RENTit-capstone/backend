@@ -1,6 +1,7 @@
 package com.capstone.rentit.locker.service;
 
 import com.capstone.rentit.locker.domain.Locker;
+import com.capstone.rentit.locker.dto.LockerBriefResponse;
 import com.capstone.rentit.locker.dto.LockerCreateForm;
 import com.capstone.rentit.locker.dto.LockerDto;
 import com.capstone.rentit.locker.dto.LockerSearchForm;
@@ -19,7 +20,11 @@ public class LockerService {
     private final LockerRepository lockerRepository;
 
     public Long registerLocker(LockerCreateForm form) {
-        return lockerRepository.save(Locker.createLocker(form)).getLockerId();
+        Long maxId = lockerRepository.findMaxLockerIdByDeviceId(form.getDeviceId())
+                .orElse(0L);
+        Long nextId = maxId + 1;
+
+        return lockerRepository.save(Locker.createLocker(form, nextId)).getLockerId();
     }
 
     @Transactional(readOnly = true)
@@ -34,10 +39,12 @@ public class LockerService {
     }
 
     @Transactional(readOnly = true)
-    public List<LockerDto> findAvailableLockers(String university) {
-        LockerSearchForm form = new LockerSearchForm(university, true);
+    public List<LockerBriefResponse> findAvailableLockers(Long deviceId, String university) {
+        LockerSearchForm form = new LockerSearchForm(deviceId, university, true);
         List<Locker> list = lockerRepository.search(form);
-        return list.stream().map(LockerDto::fromEntity).toList();
+        return list.stream()
+                .map(l -> new LockerBriefResponse(l.getDeviceId(), l.getLockerId(), l.isAvailable()))
+                .toList();
     }
 
     private Locker findLocker(Long id) {
