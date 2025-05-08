@@ -20,6 +20,7 @@ public class ItemSearchResponse {
     private String name;
     private List<String> imageUrls;
     private String description;
+    private String damagedDescription;
     private Integer price;
     private ItemStatusEnum status;
     private String damagedPolicy;
@@ -36,6 +37,7 @@ public class ItemSearchResponse {
                 .name(item.getName())
                 .imageUrls(imageUrls)
                 .description(item.getDescription())
+                .damagedDescription(item.getDamagedDescription())
                 .price(item.getPrice())
                 .status(item.getStatus())
                 .damagedPolicy(item.getDamagedPolicy())

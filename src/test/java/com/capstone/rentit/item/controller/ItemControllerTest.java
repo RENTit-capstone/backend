@@ -148,6 +148,7 @@ class ItemControllerTest {
         ItemSearchResponse dto = ItemSearchResponse.builder()
                 .itemId(1L).owner(owner).name("One")
                 .description("desc").price(1000)
+                .damagedDescription("물품 하자 정보 1")
                 .imageUrls(List.of("url1", "url2"))
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("dp").returnPolicy("rp")
@@ -159,6 +160,7 @@ class ItemControllerTest {
         ItemSearchResponse dto2 = ItemSearchResponse.builder()
                 .itemId(2L).owner(owner2).name("Two")
                 .description("desc2").price(1000)
+                .damagedDescription("물품 하자 정보 2")
                 .imageUrls(List.of("url3", "url4"))
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("dp2").returnPolicy("rp2")
@@ -215,6 +217,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.content[].name").type(JsonFieldType.STRING).description("물품 이름"),
                                 fieldWithPath("data.content[].imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
                                 fieldWithPath("data.content[].description").type(JsonFieldType.STRING).description("상세 설명"),
+                                fieldWithPath("data.content[].damagedDescription").type(JsonFieldType.STRING).description("물품 하자 설명"),
                                 fieldWithPath("data.content[].price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.content[].status").type(JsonFieldType.STRING).description("물품 상태"),
                                 fieldWithPath("data.content[].damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
@@ -265,6 +268,7 @@ class ItemControllerTest {
                         .nickname("owner").university("univ").build())
                 .name("Single")
                 .description("desc").price(1000)
+                .damagedDescription("물품 하자 정보")
                 .imageUrls(List.of("urlA"))
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("dp").returnPolicy("rp")
@@ -292,6 +296,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
                                 fieldWithPath("data.imageUrls[]").type(JsonFieldType.ARRAY).description("물품 이미지 URL 리스트"),
                                 fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
+                                fieldWithPath("data.damagedDescription").type(JsonFieldType.STRING).description("물품 하자 설명"),
                                 fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("data.status").type(JsonFieldType.STRING).description("상태"),
                                 fieldWithPath("data.damagedPolicy").type(JsonFieldType.STRING).description("파손정책"),
