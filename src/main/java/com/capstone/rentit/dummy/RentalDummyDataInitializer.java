@@ -10,6 +10,7 @@ import com.capstone.rentit.rental.status.RentalStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
+@Order(3)
 public class RentalDummyDataInitializer implements ApplicationRunner {
 
     private final RentalRepository rentalRepository;
