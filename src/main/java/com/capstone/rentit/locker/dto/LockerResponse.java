@@ -16,7 +16,7 @@ public class LockerResponse {
     Long lockerId;
     boolean available;
     LocalDateTime activatedAt;
-    Device device;
+    DeviceResponse device;
 
     public static LockerResponse fromEntity(Locker entity){
         return LockerResponse.builder()
@@ -24,7 +24,7 @@ public class LockerResponse {
                 .lockerId(entity.getLockerId())
                 .available(entity.isAvailable())
                 .activatedAt(entity.getActivatedAt())
-                .device(entity.getDevice())
+                .device(DeviceResponse.fromEntity(entity.getDevice()))
                 .build();
     }
 }
