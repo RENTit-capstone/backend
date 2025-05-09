@@ -83,53 +83,6 @@ public class RentalController {
         return CommonResponse.success(null);
     }
 
-    /** 7) 소유자가 사물함에 물건 맡기기 */
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/rentals/{rentalId}/dropoff")
-    public CommonResponse<Void> dropOff(
-            @PathVariable("rentalId") Long rentalId,
-            @Login MemberDto loginMember,
-            @RequestParam("lockerId") Long lockerId
-            ) {
-        rentalService.dropOffToLocker(rentalId, loginMember.getMemberId(), lockerId);
-        return CommonResponse.success(null);
-    }
-
-    /** 8) 대여자가 사물함에서 픽업 */
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/rentals/{rentalId}/pickup")
-    public CommonResponse<Void> pickUpByRenter(
-            @PathVariable("rentalId") Long rentalId,
-            @Login MemberDto loginMember
-    ) {
-        rentalService.pickUpByRenter(rentalId, loginMember.getMemberId());
-        return CommonResponse.success(null);
-    }
-
-    /** 9) 대여자가 사물함에 반납 */
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/rentals/{rentalId}/return")
-    public CommonResponse<Void> returnToLocker(
-            @PathVariable("rentalId") Long rentalId,
-            @Login MemberDto loginMember,
-            @RequestParam("lockerId") Long lockerId,
-            @RequestPart("returnImage") MultipartFile returnImage
-    ) {
-        rentalService.returnToLocker(rentalId, loginMember.getMemberId(), lockerId, returnImage);
-        return CommonResponse.success(null);
-    }
-
-    /** 10) 소유자가 사물함에서 회수 (대여 완료) */
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/rentals/{rentalId}/retrieve")
-    public CommonResponse<Void> retrieveByOwner(
-            @PathVariable("rentalId") Long rentalId,
-            @Login MemberDto loginMember
-    ) {
-        rentalService.retrieveByOwner(rentalId, loginMember.getMemberId());
-        return CommonResponse.success(null);
-    }
-
     /** 관리자용: 특정 사용자 대여 목록 조회 */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/rentals/{userId}")

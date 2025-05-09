@@ -314,51 +314,6 @@ include::{snippets}/cancel-rental/http-request.adoc[]
 ==== 응답 필드
 include::{snippets}/cancel-rental/response-fields.adoc[]
 
-=== 물품 맡기기
-POST /api/v1/rentals/{id}/dropoff
-
-==== 쿼리 파라미터
-include::{snippets}/dropoff-rental/query-parameters.adoc[]
-
-==== HTTP 요청
-include::{snippets}/dropoff-rental/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/dropoff-rental/response-fields.adoc[]
-
-=== 픽업
-POST /api/v1/rentals/{id}/pickup
-
-==== HTTP 요청
-include::{snippets}/pickup-rental/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/pickup-rental/response-fields.adoc[]
-
-=== 반납
-POST /api/v1/rentals/{id}/return
-
-==== 쿼리 파라미터
-include::{snippets}/return-rental/query-parameters.adoc[]
-
-==== 요청 파트
-include::{snippets}/return-rental/request-parts.adoc[]
-
-==== HTTP 요청
-include::{snippets}/return-rental/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/return-rental/response-fields.adoc[]
-
-=== 회수
-POST /api/v1/rentals/{id}/retrieve
-
-==== HTTP 요청
-include::{snippets}/retrieve-rental/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/retrieve-rental/response-fields.adoc[]
-
 === 사용자별 대여 목록 조회
 GET /api/v1/admin/rentals/{userId}
 
