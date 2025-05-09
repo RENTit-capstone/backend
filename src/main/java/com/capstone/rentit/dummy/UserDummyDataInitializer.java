@@ -32,7 +32,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
         }
 
         final int STUDENT_COUNT = 5;
-        final int COMPANY_COUNT = 3;
+        final int COMPANY_COUNT = 2;
         final int COUNCIL_COUNT = 2;
 
         LocalDate today = LocalDate.now();

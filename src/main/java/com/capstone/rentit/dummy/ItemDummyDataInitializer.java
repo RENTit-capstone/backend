@@ -62,7 +62,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                 "4K 출력 지원으로 프레젠테이션에 최적화된 케이블."
         };
 
-        final int ITEMS_PER_MEMBER = 5;
+        final int ITEMS_PER_MEMBER = 3;
         LocalDateTime now = LocalDateTime.now();
 
         for (Member owner : owners) {

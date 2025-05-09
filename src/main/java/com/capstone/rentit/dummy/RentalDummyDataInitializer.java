@@ -42,12 +42,7 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
             return;
         }
 
-        /* ----------------------------------------------------------
-           생성 규칙
-           • 각 Item 마다 3개의 Rental 을 만든다
-           • renter 는 owner 와 다른 Member 중 무작위
-        ---------------------------------------------------------- */
-        final int RENTALS_PER_ITEM = 3;
+        final int RENTALS_PER_ITEM = 2;
         LocalDateTime now = LocalDateTime.now();
 
         for (Item item : items) {
