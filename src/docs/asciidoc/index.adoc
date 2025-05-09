@@ -337,6 +337,36 @@ include::{snippets}/otp-request/response-fields.adoc[]
 include::{snippets}/otp-request/http-response.adoc[]
 
 == 사물함 관련 API
+=== 키오스크 생성
+POST /api/v1/admin/devices
+
+==== 요청 필드
+include::{snippets}/admin-register-device/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/admin-register-device/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/admin-register-device/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/admin-register-device/http-response.adoc[]
+
+=== 키오스크 조회
+GET /api/v1/admin/devices
+
+==== 쿼리 파라미터
+include::{snippets}/admin-list-devices/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/admin-list-devices/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/admin-list-devices/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/admin-list-devices/http-response.adoc[]
+
 === 사물함 생성
 POST /api/v1/admin/lockers
 
@@ -366,18 +396,3 @@ include::{snippets}/admin-list-lockers/response-fields.adoc[]
 
 ==== HTTP 응답
 include::{snippets}/admin-list-lockers/http-response.adoc[]
-
-=== 사물함 개별 조회
-GET /api/v1/admin/lockers/{lockerId}
-
-==== path 파라미터
-include::{snippets}/admin-get-locker/path-parameters.adoc[]
-
-==== HTTP 요청
-include::{snippets}/admin-get-locker/http-request.adoc[]
-
-==== 응답 필드
-include::{snippets}/admin-get-locker/response-fields.adoc[]
-
-==== HTTP 응답
-include::{snippets}/admin-get-locker/http-response.adoc[]
