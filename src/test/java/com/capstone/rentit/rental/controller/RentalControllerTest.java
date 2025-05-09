@@ -116,7 +116,7 @@ class RentalControllerTest {
                 .startDate(LocalDateTime.now().plusDays(1))
                 .dueDate(LocalDateTime.now().plusDays(7))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -176,7 +176,6 @@ class RentalControllerTest {
                                 fieldWithPath("data.content[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data.content[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data.content[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data.content[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data.content[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열"),
 
@@ -229,7 +228,7 @@ class RentalControllerTest {
                 .startDate(LocalDateTime.now().plusDays(2))
                 .dueDate(LocalDateTime.now().plusDays(8))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -260,7 +259,6 @@ class RentalControllerTest {
                                 fieldWithPath("data.returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data.retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data.lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data.paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data.returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
@@ -356,7 +354,7 @@ class RentalControllerTest {
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -365,7 +363,7 @@ class RentalControllerTest {
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -396,7 +394,6 @@ class RentalControllerTest {
                                 fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
