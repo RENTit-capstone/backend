@@ -30,7 +30,6 @@ public class RentalDto {
     private LocalDateTime retrievedAt;  // 소유자 → 사물함에서 회수
 
     private Long lockerId;
-    private Long paymentId;
 
     private String returnImageUrl; //pre-signed Url
 
@@ -51,7 +50,6 @@ public class RentalDto {
                 .returnedAt(r.getReturnedAt())
                 .retrievedAt(r.getRetrievedAt())
                 .lockerId(r.getLockerId())
-                .paymentId(r.getPaymentId())
                 .returnImageUrl(presignedUrl)
                 .build();
     }
