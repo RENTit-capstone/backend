@@ -1,152 +1,131 @@
 package com.capstone.rentit.locker.message;
 
+import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.config.LockerMessagingConfig;
-import com.capstone.rentit.locker.dto.AvailableLockersEvent;
-import com.capstone.rentit.locker.dto.EligibleRentalsEvent;
-import com.capstone.rentit.locker.dto.LockerActionResultEvent;
-import com.capstone.rentit.locker.dto.LockerDto;
-import com.capstone.rentit.locker.event.RentalLockerAction;
-import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.integration.mqtt.support.MqttHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LockerDeviceProducerTest {
 
-    @Mock  RabbitTemplate rabbit;
-    @InjectMocks LockerDeviceProducer producer;
+    @Mock MessageChannel mqttOutboundChannel;
+    ObjectMapper mapper;
+    LockerDeviceProducer producer;
 
-    /* ────────────────────────── 헬퍼 ────────────────────────── */
-
-    private <T> T capturePayload(String expectedKey, Class<T> type) {
-        // exchange 는 고정 상수이므로 바로 검증
-        ArgumentCaptor<String>   keyCaptor  = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Object>   msgCaptor  = ArgumentCaptor.forClass(Object.class);
-
-        verify(rabbit, times(1))
-                .convertAndSend(eq(LockerMessagingConfig.DEVICE_EX),
-                        keyCaptor.capture(),
-                        msgCaptor.capture());
-
-        assertThat(keyCaptor.getValue()).isEqualTo(expectedKey);
-        assertThat(msgCaptor.getValue()).isInstanceOf(type);
-        //noinspection unchecked
-        return (T) msgCaptor.getValue();
+    @BeforeEach
+    void setUp() {
+        mapper = new ObjectMapper();
+        producer = new LockerDeviceProducer(mqttOutboundChannel, mapper);
     }
 
-    /* ────────────────────────── 테스트 ───────────────────────── */
+    /**
+     * 공통 JSON payload 캡처 헬퍼
+     */
+    private String captureJson(String expectedTopic) {
+        ArgumentCaptor<Message<?>> captor = ArgumentCaptor.forClass(Message.class);
+        verify(mqttOutboundChannel).send(captor.capture());
+        verifyNoMoreInteractions(mqttOutboundChannel);
 
-    @Nested
-    @DisplayName("pushEligibleRentals()")
-    class Eligible {
+        Message<?> msg = captor.getValue();
+        assertThat(msg.getHeaders().get(MqttHeaders.TOPIC))
+                .isEqualTo(expectedTopic);
 
-        @Test @DisplayName("정상 메시지 발행")
-        void pushEligibleRentals_success() {
-            // given
-            long lockerId = 11L;
-            var rentals = List.of(mock(RentalBriefResponseForLocker.class));
-
-            // when
-            producer.pushEligibleRentals(lockerId,
-                    RentalLockerAction.DROP_OFF_BY_OWNER,
-                    rentals);
-
-            // then
-            String rk = "locker." + lockerId + ".eligible";
-            var event = capturePayload(rk, EligibleRentalsEvent.class);
-
-            assertThat(event.lockerId()).isEqualTo(lockerId);
-            assertThat(event.action()).isEqualTo(RentalLockerAction.DROP_OFF_BY_OWNER);
-            assertThat(event.rentals()).isEqualTo(rentals);
-        }
+        Object payload = msg.getPayload();
+        assertThat(payload).isInstanceOf(String.class);
+        return (String) payload;
     }
 
     @Nested
-    @DisplayName("pushAvailableLockers()")
-    class Available {
-
+    @DisplayName("pushEligibleRentals")
+    class PushEligible {
         @Test
-        @DisplayName("정상 호출 시 라우팅키·페이로드가 올바르게 전송된다")
-        void pushAvailableLockers_success() {
-            // given
-            long lockerId = 11L;
-            long rentalId = 22L;
-            List<LockerDto> lockers = List.of(mock(LockerDto.class));
+        @DisplayName("정상 전송 시 CommonResponse가 JSON으로 전송된다")
+        void pushEligibleRentals_success() {
+            long deviceId = 1L;
+            CommonResponse<String> response = CommonResponse.success("hello");
 
-            // when
-            producer.pushAvailableLockers(lockerId, rentalId, lockers);
+            producer.pushEligibleRentals(deviceId, response);
 
-            // then
-            ArgumentCaptor<String> routingKeyCap = ArgumentCaptor.forClass(String.class);
-            ArgumentCaptor<AvailableLockersEvent> payloadCap =
-                    ArgumentCaptor.forClass(AvailableLockersEvent.class);
+            String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/eligible";
+            String json = captureJson(topic);
 
-            verify(rabbit).convertAndSend(
-                    eq(LockerMessagingConfig.DEVICE_EX),
-                    routingKeyCap.capture(),
-                    payloadCap.capture()
-            );
-            verifyNoMoreInteractions(rabbit);
-
-            /* 라우팅키 검증 */
-            assertThat(routingKeyCap.getValue())
-                    .isEqualTo("locker." + lockerId + ".available");
-
-            /* 페이로드 검증 */
-            AvailableLockersEvent event = payloadCap.getValue();
-            assertThat(event.lockerId()).isEqualTo(lockerId);
-            assertThat(event.rentalId()).isEqualTo(rentalId);
-            assertThat(event.lockers()).isEqualTo(lockers);
+            assertThat(json).contains("\"data\":\"hello\"");
+            assertThat(json).contains("\"success\":true");
         }
     }
 
     @Nested
-    @DisplayName("pushResult()")
-    class Result {
+    @DisplayName("pushAvailableLockers")
+    class PushAvailable {
+        @Test
+        @DisplayName("정상 전송 시 리스트 형태의 데이터가 JSON으로 전송된다")
+        void pushAvailableLockers_success() {
+            long deviceId = 2L;
+            List<String> list = List.of("A", "B");
+            CommonResponse<List<String>> response = CommonResponse.success(list);
 
-        @Test @DisplayName("성공 결과 메시지")
-        void pushResult_success() {
-            // given
-            long lockerId = 33L;
-            long rentalId = 99L;
+            producer.pushAvailableLockers(deviceId, response);
 
-            // when
-            producer.pushResult(lockerId, rentalId, true, "ignored");
+            String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/available";
+            String json = captureJson(topic);
 
-            // then
-            String rk = "locker." + lockerId + ".result";
-            var event = capturePayload(rk, LockerActionResultEvent.class);
-
-            assertThat(event.success()).isTrue();
-            assertThat(event.message()).isEmpty();
+            assertThat(json).contains("\"data\":[\"A\",\"B\"]");
+            assertThat(json).contains("\"success\":true");
         }
+    }
 
-        @Test @DisplayName("실패 결과 메시지")
-        void pushResult_failure() {
-            // given
-            long lockerId = 33L;
-            long rentalId = 99L;
-            String error  = "LOCKER_BUSY";
+    @Nested
+    @DisplayName("pushResult")
+    class PushResult {
+        @Test
+        @DisplayName("정상 전송 시 null 데이터도 올바르게 JSON으로 전송된다")
+        void pushResult_successWithNullData() {
+            long deviceId = 3L;
+            CommonResponse<Void> response = CommonResponse.success(null);
 
-            // when
-            producer.pushResult(lockerId, rentalId, false, error);
+            producer.pushResult(deviceId, response);
 
-            // then
-            String rk = "locker." + lockerId + ".result";
-            var event = capturePayload(rk, LockerActionResultEvent.class);
+            String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/result";
+            String json = captureJson(topic);
 
-            assertThat(event.success()).isFalse();
-            assertThat(event.message()).isEqualTo(error);
+            assertThat(json).contains("\"data\":null");
+            assertThat(json).contains("\"success\":true");
+        }
+    }
+
+    @Nested
+    @DisplayName("JSON 직렬화 실패")
+    class SerializationFailure {
+        @Test
+        @DisplayName("mapper.writeValueAsString 오류 시 IllegalStateException 발생 및 채널 전송 없음")
+        void throwsIllegalStateOnSerializationError() throws Exception {
+            ObjectMapper badMapper = mock(ObjectMapper.class);
+            when(badMapper.writeValueAsString(any()))
+                    .thenThrow(JsonProcessingException.class);
+            producer = new LockerDeviceProducer(mqttOutboundChannel, badMapper);
+            CommonResponse<String> response = CommonResponse.success("fail");
+
+            assertThatThrownBy(() -> producer.pushEligibleRentals(1L, response))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("페이로드 직렬화 실패");
+
+            verifyNoInteractions(mqttOutboundChannel);
         }
     }
 }
