@@ -39,8 +39,8 @@ public class LockerService {
     }
 
     @Transactional(readOnly = true)
-    public List<LockerBriefResponse> findAvailableLockers(Long deviceId, String university) {
-        LockerSearchForm form = new LockerSearchForm(deviceId, university, true);
+    public List<LockerBriefResponse> findAvailableLockers(Long deviceId) {
+        LockerSearchForm form = new LockerSearchForm(deviceId, true);
         List<Locker> list = lockerRepository.search(form);
         return list.stream()
                 .map(l -> new LockerBriefResponse(l.getDeviceId(), l.getLockerId(), l.isAvailable()))
