@@ -30,7 +30,7 @@ public class OtpService {
         return otp;
     }
 
-    public String validateAndResolveIdentifier(String code, String identifier)
+    public String validateAndResolveIdentifier(String code)
             throws OtpNotFoundException, OtpExpiredException {
 
         OtpDto dto = store.get(code);
@@ -38,10 +38,6 @@ public class OtpService {
         if (Instant.now().isAfter(dto.getExpiresAt())) {
             store.remove(code);
             throw new OtpExpiredException("OTP 유효시간이 만료되었습니다.");
-        }
-        if (!dto.getIdentifier().equals(identifier)) {
-            store.remove(code);
-            throw new OtpMismatchException("OTP 요청 사용자가 아닙니다.");
         }
         store.remove(code);
         return dto.getIdentifier();

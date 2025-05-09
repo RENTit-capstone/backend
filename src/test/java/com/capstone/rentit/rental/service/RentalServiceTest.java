@@ -330,7 +330,7 @@ class RentalServiceTest {
     @DisplayName("dropOffToLocker: 대여 없으면 RentalNotFoundException")
     void dropOff_notFound() {
         given(rentalRepository.findById(9L)).willReturn(Optional.empty());
-        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,10L,111L))
+        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,10L,111L, 1L))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -341,11 +341,12 @@ class RentalServiceTest {
         Rental r = Rental.builder().rentalId(9L).ownerId(10L).build();
         given(rentalRepository.findById(9L)).willReturn(Optional.of(r));
 
-        rentalService.dropOffToLocker(9L,10L,555L);
-        assertThat(r.getLockerId()).isEqualTo(555L);
+        rentalService.dropOffToLocker(9L,10L,555L, 2L);
+        assertThat(r.getDeviceId()).isEqualTo(555L);
+        assertThat(r.getLockerId()).isEqualTo(2L);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.LEFT_IN_LOCKER);
 
-        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,999L,123L))
+        assertThatThrownBy(() -> rentalService.dropOffToLocker(9L,999L,123L, 3L))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 소유자가 아닙니다.");
     }
@@ -365,7 +366,7 @@ class RentalServiceTest {
     @DisplayName("pickUpByRenter: 대여자만, lockerId 클리어 및 상태 PICKED_UP")
     void pickUp_success() {
         Rental r = Rental.builder().rentalId(11L).renterId(20L).build();
-        r.assignLocker(777L);
+        r.assignLocker(777L, 4L);
         given(rentalRepository.findById(11L)).willReturn(Optional.of(r));
 
         rentalService.pickUpByRenter(11L,20L);
@@ -385,7 +386,7 @@ class RentalServiceTest {
         given(rentalRepository.findById(13L)).willReturn(Optional.empty());
         MockMultipartFile file = new MockMultipartFile(
                 "f","f.jpg",MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L,file))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L, 5L, file))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -399,15 +400,16 @@ class RentalServiceTest {
                 "img","img.jpg",MediaType.IMAGE_JPEG_VALUE,"data".getBytes());
         given(fileStorageService.store(file)).willReturn("stored-key");
 
-        rentalService.returnToLocker(13L,20L,444L,file);
+        rentalService.returnToLocker(13L,20L,444L, 6L, file);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
-        assertThat(r.getLockerId()).isEqualTo(444L);
+        assertThat(r.getDeviceId()).isEqualTo(444L);
+        assertThat(r.getLockerId()).isEqualTo(6L);
         assertThat(r.getReturnImageUrl()).isEqualTo("stored-key");
 
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L,file))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L, 7L, file))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 대여자가 아닙니다.");
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L,null))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L, 8L,null))
                 .isInstanceOf(ReturnImageMissingException.class)
                 .hasMessageContaining("물품 반납 사진이 없습니다.");
     }

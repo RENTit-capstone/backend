@@ -1,9 +1,10 @@
 package com.capstone.rentit.locker.service;
 
+import com.capstone.rentit.locker.domain.Device;
 import com.capstone.rentit.locker.domain.Locker;
-import com.capstone.rentit.locker.dto.LockerCreateForm;
-import com.capstone.rentit.locker.dto.LockerDto;
-import com.capstone.rentit.locker.dto.LockerSearchForm;
+import com.capstone.rentit.locker.dto.*;
+import com.capstone.rentit.locker.exception.LockerNotFoundException;
+import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.locker.repository.LockerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,32 +17,39 @@ import java.util.List;
 @Transactional
 public class LockerService {
 
+    private final DeviceRepository deviceRepository;
     private final LockerRepository lockerRepository;
 
+    public Long registerDevice(DeviceCreateForm form) {
+        return deviceRepository.save(Device.createDevice(form)).getDeviceId();
+    }
+
     public Long registerLocker(LockerCreateForm form) {
-        return lockerRepository.save(Locker.createLocker(form)).getLockerId();
+        Long maxId = lockerRepository.findMaxLockerIdByDeviceId(form.getDeviceId())
+                .orElse(0L);
+        Long nextId = maxId + 1;
+
+        return lockerRepository.save(Locker.createLocker(form, nextId)).getLockerId();
     }
 
     @Transactional(readOnly = true)
-    public LockerDto getLocker(Long id) {
-        return LockerDto.fromEntity(findLocker(id));
+    public List<DeviceResponse> searchDevicesByUniversity(DeviceSearchForm form) {
+        return deviceRepository.findByUniversity(form.getUniversity())
+                .stream().map(DeviceResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<LockerDto> searchLockers(LockerSearchForm form) {
+    public List<LockerResponse> searchLockers(LockerSearchForm form) {
         return lockerRepository.search(form)
-                .stream().map(LockerDto::fromEntity).toList();
+                .stream().map(LockerResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<LockerDto> findAvailableLockers(String university) {
-        LockerSearchForm form = new LockerSearchForm(university, true);
+    public List<LockerBriefResponse> findAvailableLockers(Long deviceId) {
+        LockerSearchForm form = new LockerSearchForm(deviceId, true);
         List<Locker> list = lockerRepository.search(form);
-        return list.stream().map(LockerDto::fromEntity).toList();
-    }
-
-    private Locker findLocker(Long id) {
-        return lockerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("사물함이 존재하지 않습니다. id=" + id));
+        return list.stream()
+                .map(l -> new LockerBriefResponse(l.getDeviceId(), l.getLockerId(), l.isAvailable()))
+                .toList();
     }
 }

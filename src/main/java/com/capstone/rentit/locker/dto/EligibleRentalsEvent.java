@@ -6,7 +6,7 @@ import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
 import java.util.List;
 
 public record EligibleRentalsEvent(
-        Long lockerId,
+        Long deviceId,
         RentalLockerAction action,
         List<RentalBriefResponseForLocker> rentals
 ) implements LockerDeviceEvent { }

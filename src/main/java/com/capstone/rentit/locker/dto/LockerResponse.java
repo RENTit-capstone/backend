@@ -1,5 +1,6 @@
 package com.capstone.rentit.locker.dto;
 
+import com.capstone.rentit.locker.domain.Device;
 import com.capstone.rentit.locker.domain.Locker;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,20 +11,20 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class LockerDto {
-    Long   lockerId;
+public class LockerResponse {
+    Long deviceId;
+    Long lockerId;
     boolean available;
-    String university;
-    String locationDescription;
     LocalDateTime activatedAt;
+    DeviceResponse device;
 
-    public static LockerDto fromEntity(Locker entity) {
-        return LockerDto.builder()
+    public static LockerResponse fromEntity(Locker entity){
+        return LockerResponse.builder()
+                .deviceId(entity.getDeviceId())
                 .lockerId(entity.getLockerId())
                 .available(entity.isAvailable())
-                .university(entity.getUniversity())
-                .locationDescription(entity.getLocationDescription())
                 .activatedAt(entity.getActivatedAt())
+                .device(DeviceResponse.fromEntity(entity.getDevice()))
                 .build();
     }
 }

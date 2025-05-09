@@ -111,11 +111,11 @@ public class RentalService {
     }
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
-    public void dropOffToLocker(Long rentalId, Long ownerId, Long lockerId) {
+    public void dropOffToLocker(Long rentalId, Long ownerId, Long deviceId, Long lockerId) {
         Rental r = findRental(rentalId);
         assertOwner(r, ownerId);
 
-        r.assignLocker(lockerId);
+        r.assignLocker(deviceId, lockerId);
         r.dropOffByOwner(LocalDateTime.now());
     }
 
@@ -129,11 +129,11 @@ public class RentalService {
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId, Long lockerId, MultipartFile returnImage) {
+    public void returnToLocker(Long rentalId, Long renterId, Long deviceId, Long lockerId, MultipartFile returnImage) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
 
-        r.assignLocker(lockerId);
+        r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
 
         assertReturnImage(returnImage);

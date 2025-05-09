@@ -1,91 +1,155 @@
 package com.capstone.rentit.locker.message;
 
-import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.locker.dto.LockerActionResultEvent;
 import com.capstone.rentit.locker.dto.RentalLockerEventMessage;
 import com.capstone.rentit.locker.event.RentalLockerEventType;
 import com.capstone.rentit.rental.service.RentalService;
-import org.junit.jupiter.api.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.integration.mqtt.support.MqttHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RentalLockerEventListenerTest {
 
-    @Mock RentalService rentalSvc;
-    @Mock LockerDeviceProducer producer;
-    @Mock FileStorageService fileStorage;   // 현재 로직에선 사용되지 않지만 의존성 주입 필요
+    @Mock
+    private RentalService rentalService;
+    @Mock
+    private LockerDeviceProducer producer;
 
-    RentalLockerEventListener listener;
+    private RentalLockerEventListener listener;
+    private ObjectMapper mapper;
 
     @BeforeEach
     void setUp() {
-        listener = new RentalLockerEventListener(rentalSvc, producer, fileStorage);
+        mapper = new ObjectMapper();
+        listener = new RentalLockerEventListener(mapper, rentalService, producer);
     }
 
-    /* ---------- 공통 메시지 헬퍼 ---------- */
-    private static RentalLockerEventMessage dummy(RentalLockerEventType type) {
-        return new RentalLockerEventMessage(
-                11L,   // lockerId
-                22L,   // rentalId
-                33L,   // memberId
-                type
-        );
+    /** Helper to build MQTT message with RECEIVED_TOPIC header */
+    private Message<byte[]> mqttMsg(RentalLockerEventMessage event, String topic) throws Exception {
+        byte[] payload = mapper.writeValueAsBytes(event);
+        return MessageBuilder.withPayload(payload)
+                .setHeader(MqttHeaders.RECEIVED_TOPIC, topic)
+                .build();
     }
 
     @Nested
-    @DisplayName("정상 처리 케이스")
-    class SuccessPath {
-
-        @ParameterizedTest(name = "{0} 성공")
-        @EnumSource(RentalLockerEventType.class)
-        void handle_success(RentalLockerEventType action) {
+    @DisplayName("Unknown topic")
+    class UnknownTopic {
+        @Test
+        @DisplayName("Topic not starting with 'locker/event' is ignored")
+        void shouldIgnoreNonEventTopic() throws Exception {
             // given
-            RentalLockerEventMessage msg = dummy(action);
+            var msg = new RentalLockerEventMessage(
+                    1L, // deviceId
+                    2L, // lockerId
+                    3L, // rentalId
+                    4L, // memberId
+                    RentalLockerEventType.DROP_OFF_BY_OWNER
+            );
+            Message<byte[]> mqtt = mqttMsg(msg, "locker/other/topic");
 
-            // 각 action별 rentService 호출 stubbing (void 메서드 → 아무 일도 안 함)
             // when
-            listener.consume(msg);
+            listener.consume(mqtt);
 
-            // then : rentService 의 해당 메서드 1번 호출 & 결과 push
-            switch (action) {
-                case DROP_OFF_BY_OWNER ->
-                        verify(rentalSvc).dropOffToLocker(msg.rentalId(), msg.memberId(), msg.lockerId());
-                case PICK_UP_BY_RENTER ->
-                        verify(rentalSvc).pickUpByRenter(msg.rentalId(), msg.memberId());
-                case RETURN_TO_LOCKER ->
-                        verify(rentalSvc).returnToLocker(msg.rentalId(), msg.memberId(), msg.lockerId(), null);
-                case RETRIEVE_BY_OWNER ->
-                        verify(rentalSvc).retrieveByOwner(msg.rentalId(), msg.memberId());
-            }
-            verify(producer).pushResult(msg.lockerId(), msg.rentalId(), true, null);
-            verifyNoMoreInteractions(producer);
+            // then
+            verifyNoInteractions(rentalService, producer);
         }
     }
 
     @Nested
-    @DisplayName("예외 발생 케이스")
-    class FailurePath {
-
+    @DisplayName("Successful handling")
+    class SuccessPath {
         @Test
-        @DisplayName("서비스 예외 발생 시 pushResult 에 error 메시지 포함")
-        void handle_exception() {
+        @DisplayName("All event types invoke correct service and push success response")
+        void shouldHandleAllEventTypesSuccessfully() throws Exception {
+            for (RentalLockerEventType type : RentalLockerEventType.values()) {
+                // reset between iterations
+                reset(rentalService, producer);
+
+                // given
+                var ev = new RentalLockerEventMessage(
+                        10L, // deviceId
+                        20L, // lockerId
+                        30L, // rentalId
+                        40L, // memberId
+                        type
+                );
+                Message<byte[]> mqtt = mqttMsg(ev, "locker/event");
+
+                // when
+                listener.consume(mqtt);
+
+                // then: service method invoked
+                switch (type) {
+                    case DROP_OFF_BY_OWNER ->
+                            verify(rentalService).dropOffToLocker(30L, 40L, 10L, 20L);
+                    case PICK_UP_BY_RENTER ->
+                            verify(rentalService).pickUpByRenter(30L, 40L);
+                    case RETURN_TO_LOCKER ->
+                            verify(rentalService).returnToLocker(30L, 40L, 10L, 20L, null);
+                    case RETRIEVE_BY_OWNER ->
+                            verify(rentalService).retrieveByOwner(30L, 40L);
+                }
+
+                // then: producer.pushResult with success
+                ArgumentCaptor<CommonResponse> cap = ArgumentCaptor.forClass(CommonResponse.class);
+                verify(producer).pushResult(eq(10L), cap.capture());
+                CommonResponse<?> resp = cap.getValue();
+                assertThat(resp.isSuccess()).isTrue();
+                assertThat(resp.getData()).isInstanceOf(LockerActionResultEvent.class);
+
+                // verify event fields
+                var data = (LockerActionResultEvent) resp.getData();
+                assertThat(data.deviceId()).isEqualTo(10L);
+                assertThat(data.lockerId()).isEqualTo(20L);
+                assertThat(data.rentalId()).isEqualTo(30L);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Failure handling")
+    class FailurePath {
+        @Test
+        @DisplayName("Exception in service leads to push failure response with error message")
+        void shouldPushFailureOnException() throws Exception {
             // given
-            RentalLockerEventMessage msg = dummy(RentalLockerEventType.DROP_OFF_BY_OWNER);
-            RuntimeException boom = new RuntimeException("LOCKER FULL");
-            doThrow(boom).when(rentalSvc)
-                    .dropOffToLocker(msg.rentalId(), msg.memberId(), msg.lockerId());
+            var ev = new RentalLockerEventMessage(
+                    5L,  // deviceId
+                    6L,  // lockerId
+                    7L,  // rentalId
+                    8L,  // memberId
+                    RentalLockerEventType.DROP_OFF_BY_OWNER
+            );
+            Message<byte[]> mqtt = mqttMsg(ev, "locker/event");
+
+            var ex = new RuntimeException("X error");
+            doThrow(ex).when(rentalService)
+                    .dropOffToLocker(7L, 8L, 5L, 6L);
 
             // when
-            listener.consume(msg);
+            listener.consume(mqtt);
 
-            // then
-            verify(rentalSvc).dropOffToLocker(msg.rentalId(), msg.memberId(), msg.lockerId());
-            verify(producer).pushResult(msg.lockerId(), msg.rentalId(), false, "LOCKER FULL");
+            // then: producer.pushResult with failure
+            ArgumentCaptor<CommonResponse> cap = ArgumentCaptor.forClass(CommonResponse.class);
+            verify(producer).pushResult(eq(5L), cap.capture());
+            CommonResponse<?> resp = cap.getValue();
+            assertThat(resp.isSuccess()).isFalse();
+            assertThat(resp.getMessage()).isEqualTo("X error");
         }
     }
 }

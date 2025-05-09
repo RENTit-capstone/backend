@@ -116,7 +116,7 @@ class RentalControllerTest {
                 .startDate(LocalDateTime.now().plusDays(1))
                 .dueDate(LocalDateTime.now().plusDays(7))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -176,7 +176,6 @@ class RentalControllerTest {
                                 fieldWithPath("data.content[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data.content[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data.content[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data.content[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data.content[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열"),
 
@@ -229,7 +228,7 @@ class RentalControllerTest {
                 .startDate(LocalDateTime.now().plusDays(2))
                 .dueDate(LocalDateTime.now().plusDays(8))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -260,7 +259,6 @@ class RentalControllerTest {
                                 fieldWithPath("data.returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data.retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data.lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data.paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data.returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
@@ -345,132 +343,6 @@ class RentalControllerTest {
         verify(rentalService).cancel(rid, student.getMemberId());
     }
 
-    @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/dropoff - 사물함에 맡기기")
-    @Test
-    void dropOff_success() throws Exception {
-        //given
-        long rid = 9L, lockerId = 42L;
-        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails md = new MemberDetails(student);
-        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
-
-        //when, then
-        mockMvc.perform(post("/api/v1/rentals/{id}/dropoff", rid)
-                        .with(csrf())
-                        .with(authentication(auth))
-                        .queryParam("lockerId", String.valueOf(lockerId))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("dropoff-rental",
-                        RequestDocumentation.queryParameters(
-                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )
-                ));
-
-        verify(rentalService).dropOffToLocker(rid, student.getMemberId(), lockerId);
-    }
-
-    @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/pickup - 픽업")
-    @Test
-    void pickUpByRenter_success() throws Exception {
-        //given
-        long rid = 10L;
-        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails md = new MemberDetails(student);
-        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
-
-        //when, then
-        mockMvc.perform(post("/api/v1/rentals/{id}/pickup", rid)
-                        .with(csrf())
-                        .with(authentication(auth))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("pickup-rental",
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )
-                ));
-
-        verify(rentalService).pickUpByRenter(rid, student.getMemberId());
-    }
-
-    @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/return - 반납")
-    @Test
-    void returnToLocker_success() throws Exception {
-        //given
-        long rid = 13L, lockerId = 55L;
-        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails md = new MemberDetails(student);
-        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
-
-        MockMultipartFile file = new MockMultipartFile("returnImage", "img.jpg", "image/jpeg", "data".getBytes());
-
-        //when, then
-        mockMvc.perform(multipart("/api/v1/rentals/{id}/return", rid)
-                        .file(file)
-                        .with(csrf())
-                        .with(authentication(auth))
-                        .queryParam("lockerId", String.valueOf(lockerId))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("return-rental",
-                        requestParts(
-                                partWithName("returnImage").attributes(key("type").value("file")).description("반납 이미지")
-                        ),
-                        RequestDocumentation.queryParameters(
-                                parameterWithName("lockerId").attributes(key("type").value("number")).description("사물함 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )
-                ));
-
-        verify(rentalService).returnToLocker(eq(rid), eq(student.getMemberId()), eq(lockerId), any());
-    }
-
-    @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{id}/retrieve - 회수 완료")
-    @Test
-    void retrieveByOwner_success() throws Exception {
-        //given
-        long rid = 15L;
-        Student student = Student.builder().memberId(10L).role(MemberRoleEnum.STUDENT).build();
-        MemberDetails md = new MemberDetails(student);
-        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
-
-        //when, then
-        mockMvc.perform(post("/api/v1/rentals/{id}/retrieve", rid)
-                        .with(csrf())
-                        .with(authentication(auth))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("retrieve-rental",
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )
-                ));
-
-        verify(rentalService).retrieveByOwner(rid, student.getMemberId());
-    }
-
     @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /api/v1/admin/rentals/{userId} - 관리자 특정 사용자 대여 목록")
     @Test
@@ -482,7 +354,7 @@ class RentalControllerTest {
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -491,7 +363,7 @@ class RentalControllerTest {
                 .requestDate(LocalDateTime.now())
                 .startDate(LocalDateTime.now()).dueDate(LocalDateTime.now().plusDays(1))
                 .status(RentalStatusEnum.REQUESTED)
-                .lockerId(null).paymentId(null).returnImageUrl(null)
+                .lockerId(null).returnImageUrl(null)
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
@@ -522,7 +394,6 @@ class RentalControllerTest {
                                 fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data[].lockerId").type(JsonFieldType.NULL).description("사물함 ID"),
-                                fieldWithPath("data[].paymentId").type(JsonFieldType.NULL).description("결제 ID"),
                                 fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )

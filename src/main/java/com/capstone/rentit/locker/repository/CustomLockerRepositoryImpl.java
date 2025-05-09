@@ -21,8 +21,8 @@ public class CustomLockerRepositoryImpl implements CustomLockerRepository {
         QLocker locker = QLocker.locker;
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (form.getUniversity() != null && !form.getUniversity().isBlank()) {
-            builder.and(locker.university.containsIgnoreCase(form.getUniversity()));
+        if (form.getDeviceId() != null) {
+            builder.and(locker.deviceId.eq(form.getDeviceId()));
         }
         if (form.getAvailable() != null) {
             builder.and(locker.available.eq(form.getAvailable()));
@@ -31,7 +31,6 @@ public class CustomLockerRepositoryImpl implements CustomLockerRepository {
         return queryFactory
                 .selectFrom(locker)
                 .where(builder)
-                .orderBy(locker.lockerId.asc())
                 .fetch();
     }
 }

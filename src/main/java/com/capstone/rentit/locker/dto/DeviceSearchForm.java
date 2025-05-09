@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class LockerCreateForm {
-    Long deviceId;
+public class DeviceSearchForm {
+    String university;
 }

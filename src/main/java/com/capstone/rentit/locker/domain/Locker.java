@@ -8,36 +8,33 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@IdClass(DeviceLockerId.class)          // 복합키 (deviceId, lockerId)
 public class Locker {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long lockerId;
+    private Long deviceId;
 
-    @Column(nullable = false)
+    @Id
+    private Long lockerId;              // 칸 번호 (1~)
+
     private boolean available;
-
-    @Column(length = 50, nullable = false)
-    private String university;
-
-    @Column(length = 100)
-    private String locationDescription;
-
     private LocalDateTime activatedAt;
 
-    public void changeAvailability(boolean available) {
-        this.available = available;
-        if(available) activatedAt = LocalDateTime.now();
-    }
+    /* 연관 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deviceId", insertable = false, updatable = false)
+    private Device device;
 
-    public static Locker createLocker(LockerCreateForm form){
+    public void changeAvailability(boolean avail) { this.available = avail; }
+
+    public static Locker createLocker(LockerCreateForm form, Long lockerId){
         return Locker.builder()
+                .deviceId(form.getDeviceId())
+                .lockerId(lockerId)
                 .available(true)
-                .university(form.getUniversity())
-                .locationDescription(form.getLocationDescription())
                 .activatedAt(LocalDateTime.now())
                 .build();
     }

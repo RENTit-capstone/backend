@@ -54,7 +54,7 @@ class OtpServiceTest {
         @Test
         @DisplayName("존재하지 않는 identifier로 검증 시 OtpNotFoundException 발생")
         void validateOtp_notFound() {
-            assertThatThrownBy(() -> otpService.validateAndResolveIdentifier("12345", "Miss"))
+            assertThatThrownBy(() -> otpService.validateAndResolveIdentifier("12345"))
                     .isInstanceOf(OtpNotFoundException.class)
                     .hasMessageContaining("OTP 를 찾을 수 없습니다.");
         }
@@ -70,24 +70,11 @@ class OtpServiceTest {
             Map<String, OtpDto> store = getInternalStore();
             store.put(code, expiredDto);
 
-            assertThatThrownBy(() -> otpService.validateAndResolveIdentifier(code, identifier))
+            assertThatThrownBy(() -> otpService.validateAndResolveIdentifier(code))
                     .isInstanceOf(OtpExpiredException.class)
                     .hasMessageContaining("OTP 유효시간이 만료되었습니다.");
             // 한번 사용 후 제거되는지 확인
             assertThat(store).doesNotContainKey(code);
-        }
-
-        @Test
-        @DisplayName("잘못된 식별자로 검증 시 OtpMismatchException 발생하고, 스토어에는 여전히 코드가 남아있다")
-        void validateOtp_identifierMismatch_throwsOtpMismatchException() {
-            // given
-            String realIdentifier = "user1";
-            String code = otpService.generateOtp(realIdentifier);
-
-            // when & then
-            assertThatThrownBy(() -> otpService.validateAndResolveIdentifier(code, "user2"))
-                    .isInstanceOf(OtpMismatchException.class)
-                    .hasMessageContaining("OTP 요청 사용자가 아닙니다.");
         }
     }
 
@@ -98,7 +85,7 @@ class OtpServiceTest {
         String code = otpService.generateOtp(identifier);
 
         // 검증 실행
-        otpService.validateAndResolveIdentifier(code, identifier);
+        otpService.validateAndResolveIdentifier(code);
 
         // 검증 후 store에서 제거되었는지 확인
         @SuppressWarnings("unchecked")

@@ -10,6 +10,6 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class LockerSearchForm {
-    String university;
+    Long deviceId;
     Boolean available;
 }

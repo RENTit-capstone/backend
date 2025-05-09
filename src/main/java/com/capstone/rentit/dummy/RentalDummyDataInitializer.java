@@ -10,6 +10,7 @@ import com.capstone.rentit.rental.status.RentalStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
+@Order(3)
 public class RentalDummyDataInitializer implements ApplicationRunner {
 
     private final RentalRepository rentalRepository;
@@ -40,12 +42,7 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
             return;
         }
 
-        /* ----------------------------------------------------------
-           생성 규칙
-           • 각 Item 마다 3개의 Rental 을 만든다
-           • renter 는 owner 와 다른 Member 중 무작위
-        ---------------------------------------------------------- */
-        final int RENTALS_PER_ITEM = 3;
+        final int RENTALS_PER_ITEM = 2;
         LocalDateTime now = LocalDateTime.now();
 
         for (Item item : items) {
@@ -76,7 +73,6 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
                         .returnedAt(null)
                         .retrievedAt(null)
                         .lockerId(null)
-                        .paymentId(null)
                         .returnImageUrl(null);
 
                 /* 상태별 날짜 세팅 */

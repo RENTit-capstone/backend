@@ -1,6 +1,7 @@
 package com.capstone.rentit.rental.domain;
 
 import com.capstone.rentit.item.domain.Item;
+import com.capstone.rentit.locker.domain.Locker;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import jakarta.persistence.*;
@@ -29,6 +30,12 @@ public class Rental {
     @Column(name = "renter_id", nullable = false)
     private Long renterId;
 
+    @Column(name = "device_id")
+    private Long deviceId;
+
+    @Column(name = "locker_id")
+    private Long lockerId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", insertable = false, updatable = false)
     private Member ownerMember;
@@ -40,6 +47,13 @@ public class Rental {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "device_id", referencedColumnName = "deviceId", insertable = false, updatable = false),
+            @JoinColumn(name = "locker_id", referencedColumnName = "lockerId", insertable = false, updatable = false)
+    })
+    private Locker locker;
 
     @Column(name = "request_date", nullable = false)
     private LocalDateTime requestDate;
@@ -71,12 +85,6 @@ public class Rental {
 
     @Column(name = "retrieved_at")
     private LocalDateTime retrievedAt;
-
-    @Column(name = "locker_id")
-    private Long lockerId;
-
-    @Column(name = "payment_id")
-    private Long paymentId;
 
     @Column(name = "return_image_url")
     private String returnImageUrl; //image object key
@@ -123,12 +131,14 @@ public class Rental {
     }
 
     /** 사물함 ID 를 갱신 */
-    public void assignLocker(Long lockerId) {
+    public void assignLocker(Long deviceId, Long lockerId) {
+        this.deviceId = deviceId;
         this.lockerId = lockerId;
     }
-    
+
     /** 사물함 회수 */
     public void clearLocker() {
+        this.deviceId = null;
         this.lockerId = null;
     }
 

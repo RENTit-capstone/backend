@@ -17,20 +17,27 @@ public class LockerController {
     private final LockerService lockerService;
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/devices")
+    public CommonResponse<?> registerDevice(@RequestBody DeviceCreateForm form) {
+        return CommonResponse.success(lockerService.registerDevice(form));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/devices")
+    public CommonResponse<List<DeviceResponse>> listDevices(@ModelAttribute DeviceSearchForm form) {
+        return CommonResponse.success(lockerService.searchDevicesByUniversity(form));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/lockers")
-    public CommonResponse<?> register(@RequestBody LockerCreateForm form) {
+    public CommonResponse<?> registerLocker(@RequestBody LockerCreateForm form) {
         return CommonResponse.success(lockerService.registerLocker(form));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/lockers")
-    public CommonResponse<List<LockerDto>> list(@ModelAttribute LockerSearchForm form) {
+    public CommonResponse<List<LockerResponse>> listLockers(@ModelAttribute LockerSearchForm form) {
         return CommonResponse.success(lockerService.searchLockers(form));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/lockers/{lockerId}")
-    public CommonResponse<LockerDto> get(@PathVariable Long lockerId) {
-        return CommonResponse.success(lockerService.getLocker(lockerId));
-    }
 }
