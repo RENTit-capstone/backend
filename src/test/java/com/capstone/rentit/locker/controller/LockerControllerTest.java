@@ -2,15 +2,18 @@ package com.capstone.rentit.locker.controller;
 
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.file.service.FileStorageService;
-import com.capstone.rentit.locker.dto.LockerCreateForm;
-import com.capstone.rentit.locker.dto.LockerDto;
-import com.capstone.rentit.locker.dto.LockerSearchForm;
+import com.capstone.rentit.locker.domain.Device;
+import com.capstone.rentit.locker.dto.*;
 import com.capstone.rentit.locker.service.LockerService;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +27,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,121 +80,189 @@ class LockerControllerTest {
                 .doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
     }
 
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("POST /api/v1/admin/lockers → 생성 후 ID 반환")
-    @Test
-    void registerLocker_success() throws Exception {
-        // given
-        LockerCreateForm form = LockerCreateForm.builder()
-                .university("Seoul Univ").locationDescription("building 1, floor 3").build();
-        long generatedId = 5L;
-        given(lockerService.registerLocker(any(LockerCreateForm.class)))
-                .willReturn(generatedId);
+    @Nested
+    @DisplayName("POST /api/v1/admin/devices")
+    class RegisterDevice {
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("정상 등록 시 생성된 deviceId 반환 및 문서화")
+        void registerDevice_success() throws Exception {
+            DeviceCreateForm form = new DeviceCreateForm("Univ1", "Location1");
+            long generatedId = 123L;
+            given(lockerService.registerDevice(any(DeviceCreateForm.class)))
+                    .willReturn(generatedId);
 
-        // when / then
-        mockMvc.perform(post("/api/v1/admin/lockers")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(form)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").value(generatedId))
-                .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("admin-register-locker",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        requestFields(
-                                fieldWithPath("university").type(JsonFieldType.STRING).description("학교 이름"),
-                                fieldWithPath("locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 사물함 ID"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )));
+            mockMvc.perform(post("/api/v1/admin/devices")
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(form)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data").value(generatedId))
+                    .andExpect(jsonPath("$.message").value(""))
+                    .andDo(document("admin-register-device",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            requestFields(
+                                    fieldWithPath("university").type(JsonFieldType.STRING).description("학교 이름"),
+                                    fieldWithPath("locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명")
+                            ),
+                            responseFields(
+                                    fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
+                                    fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 deviceId"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                            )
+                    ));
+        }
     }
 
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("GET /api/v1/admin/lockers → 검색 파라미터에 따른 목록 반환")
-    @Test
-    void listLockers_success() throws Exception {
-        // given
-        LockerDto a = LockerDto.builder()
-                .lockerId(1L).available(true).university("U1")
-                .locationDescription("location1").activatedAt(LocalDateTime.now())
-                .build();
-        LockerDto b = LockerDto.builder()
-                .lockerId(2L).available(false).university("U2")
-                .locationDescription("location2").activatedAt(LocalDateTime.now())
-                .build();
-        given(lockerService.searchLockers(any(LockerSearchForm.class)))
-                .willReturn(List.of(a, b));
+    @Nested
+    @DisplayName("GET /api/v1/admin/devices")
+    class ListDevices {
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("대학명으로 Device 목록 조회 및 문서화")
+        void listDevices_success() throws Exception {
+            DeviceResponse a = DeviceResponse.builder()
+                    .deviceId(1L)
+                    .university("U1")
+                    .locationDescription("Loc1")
+                    .build();
+            DeviceResponse b = DeviceResponse.builder()
+                    .deviceId(2L)
+                    .university("U1")
+                    .locationDescription("Loc2")
+                    .build();
+            given(lockerService.searchDevicesByUniversity(any(DeviceSearchForm.class)))
+                    .willReturn(List.of(a, b));
 
-        // when / then
-        mockMvc.perform(get("/api/v1/admin/lockers")
-                        .queryParam("university", "U")
-                        .queryParam("available", "true")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].lockerId").value(1))
-                .andExpect(jsonPath("$.data[0].university").value("U1"))
-                .andExpect(jsonPath("$.data[0].available").value(true))
-                .andExpect(jsonPath("$.data[1].lockerId").value(2))
-                .andExpect(jsonPath("$.data[1].university").value("U2"))
-                .andExpect(jsonPath("$.data[1].available").value(false))
-                .andDo(document("admin-list-lockers",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        queryParameters(
-                                parameterWithName("university").optional().description("검색할 학교 이름"),
-                                parameterWithName("available").optional().description("사용 가능 여부")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
-                                fieldWithPath("data[].lockerId").type(JsonFieldType.NUMBER).description("사물함 ID"),
-                                fieldWithPath("data[].university").type(JsonFieldType.STRING).description("학교 이름"),
-                                fieldWithPath("data[].locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명"),
-                                fieldWithPath("data[].available").type(JsonFieldType.BOOLEAN).description("사용 가능 여부"),
-                                fieldWithPath("data[].activatedAt").type(JsonFieldType.STRING).description("사물함 활성화 시간"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )));
+            mockMvc.perform(get("/api/v1/admin/devices")
+                            .param("university", "U1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data[0].deviceId").value(1))
+                    .andExpect(jsonPath("$.data[0].university").value("U1"))
+                    .andExpect(jsonPath("$.data[0].locationDescription").value("Loc1"))
+                    .andExpect(jsonPath("$.data[1].deviceId").value(2))
+                    .andExpect(jsonPath("$.data[1].locationDescription").value("Loc2"))
+                    .andDo(document("admin-list-devices",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            queryParameters(
+                                    parameterWithName("university").description("검색할 학교 이름")
+                            ),
+                            responseFields(
+                                    fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
+                                    fieldWithPath("data[].deviceId").type(JsonFieldType.NUMBER).description("디바이스 ID"),
+                                    fieldWithPath("data[].university").type(JsonFieldType.STRING).description("학교 이름"),
+                                    fieldWithPath("data[].locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                            )
+                    ));
+        }
     }
 
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("GET /api/v1/admin/lockers/{lockerId} → 단일 사물함 조회")
-    @Test
-    void getLocker_success() throws Exception {
-        // given
-        LockerDto dto = LockerDto.builder()
-                .lockerId(3L).available(true).university("U3")
-                .locationDescription("location3").activatedAt(LocalDateTime.now())
-                .build();
-        given(lockerService.getLocker(3L)).willReturn(dto);
+    @Nested
+    @DisplayName("POST /api/v1/admin/lockers")
+    class RegisterLocker {
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("정상 등록 시 생성된 lockerId 반환 및 문서화")
+        void registerLocker_success() throws Exception {
+            LockerCreateForm form = new LockerCreateForm(5L);
+            long generatedId = 321L;
+            given(lockerService.registerLocker(any(LockerCreateForm.class)))
+                    .willReturn(generatedId);
 
-        // when / then
-        mockMvc.perform(get("/api/v1/admin/lockers/{lockerId}", 3L)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.lockerId").value(3))
-                .andExpect(jsonPath("$.data.university").value("U3"))
-                .andExpect(jsonPath("$.data.available").value(true))
-                .andExpect(jsonPath("$.message").value(""))
-                .andDo(document("admin-get-locker",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        pathParameters(
-                                parameterWithName("lockerId").description("사물함 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
-                                fieldWithPath("data.lockerId").type(JsonFieldType.NUMBER).description("사물함 ID"),
-                                fieldWithPath("data.university").type(JsonFieldType.STRING).description("학교 이름"),
-                                fieldWithPath("data.locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명"),
-                                fieldWithPath("data.available").type(JsonFieldType.BOOLEAN).description("사용 가능 여부"),
-                                fieldWithPath("data.activatedAt").type(JsonFieldType.STRING).description("사물함 활성화 시간"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
-                        )));
+            mockMvc.perform(post("/api/v1/admin/lockers")
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(form)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data").value(generatedId))
+                    .andExpect(jsonPath("$.message").value(""))
+                    .andDo(document("admin-register-locker",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            requestFields(
+                                    fieldWithPath("deviceId").type(JsonFieldType.NUMBER).description("키오스크 디바이스 ID")
+                            ),
+                            responseFields(
+                                    fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
+                                    fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 칸 ID"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                            )
+                    ));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/v1/admin/lockers")
+    class ListLockers {
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("deviceId 및 available로 Locker 목록 조회 및 문서화")
+        void listLockers_success() throws Exception {
+            Device device = Device.builder()
+                    .deviceId(10L)
+                    .university("U2")
+                    .locationDescription("DescX")
+                    .build();
+            LockerResponse x = LockerResponse.builder()
+                    .deviceId(10L)
+                    .lockerId(1L)
+                    .available(true)
+                    .activatedAt(LocalDateTime.now())
+                    .device(DeviceResponse.fromEntity(device))
+                    .build();
+            Device device2 = Device.builder()
+                    .deviceId(10L)
+                    .university("U2")
+                    .locationDescription("DescY")
+                    .build();
+            LockerResponse y = LockerResponse.builder()
+                    .deviceId(10L)
+                    .lockerId(2L)
+                    .available(false)
+                    .activatedAt(LocalDateTime.now())
+                    .device(DeviceResponse.fromEntity(device2))
+                    .build();
+            given(lockerService.searchLockers(any(LockerSearchForm.class)))
+                    .willReturn(List.of(x, y));
+
+            mockMvc.perform(get("/api/v1/admin/lockers")
+                            .param("deviceId", "10")
+                            .param("available", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data[0].deviceId").value(10))
+                    .andExpect(jsonPath("$.data[0].lockerId").value(1))
+                    .andExpect(jsonPath("$.data[0].available").value(true))
+                    .andExpect(jsonPath("$.data[0].device.deviceId").value(10))
+                    .andExpect(jsonPath("$.data[0].device.university").value("U2"))
+                    .andExpect(jsonPath("$.data[0].device.locationDescription").value("DescX"))
+                    .andExpect(jsonPath("$.data[1].lockerId").value(2))
+                    .andDo(document("admin-list-lockers",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            queryParameters(
+                                    parameterWithName("deviceId").description("키오스크 디바이스 ID"),
+                                    parameterWithName("available").description("사용 가능 여부")
+                            ),
+                            responseFields(
+                                    fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 성공 여부"),
+                                    fieldWithPath("data[].deviceId").type(JsonFieldType.NUMBER).description("사물함 디바이스 ID"),
+                                    fieldWithPath("data[].lockerId").type(JsonFieldType.NUMBER).description("칸 ID"),
+                                    fieldWithPath("data[].available").type(JsonFieldType.BOOLEAN).description("사용 가능 여부"),
+                                    fieldWithPath("data[].activatedAt").type(JsonFieldType.STRING).description("활성화 시간"),
+                                    fieldWithPath("data[].device.deviceId").type(JsonFieldType.NUMBER).description("디바이스 ID"),
+                                    fieldWithPath("data[].device").type(JsonFieldType.OBJECT).description("디바이스 상세 정보"),
+                                    fieldWithPath("data[].device.university").type(JsonFieldType.STRING).description("학교 이름"),
+                                    fieldWithPath("data[].device.locationDescription").type(JsonFieldType.STRING).description("칸 위치 상세 설명"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("메시지")
+                            )
+                    ));
+        }
     }
 }

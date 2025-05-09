@@ -1,9 +1,14 @@
 package com.capstone.rentit.locker.repository;
 
 import com.capstone.rentit.config.QuerydslConfig;
+import com.capstone.rentit.locker.domain.Device;
 import com.capstone.rentit.locker.domain.Locker;
 import com.capstone.rentit.locker.dto.LockerSearchForm;
+import com.capstone.rentit.locker.repository.DeviceRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -11,139 +16,124 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import(QuerydslConfig.class)
+@Import({QuerydslConfig.class})
 class CustomLockerRepositoryImplTest {
 
-    @PersistenceContext
+    @Autowired
     private EntityManager em;
 
     @Autowired
-    private CustomLockerRepositoryImpl lockerRepository;
+    private DeviceRepository deviceRepository;
 
-    // — 헬퍼: 반복되는 저장 로직 분리 —
-    private Locker saveLocker(String university, Boolean available) {
+    private CustomLockerRepositoryImpl repository;
+
+    private Long deviceId1;
+    private Long deviceId2;
+
+    @BeforeEach
+    void setUp() {
+        // 1) Device 를 먼저 저장
+        Device d1 = deviceRepository.save(
+                Device.createDevice(new com.capstone.rentit.locker.dto.DeviceCreateForm("U1", "loc1"))
+        );
+        Device d2 = deviceRepository.save(
+                Device.createDevice(new com.capstone.rentit.locker.dto.DeviceCreateForm("U2", "loc2"))
+        );
+        deviceId1 = d1.getDeviceId();
+        deviceId2 = d2.getDeviceId();
+
+        // 2) Locker 삽입
+        persistLocker(deviceId1, 1L, true);
+        persistLocker(deviceId1, 2L, false);
+        persistLocker(deviceId2, 1L, true);
+
+        // 3) Custom 리포지토리 초기화
+        JPAQueryFactory qf = new JPAQueryFactory(em);
+        repository = new CustomLockerRepositoryImpl(qf);
+    }
+
+    private void persistLocker(Long deviceId, Long lockerId, boolean available) {
         Locker locker = Locker.builder()
-                .university(university)
+                .deviceId(deviceId)
+                .lockerId(lockerId)
                 .available(available)
+                .activatedAt(LocalDateTime.now())
                 .build();
         em.persist(locker);
-        em.flush();
-        return locker;
     }
 
     @Test
-    @DisplayName("조건 없이 검색하면 모든 사물함을 ID 오름차순으로 반환한다")
-    void search_whenNoCriteria_returnsAllSortedById() {
-        // given
-        Locker a = saveLocker("AAA", true);
-        Locker b = saveLocker("BBB", false);
-        Locker c = saveLocker("CCC", true);
+    @DisplayName("필터 없이 조회하면 모든 사물함을 반환한다")
+    void searchWithoutFilters() {
+        var form = new LockerSearchForm(null, null);
+        List<Locker> list = repository.search(form);
 
-        LockerSearchForm form = LockerSearchForm.builder().build();
-
-        // when
-        List<Locker> results = lockerRepository.search(form);
-
-        // then
-        List<Long> ids = results.stream().map(Locker::getLockerId).toList();
-        assertThat(ids).containsExactly(a.getLockerId(), b.getLockerId(), c.getLockerId());
-    }
-
-    @Test
-    @DisplayName("대학명으로 필터링하면 부분일치, 대소문자 무시한다")
-    void search_whenUniversityProvided_filtersByUniversityIgnoreCase() {
-        // given
-        saveLocker("Seoul Univ", true);
-        Locker match1 = saveLocker("SEOUL TECH", false);
-        saveLocker("Busan Univ", true);
-
-        LockerSearchForm form = LockerSearchForm.builder()
-                .university("seoul").build();
-
-        // when
-        List<Locker> results = lockerRepository.search(form);
-
-        // then
-        assertThat(results)
-                .extracting(Locker::getUniversity)
-                .allSatisfy(name -> assertThat(name.toLowerCase()).contains("seoul"));
-        assertThat(results).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("available 필터링만 하면 해당 상태의 사물함만 반환한다")
-    void search_whenAvailableProvided_filtersByAvailable() {
-        // given
-        saveLocker("X", true);
-        Locker t1 = saveLocker("Y", true);
-        saveLocker("Z", false);
-
-        LockerSearchForm form = LockerSearchForm.builder()
-                .available(true).build();
-
-        // when
-        List<Locker> results = lockerRepository.search(form);
-
-        // then
-        assertThat(results)
-                .allSatisfy(locker -> assertThat(locker.isAvailable()).isTrue());
-        assertThat(results).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("두 조건을 모두 지정하면 AND 조건으로 동작한다")
-    void search_whenBothCriteriaApplied_returnsMatching() {
-        // given
-        Locker alphaUnivAvailable = saveLocker("Alpha Univ", true);
-        saveLocker("Alpha Univ", false);      // available=false 이므로 걸러진다
-        Locker alphaExact = saveLocker("ALPHA", true);
-        saveLocker("Beta Univ", true);        // university 필터에 걸린다
-
-
-        LockerSearchForm form = LockerSearchForm.builder()
-                .university("alpha").available(true).build();
-
-        // when
-        List<Locker> results = lockerRepository.search(form);
-
-        // then
-        assertThat(results)
-                .extracting(Locker::getLockerId)
-                .containsExactly(
-                        alphaUnivAvailable.getLockerId(),
-                        alphaExact.getLockerId()
+        assertThat(list)
+                .hasSize(3)
+                .extracting(Locker::getDeviceId, Locker::getLockerId, Locker::isAvailable)
+                .containsExactlyInAnyOrder(
+                        tuple(deviceId1, 1L, true),
+                        tuple(deviceId1, 2L, false),
+                        tuple(deviceId2, 1L, true)
                 );
-        assertThat(results).allSatisfy(locker ->
-                assertThat(locker.getUniversity().toLowerCase()).contains("alpha")
-        );
-        assertThat(results).allSatisfy(locker ->
-                assertThat(locker.isAvailable()).isTrue()
-        );
+    }
+
+    @Nested @DisplayName("deviceId 필터 적용")
+    class DeviceIdFilter {
+        @Test @DisplayName("deviceId=1 로 조회하면 해당 디바이스 사물함만 반환")
+        void filterByDeviceId() {
+            var form = new LockerSearchForm(deviceId1, null);
+            List<Locker> list = repository.search(form);
+
+            assertThat(list)
+                    .hasSize(2)
+                    .allMatch(l -> l.getDeviceId().equals(deviceId1));
+        }
+    }
+
+    @Nested @DisplayName("available 필터 적용")
+    class AvailableFilter {
+        @Test @DisplayName("available=true 로 조회하면 사용 가능한 사물함만 반환")
+        void filterByAvailableTrue() {
+            var form = new LockerSearchForm(null, true);
+            List<Locker> list = repository.search(form);
+
+            assertThat(list)
+                    .hasSize(2)
+                    .allMatch(Locker::isAvailable);
+        }
+
+        @Test @DisplayName("available=false 로 조회하면 사용 불가능한 사물함만 반환")
+        void filterByAvailableFalse() {
+            var form = new LockerSearchForm(null, false);
+            List<Locker> list = repository.search(form);
+
+            assertThat(list)
+                    .hasSize(1)
+                    .allMatch(l -> !l.isAvailable());
+        }
     }
 
     @Test
-    @DisplayName("blank 또는 null 대학명은 필터링하지 않는다")
-    void search_whenUniversityBlankAndAvailableNull_returnsAll() {
-        // given
-        Locker a = saveLocker("U1", true);
-        Locker b = saveLocker("U2", false);
+    @DisplayName("deviceId=1 && available=true 일 때 정확히 하나 반환")
+    void filterByBoth() {
+        var form = new LockerSearchForm(deviceId1, true);
+        List<Locker> list = repository.search(form);
 
-        LockerSearchForm form = LockerSearchForm.builder()
-                .university("  ").available(null).build();
-
-        // when
-        List<Locker> results = lockerRepository.search(form);
-
-        // then
-        List<Long> ids = results.stream().map(Locker::getLockerId).collect(Collectors.toList());
-        assertThat(ids).containsExactly(a.getLockerId(), b.getLockerId());
+        assertThat(list)
+                .hasSize(1)
+                .first()
+                .satisfies(l -> {
+                    assertThat(l.getDeviceId()).isEqualTo(deviceId1);
+                    assertThat(l.getLockerId()).isEqualTo(1L);
+                    assertThat(l.isAvailable()).isTrue();
+                });
     }
 }
