@@ -23,7 +23,7 @@ public class LockerController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/lockers")
+    @GetMapping("/admin/devices")
     public CommonResponse<List<DeviceResponse>> listDevices(@ModelAttribute DeviceSearchForm form) {
         return CommonResponse.success(lockerService.searchDevicesByUniversity(form));
     }
