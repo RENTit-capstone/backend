@@ -1,5 +1,6 @@
 package com.capstone.rentit.locker.domain;
 
+import com.capstone.rentit.locker.dto.DeviceCreateForm;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +34,11 @@ public class Device {
     )
     @Builder.Default
     private List<Locker> lockers = new ArrayList<>();
+
+    static public Device createDevice(DeviceCreateForm form){
+        return Device.builder()
+                .university(form.getUniversity())
+                .locationDescription(form.getLocationDescription())
+                .build();
+    }
 }
