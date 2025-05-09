@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
@@ -38,24 +37,29 @@ public class UserDummyDataInitializer implements ApplicationRunner {
 
         LocalDate today = LocalDate.now();
 
-        // 1) 학생 생성
+        // 1) 학생 생성 (실제 사용자처럼 이름·닉네임·대학교 설정)
+        String[] studentNames     = {"김민수", "이서연", "박지훈", "최지우", "정우진"};
+        String[] studentNicknames = {"minsu_k", "seoyeon_l", "jihun_p", "jiwoo_c", "woojin_j"};
+        String[] universities      = {"아주대학교", "서울대학교"};
+
         for (int i = 1; i <= STUDENT_COUNT; i++) {
             Student stu = Student.builder()
-                    .email(String.format("student%02d@example.com", i))
-                    .password(passwordEncoder.encode("password"))
-                    .name("Student " + i)
+                    .email(String.format("student%02d@example.com", i))       // 이메일 그대로
+                    .password(passwordEncoder.encode("password"))             // 패스워드 그대로
+                    .name(studentNames[i - 1])
                     .role(MemberRoleEnum.STUDENT)
                     .locked(false)
                     .createdAt(today)
                     .studentId("S" + (1000 + i))
-                    .university("University " + i)
-                    .nickname("stuNick" + i)
-                    .phone(String.format("010-1234-%04d", ThreadLocalRandom.current().nextInt(0,10000)))
+                    .university(universities[(i - 1) % universities.length])
+                    .nickname(studentNicknames[i - 1])
+                    .phone(String.format("010-1234-%04d",
+                            ThreadLocalRandom.current().nextInt(0, 10_000)))
                     .build();
             memberRepository.save(stu);
         }
 
-        // 2) 기업 생성
+        // 2) 기업 생성 (변경 없이)
         for (int i = 1; i <= COMPANY_COUNT; i++) {
             Company comp = Company.builder()
                     .email(String.format("company%02d@example.com", i))
@@ -69,7 +73,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
             memberRepository.save(comp);
         }
 
-        // 3) 학생회 회원 생성
+        // 3) 학생회 회원 생성 (변경 없이)
         for (int i = 1; i <= COUNCIL_COUNT; i++) {
             StudentCouncilMember council = StudentCouncilMember.builder()
                     .email(String.format("council%02d@example.com", i))

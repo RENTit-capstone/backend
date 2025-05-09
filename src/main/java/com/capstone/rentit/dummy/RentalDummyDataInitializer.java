@@ -78,7 +78,6 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
                         .returnedAt(null)
                         .retrievedAt(null)
                         .lockerId(null)
-                        .paymentId(null)
                         .returnImageUrl(null);
 
                 /* 상태별 날짜 세팅 */
