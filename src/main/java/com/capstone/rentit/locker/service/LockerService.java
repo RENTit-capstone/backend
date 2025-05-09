@@ -52,10 +52,4 @@ public class LockerService {
                 .map(l -> new LockerBriefResponse(l.getDeviceId(), l.getLockerId(), l.isAvailable()))
                 .toList();
     }
-
-    private Locker findLocker(Long id) {
-        return lockerRepository.findById(id)
-                .orElseThrow(() -> new LockerNotFoundException("사물함이 존재하지 않습니다. id=" + id));
-    }
-
 }
