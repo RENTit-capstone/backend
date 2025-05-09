@@ -24,9 +24,6 @@ public class CustomLockerRepositoryImpl implements CustomLockerRepository {
         if (form.getDeviceId() != null) {
             builder.and(locker.deviceId.eq(form.getDeviceId()));
         }
-        if (form.getUniversity() != null && !form.getUniversity().isBlank()) {
-            builder.and(locker.university.equalsIgnoreCase(form.getUniversity()));
-        }
         if (form.getAvailable() != null) {
             builder.and(locker.available.eq(form.getAvailable()));
         }
