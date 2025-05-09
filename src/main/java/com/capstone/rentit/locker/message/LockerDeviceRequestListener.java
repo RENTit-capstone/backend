@@ -1,5 +1,6 @@
 package com.capstone.rentit.locker.message;
 
+import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.config.LockerMessagingConfig;
 import com.capstone.rentit.locker.dto.*;
 import com.capstone.rentit.locker.service.LockerService;
@@ -84,15 +85,16 @@ public class LockerDeviceRequestListener {
                 rentalService.findEligibleRentals(member.getMemberId(), r.action());
         log.info("create response {}", rentals.size());
 
-        producer.pushEligibleRentals(r.deviceId(), r.action(), rentals);
+        producer.pushEligibleRentals(r.deviceId(),
+                CommonResponse.success(new EligibleRentalsEvent(r.deviceId(), r.action(), rentals)));
         log.info("send end");
     }
 
 
     private void sendAvailable(LockerDeviceRequest r) {
-        // 단일 키오스크의 빈 칸만 물어보므로 deviceId, university 모두 조건에 사용
         List<LockerBriefResponse> lockers =
                 lockerService.findAvailableLockers(r.deviceId());
-        producer.pushAvailableLockers(r.deviceId(), r.rentalId(), lockers);
+        producer.pushAvailableLockers(r.deviceId(),
+                CommonResponse.success(new AvailableLockersEvent(r.deviceId(), r.rentalId(), lockers)));
     }
 }

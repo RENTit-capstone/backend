@@ -1,5 +1,7 @@
 package com.capstone.rentit.locker.message;
 
+import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.locker.dto.LockerActionResultEvent;
 import com.capstone.rentit.locker.dto.RentalLockerEventMessage;
 import com.capstone.rentit.rental.service.RentalService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,9 +43,7 @@ public class RentalLockerEventListener {
 
         log.info("RentalLockerEvent ▶ {}", msg);
 
-        boolean ok  = false;
-        String  err = null;
-
+        CommonResponse<?> response;
         try {
             switch (msg.type()) {
                 case DROP_OFF_BY_OWNER ->
@@ -59,13 +59,13 @@ public class RentalLockerEventListener {
                         rentalService.retrieveByOwner(
                                 msg.rentalId(), msg.memberId());
             }
-            ok = true;
+            response = CommonResponse.success(new LockerActionResultEvent(msg.deviceId(), msg.lockerId(), msg.rentalId()));
         } catch (Exception e) {
             log.error("RentalLockerEvent 처리 실패", e);
-            err = e.getMessage();
+            response = CommonResponse.failure(e.getMessage());
         }
 
         /* 성공 / 실패 결과 MQTT push */
-        producer.pushResult(msg.deviceId(), msg.lockerId(), msg.rentalId(), ok, err);
+        producer.pushResult(msg.deviceId(), response);
     }
 }

@@ -1,5 +1,6 @@
 package com.capstone.rentit.locker.message;
 
+import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.config.LockerMessagingConfig;
 import com.capstone.rentit.locker.dto.*;
 import com.capstone.rentit.locker.event.RentalLockerAction;
@@ -47,23 +48,16 @@ public class LockerDeviceProducer {
     /* ---------- 비즈니스 메서드 ---------- */
 
     public void pushEligibleRentals(Long deviceId,
-                                    RentalLockerAction action,
-                                    List<RentalBriefResponseForLocker> responses) {
-        send(deviceId, "eligible", new EligibleRentalsEvent(deviceId, action, responses));
+                                    CommonResponse<?> response) {
+        send(deviceId, "eligible", response);
     }
 
-    public void pushAvailableLockers(Long deviceId,
-                                     Long rentalId,
-                                     List<LockerBriefResponse> lockers) {
-        send(deviceId, "available", new AvailableLockersEvent(deviceId, rentalId, lockers));
+    public void pushAvailableLockers(Long deviceId, CommonResponse<?> response) {
+        send(deviceId, "available", response);
     }
 
-    public void pushResult(Long deviceId,
-                           Long lockerId,
-                           Long rentalId,
-                           boolean success,
-                           String error) {
-        send(deviceId, "result", new LockerActionResultEvent(deviceId, lockerId, rentalId, success, success ? "" : error));
+    public void pushResult(Long deviceId, CommonResponse<?> response) {
+        send(deviceId, "result", response);
     }
 
     /* ---------- util ---------- */
