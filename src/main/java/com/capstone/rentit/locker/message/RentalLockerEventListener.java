@@ -45,14 +45,14 @@ public class RentalLockerEventListener {
 
         CommonResponse<?> response;
         try {
-            switch (msg.type()) {
+            switch (msg.action()) {
                 case DROP_OFF_BY_OWNER ->
                         rentalService.dropOffToLocker(
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId());
                 case PICK_UP_BY_RENTER ->
                         rentalService.pickUpByRenter(
                                 msg.rentalId(), msg.memberId());
-                case RETURN_TO_LOCKER ->
+                case RETURN_BY_RENTER ->
                         rentalService.returnToLocker(
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId(), null);
                 case RETRIEVE_BY_OWNER ->

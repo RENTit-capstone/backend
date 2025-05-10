@@ -1,11 +1,11 @@
 package com.capstone.rentit.locker.dto;
 
-import com.capstone.rentit.locker.event.RentalLockerEventType;
+import com.capstone.rentit.locker.event.RentalLockerAction;
 
 public record RentalLockerEventMessage(
         Long deviceId,
         Long lockerId,
         Long rentalId,
         Long memberId,
-        RentalLockerEventType type
+        RentalLockerAction action
 ) { }
