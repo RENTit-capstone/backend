@@ -27,10 +27,21 @@ public class RentalBriefResponse {
     private LocalDateTime returnedAt;
     private LocalDateTime retrievedAt;
     private String thumbnailUrl;
+    private String lockerUniversity;
+    private String lockerLocation;
+    private Long lockerNumber;
 
     private boolean isOwner;       // true: 내가 소유자, false: 내가 대여자
 
     public static RentalBriefResponse fromEntity(Rental rental, String presignedUrl, boolean asOwner) {
+        String univ = null;
+        String location = null;
+        Long lockerNum = null;
+        if(rental.getRentalId() != null && rental.getLockerId() != null){
+            univ = rental.getLocker().getDevice().getUniversity();
+            location = rental.getLocker().getDevice().getLocationDescription();
+            lockerNum = rental.getLockerId();
+        }
         return RentalBriefResponse.builder()
                 .rentalId(rental.getRentalId())
                 .itemName(rental.getItem().getName())
@@ -47,6 +58,9 @@ public class RentalBriefResponse {
                 .returnedAt(rental.getReturnedAt())
                 .retrievedAt(rental.getRetrievedAt())
                 .thumbnailUrl(presignedUrl)
+                .lockerUniversity(univ)
+                .lockerLocation(location)
+                .lockerNumber(lockerNum)
                 .isOwner(asOwner)
                 .build();
     }

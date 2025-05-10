@@ -437,6 +437,9 @@ class MemberControllerTest {
                                 fieldWithPath("data.ownedRentals[].returnedAt").type(JsonFieldType.NULL).description("반납일시 (현재 null)"),
                                 fieldWithPath("data.ownedRentals[].retrievedAt").type(JsonFieldType.NULL).description("락커 인출일시 (현재 null)"),
                                 fieldWithPath("data.ownedRentals[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].lockerUniversity").type(JsonFieldType.NULL).description("사물함 학교"),
+                                fieldWithPath("data.ownedRentals[].lockerLocation").type(JsonFieldType.NULL).description("사물함 학교 상세 위치"),
+                                fieldWithPath("data.ownedRentals[].lockerNumber").type(JsonFieldType.NULL).description("사물함 번호"),
                                 fieldWithPath("data.ownedRentals[].owner").type(JsonFieldType.BOOLEAN).description("내가 소유자인지 여부"),
 
                                 subsectionWithPath("data.rentedRentals").type(JsonFieldType.ARRAY).description("대여자로서 빌린 목록"),
