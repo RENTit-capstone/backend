@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * MQTT 기반 Producer (서버 → 단말)
- *  topic 패턴 : locker/{deviceId}/{eligible|available|result}
+ *  topic 패턴 : locker/{deviceId}/{eligible|available|event}
  */
 @Component
 @RequiredArgsConstructor
@@ -57,7 +57,7 @@ public class LockerDeviceProducer {
     }
 
     public void pushResult(Long deviceId, CommonResponse<?> response) {
-        send(deviceId, "result", response);
+        send(deviceId, "event", response);
     }
 
     /* ---------- util ---------- */

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * MQTT Listener : 단말이 문을 닫은 뒤 보내는 RentalLockerEventMessage 수신
- *  topic 예)  locker/event   또는  locker/event/{something}
+ *  topic 예)  locker/request/event   또는  locker/request/event/{something}
  */
 @Slf4j
 @Component
@@ -34,7 +34,7 @@ public class RentalLockerEventListener {
         String topic = headers.get(MqttHeaders.RECEIVED_TOPIC, String.class);
 
         // event 토픽만 처리
-        if (!topic.startsWith("locker/event")) {
+        if (!topic.startsWith("locker/request/event")) {
             return;                 // 다른 메시지는 무시
         }
 
@@ -45,14 +45,14 @@ public class RentalLockerEventListener {
 
         CommonResponse<?> response;
         try {
-            switch (msg.type()) {
+            switch (msg.action()) {
                 case DROP_OFF_BY_OWNER ->
                         rentalService.dropOffToLocker(
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId());
                 case PICK_UP_BY_RENTER ->
                         rentalService.pickUpByRenter(
                                 msg.rentalId(), msg.memberId());
-                case RETURN_TO_LOCKER ->
+                case RETURN_BY_RENTER ->
                         rentalService.returnToLocker(
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId(), null);
                 case RETRIEVE_BY_OWNER ->

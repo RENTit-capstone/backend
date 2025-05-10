@@ -21,13 +21,13 @@ public class MemberExceptionHandler {
 
     @ExceptionHandler(UnsupportedMemberTypeException.class)
     public CommonResponse<Void> handleUnsupportedType(UnsupportedMemberTypeException ex) {
-        log.warn("Unsupported member type: {}", ex.getMessage());
+        log.warn("Unsupported member action: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 
     @ExceptionHandler(MemberTypeMismatchException.class)
     public CommonResponse<Void> handleTypeMismatch(MemberTypeMismatchException ex) {
-        log.warn("Member type mismatch: {}", ex.getMessage());
+        log.warn("Member action mismatch: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 }

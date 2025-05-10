@@ -41,7 +41,7 @@ public class LockerDeviceRequestListener {
     public void handle(Message<?> message) throws Exception {
         // 1) Inspect raw payload for debugging
         Object raw = message.getPayload();
-        log.debug("Raw payload type={}, value={}", raw.getClass().getSimpleName(), raw);
+        log.debug("Raw payload action={}, value={}", raw.getClass().getSimpleName(), raw);
 
         // 2) Convert to JSON string
         String json;
@@ -61,17 +61,8 @@ public class LockerDeviceRequestListener {
         // 5) Now this log will fire
         log.info("MQTT REQ [{}] ▶ {}", sub, req);
 
-        /* OTP → 사용자 */
-        log.info("find email start");
-
-        String email = otpService.validateAndResolveIdentifier(req.otpCode());
-        log.info("find email end {}", email);
-
-        MemberDto member = memberService.getMemberByEmail(email);
-        log.info("find member end {}", member.getName());
-
         switch (sub) {
-            case "eligible"  -> sendEligible(req, member);
+            case "eligible"  -> sendEligible(req);
             case "available" -> sendAvailable(req);
             default          -> log.warn("알 수 없는 요청 sub-topic: {}", sub);
         }
@@ -79,15 +70,23 @@ public class LockerDeviceRequestListener {
 
     /* ---------- helpers ---------- */
 
-    private void sendEligible(LockerDeviceRequest r, MemberDto member) {
-        log.info("send start");
+    private void sendEligible(LockerDeviceRequest r) {
+        /* OTP → 사용자 */
+        String email = "";
+        try {
+            email = otpService.validateAndResolveIdentifier(r.otpCode());
+        }
+        catch (RuntimeException e){
+            producer.pushEligibleRentals(r.deviceId(), CommonResponse.failure(e.getMessage()));
+            return;
+        }
+        MemberDto member = memberService.getMemberByEmail(email);
+
         List<RentalBriefResponseForLocker> rentals =
                 rentalService.findEligibleRentals(member.getMemberId(), r.action());
-        log.info("create response {}", rentals.size());
 
         producer.pushEligibleRentals(r.deviceId(),
-                CommonResponse.success(new EligibleRentalsEvent(r.deviceId(), r.action(), rentals)));
-        log.info("send end");
+                CommonResponse.success(new EligibleRentalsEvent(r.deviceId(), r.action(), member.getMemberId(), rentals)));
     }
 
 

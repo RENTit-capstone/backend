@@ -8,5 +8,6 @@ import java.util.List;
 public record EligibleRentalsEvent(
         Long deviceId,
         RentalLockerAction action,
+        Long memberId,
         List<RentalBriefResponseForLocker> rentals
 ) implements LockerDeviceEvent { }
