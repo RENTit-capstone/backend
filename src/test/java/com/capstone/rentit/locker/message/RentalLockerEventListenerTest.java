@@ -50,7 +50,7 @@ class RentalLockerEventListenerTest {
     @DisplayName("Unknown topic")
     class UnknownTopic {
         @Test
-        @DisplayName("Topic not starting with 'locker/event' is ignored")
+        @DisplayName("Topic not starting with 'locker/request/event' is ignored")
         void shouldIgnoreNonEventTopic() throws Exception {
             // given
             var msg = new RentalLockerEventMessage(
@@ -88,7 +88,7 @@ class RentalLockerEventListenerTest {
                         40L, // memberId
                         type
                 );
-                Message<byte[]> mqtt = mqttMsg(ev, "locker/event");
+                Message<byte[]> mqtt = mqttMsg(ev, "locker/request/event");
 
                 // when
                 listener.consume(mqtt);
@@ -135,7 +135,7 @@ class RentalLockerEventListenerTest {
                     8L,  // memberId
                     RentalLockerEventType.DROP_OFF_BY_OWNER
             );
-            Message<byte[]> mqtt = mqttMsg(ev, "locker/event");
+            Message<byte[]> mqtt = mqttMsg(ev, "locker/request/event");
 
             var ex = new RuntimeException("X error");
             doThrow(ex).when(rentalService)
