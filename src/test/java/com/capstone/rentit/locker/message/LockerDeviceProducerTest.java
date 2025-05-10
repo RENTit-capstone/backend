@@ -101,7 +101,7 @@ class LockerDeviceProducerTest {
 
             producer.pushResult(deviceId, response);
 
-            String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/result";
+            String topic = LockerMessagingConfig.RES_TOPIC_PREFIX + deviceId + "/event";
             String json = captureJson(topic);
 
             assertThat(json).contains("\"data\":null");

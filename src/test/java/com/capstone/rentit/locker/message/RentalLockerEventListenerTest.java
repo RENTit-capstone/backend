@@ -3,7 +3,7 @@ package com.capstone.rentit.locker.message;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.locker.dto.LockerActionResultEvent;
 import com.capstone.rentit.locker.dto.RentalLockerEventMessage;
-import com.capstone.rentit.locker.event.RentalLockerEventType;
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.rental.service.RentalService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +58,7 @@ class RentalLockerEventListenerTest {
                     2L, // lockerId
                     3L, // rentalId
                     4L, // memberId
-                    RentalLockerEventType.DROP_OFF_BY_OWNER
+                    RentalLockerAction.DROP_OFF_BY_OWNER
             );
             Message<byte[]> mqtt = mqttMsg(msg, "locker/other/topic");
 
@@ -76,7 +76,7 @@ class RentalLockerEventListenerTest {
         @Test
         @DisplayName("All event types invoke correct service and push success response")
         void shouldHandleAllEventTypesSuccessfully() throws Exception {
-            for (RentalLockerEventType type : RentalLockerEventType.values()) {
+            for (RentalLockerAction type : RentalLockerAction.values()) {
                 // reset between iterations
                 reset(rentalService, producer);
 
@@ -99,7 +99,7 @@ class RentalLockerEventListenerTest {
                             verify(rentalService).dropOffToLocker(30L, 40L, 10L, 20L);
                     case PICK_UP_BY_RENTER ->
                             verify(rentalService).pickUpByRenter(30L, 40L);
-                    case RETURN_TO_LOCKER ->
+                    case RETURN_BY_RENTER ->
                             verify(rentalService).returnToLocker(30L, 40L, 10L, 20L, null);
                     case RETRIEVE_BY_OWNER ->
                             verify(rentalService).retrieveByOwner(30L, 40L);
@@ -133,7 +133,7 @@ class RentalLockerEventListenerTest {
                     6L,  // lockerId
                     7L,  // rentalId
                     8L,  // memberId
-                    RentalLockerEventType.DROP_OFF_BY_OWNER
+                    RentalLockerAction.DROP_OFF_BY_OWNER
             );
             Message<byte[]> mqtt = mqttMsg(ev, "locker/request/event");
 
