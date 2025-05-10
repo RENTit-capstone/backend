@@ -75,9 +75,7 @@ class LockerDeviceRequestListenerTest {
                 10L,                 // deviceId
                 "00000",           // otpCode
                 action,             // action
-                20L,                 // rentalId
-                11L,                 // targetLockerId
-                "MY-UNI"           // university (not used currently)
+                20L                 // rentalId
         );
     }
 
