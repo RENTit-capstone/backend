@@ -141,6 +141,16 @@ public class RentalService {
         r.uploadReturnImageUrl(objectKey);
     }
 
+    public void uploadReturnImage(Long rentalId, Long renterId, MultipartFile returnImage) {
+        Rental r = findRental(rentalId);
+        assertRenter(r, renterId);
+        assertReturnState(r);
+
+        assertReturnImage(returnImage);
+        String objectKey = fileStorageService.store(returnImage);
+        r.uploadReturnImageUrl(objectKey);
+    }
+
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
     public void retrieveByOwner(Long rentalId, Long ownerId) {
         Rental r = findRental(rentalId);
@@ -190,6 +200,12 @@ public class RentalService {
     private void assertReturnImage(MultipartFile img) {
         if (img == null || img.isEmpty()) {
             throw new ReturnImageMissingException("물품 반납 사진이 없습니다.");
+        }
+    }
+
+    private void assertReturnState(Rental r) {
+        if(r.getStatus() != RentalStatusEnum.RETURNED_TO_LOCKER){
+            throw new ItemNotReturnedException("반납된 물품이 아닙니다.");
         }
     }
 }

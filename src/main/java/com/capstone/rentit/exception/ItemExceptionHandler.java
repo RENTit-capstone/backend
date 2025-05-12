@@ -4,6 +4,7 @@ import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.item.exception.ItemImageMissingException;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
+import com.capstone.rentit.rental.exception.ItemNotReturnedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -28,6 +29,12 @@ public class ItemExceptionHandler {
 
     @ExceptionHandler(ItemImageMissingException.class)
     public CommonResponse<Void> handleMissedImage(ItemImageMissingException ex) {
+        log.warn("Item don't have images: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
+    @ExceptionHandler(ItemNotReturnedException.class)
+    public CommonResponse<Void> handleNotItemReturned(ItemNotReturnedException ex) {
         log.warn("Item don't have images: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
