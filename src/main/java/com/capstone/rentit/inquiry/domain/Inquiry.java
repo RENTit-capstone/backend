@@ -43,6 +43,9 @@ public class Inquiry {
     @Column(length = 4000)
     private String answer;
 
+    @Column
+    private LocalDateTime processedAt;
+
     public void answerInquiry(InquiryAnswerForm form){
         answer = form.answer();
         markProcessed();
@@ -50,5 +53,6 @@ public class Inquiry {
 
     public void markProcessed() {
         this.processed = true;
+        this.processedAt = LocalDateTime.now();
     }
 }
