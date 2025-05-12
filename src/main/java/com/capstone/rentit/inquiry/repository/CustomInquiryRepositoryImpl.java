@@ -26,7 +26,7 @@ public class CustomInquiryRepositoryImpl implements CustomInquiryRepository {
         cond.and(q.type.eq(form.type()));
         if (form.processed() != null)   cond.and(q.processed.eq(form.processed()));
         if (form.fromDate() != null)    cond.and(q.createdAt.goe(form.fromDate()));
-        if (form.toDate() != null)      cond.and(q.createdAt.loe(form.toDate().plusSeconds(1)));
+        if (form.toDate() != null)      cond.and(q.createdAt.loe(form.toDate().plusSeconds(10)));
 
         // --- Query 준비 --- //
         var baseQuery = queryFactory

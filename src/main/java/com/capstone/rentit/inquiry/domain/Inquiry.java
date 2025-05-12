@@ -1,5 +1,6 @@
 package com.capstone.rentit.inquiry.domain;
 
+import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
 import com.capstone.rentit.inquiry.type.InquiryType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,7 +40,19 @@ public class Inquiry {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(length = 4000)
+    private String answer;
+
+    @Column
+    private LocalDateTime processedAt;
+
+    public void answerInquiry(InquiryAnswerForm form){
+        answer = form.answer();
+        markProcessed();
+    }
+
     public void markProcessed() {
         this.processed = true;
+        this.processedAt = LocalDateTime.now();
     }
 }

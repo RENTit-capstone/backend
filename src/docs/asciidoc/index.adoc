@@ -474,7 +474,25 @@ include::{snippets}/admin-search-inquiries/response-fields.adoc[]
 include::{snippets}/admin-search-inquiries/http-response.adoc[]
 
 === 관리자용 문의 처리
-PUT /api/v1/{id}/processed
+PUT /api/v1/admin/inquiries/{id}/answer
+
+==== 패스 파라미터
+include::{snippets}/admin-answer-inquiry/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/admin-answer-inquiry/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/admin-answer-inquiry/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/admin-answer-inquiry/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/admin-answer-inquiry/http-response.adoc[]
+
+=== 관리자용 문의 처리
+PUT /api/v1/admin/inquiries/{id}/processed
 
 ==== 패스 파라미터
 include::{snippets}/mark-processed/path-parameters.adoc[]

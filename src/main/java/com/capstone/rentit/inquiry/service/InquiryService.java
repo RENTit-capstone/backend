@@ -1,6 +1,7 @@
 package com.capstone.rentit.inquiry.service;
 
 import com.capstone.rentit.inquiry.domain.Inquiry;
+import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
 import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
 import com.capstone.rentit.inquiry.dto.InquiryResponse;
 import com.capstone.rentit.inquiry.dto.InquirySearchForm;
@@ -56,12 +57,17 @@ public class InquiryService {
         return page.map(InquiryResponse::fromEntity);
     }
 
-    public void deleteInquiry(Long id) {
-        inquiryRepository.deleteById(id);
+    public void deleteInquiry(Long inquiryId) {
+        inquiryRepository.deleteById(inquiryId);
     }
 
-    public void markProcessed(Long id) {
-        Inquiry inquiry = findInquiry(id);
+    public void answerInquiry(Long inquiryId, InquiryAnswerForm form){
+        Inquiry inquiry = findInquiry(inquiryId);
+        inquiry.answerInquiry(form);
+    }
+
+    public void markProcessed(Long inquiryId) {
+        Inquiry inquiry = findInquiry(inquiryId);
         inquiry.markProcessed();
     }
 

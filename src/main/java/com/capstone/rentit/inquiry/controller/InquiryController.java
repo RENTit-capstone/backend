@@ -1,6 +1,7 @@
 package com.capstone.rentit.inquiry.controller;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
 import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
 import com.capstone.rentit.inquiry.dto.InquiryResponse;
 import com.capstone.rentit.inquiry.dto.InquirySearchForm;
@@ -31,6 +32,20 @@ public class InquiryController {
         return CommonResponse.success(inquiryService.createInquiry(form));
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/inquiries/{id}")
+    public CommonResponse<InquiryResponse> findInquiry(@PathVariable Long id) {
+        return CommonResponse.success(inquiryService.getInquiry(id));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/inquiries")
+    public CommonResponse<List<InquiryResponse>> search(
+            @Login MemberDto memberDto,
+            @ModelAttribute("type") InquiryType type) {
+        return CommonResponse.success(inquiryService.getInquiries(memberDto.getMemberId(), type));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/inquiries/{id}")
     public CommonResponse<InquiryResponse> findInquiryForAdmin(@PathVariable Long id) {
@@ -47,22 +62,18 @@ public class InquiryController {
         return CommonResponse.success(inquiryService.search(form, pageable));
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/inquiries/{id}")
-    public CommonResponse<InquiryResponse> findInquiry(@PathVariable Long id) {
-        return CommonResponse.success(inquiryService.getInquiry(id));
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/inquiries")
-    public CommonResponse<List<InquiryResponse>> search(
-            @Login MemberDto memberDto,
-            @ModelAttribute("type") InquiryType type) {
-        return CommonResponse.success(inquiryService.getInquiries(memberDto.getMemberId(), type));
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(value = "/admin/inquiries/{id}/answer")
+    public CommonResponse<Long> answerInquiry(
+            @PathVariable("id") Long inquiryId,
+            @RequestBody InquiryAnswerForm form
+    ) {
+        inquiryService.answerInquiry(inquiryId, form);
+        return CommonResponse.success(null);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/inquiries/{id}/processed")
+    @PutMapping("/admin/inquiries/{id}/processed")
     public CommonResponse<Void> markProcessed(@PathVariable Long id) {
         inquiryService.markProcessed(id);
         return CommonResponse.success(null);
