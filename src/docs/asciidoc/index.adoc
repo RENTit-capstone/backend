@@ -323,6 +323,24 @@ include::{snippets}/get-rentals-by-user/http-request.adoc[]
 ==== 응답 필드
 include::{snippets}/get-rentals-by-user/response-fields.adoc[]
 
+=== 반납 이미지 업로드
+POST /api/v1//rentals/{rentalId}/return-image
+
+==== 요청 필드
+include::{snippets}/upload-return-image/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/upload-return-image/request-parts.adoc[]
+
+==== HTTP 요청
+include::{snippets}/upload-return-image/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/upload-return-image/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/upload-return-image/http-response.adoc[]
+
 == OTP API
 === OTP 요청
 POST /api/v1/auth/otp
