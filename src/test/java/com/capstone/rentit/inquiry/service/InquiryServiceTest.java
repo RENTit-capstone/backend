@@ -1,6 +1,7 @@
 package com.capstone.rentit.inquiry.service;
 
 import com.capstone.rentit.inquiry.domain.Inquiry;
+import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
 import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
 import com.capstone.rentit.inquiry.dto.InquiryResponse;
 import com.capstone.rentit.inquiry.dto.InquirySearchForm;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -173,6 +176,43 @@ class InquiryServiceTest {
     void deleteInquiry_invokesRepository() {
         inquiryService.deleteInquiry(77L);
         verify(inquiryRepository, times(1)).deleteById(77L);
+    }
+
+    @Test
+    @DisplayName("존재하는 문의에 대해 호출하면, 답변이 설정되고 저장된다")
+    void itSetsAnswerAndSaves_whenInquiryExists() {
+        // given
+        Long inquiryId = 99L;
+        InquiryAnswerForm form = new InquiryAnswerForm("관리자 답변 내용");
+        Inquiry inquiry = Inquiry.builder()
+                .inquiryId(inquiryId)
+                .processed(false)
+                .build();
+
+        given(inquiryRepository.findById(inquiryId)).willReturn(Optional.of(inquiry));
+
+        // when
+        inquiryService.answerInquiry(inquiryId, form);
+
+        // then
+        verify(inquiryRepository).findById(inquiryId);
+
+        assertTrue(inquiry.isProcessed());
+        assertEquals("관리자 답변 내용", inquiry.getAnswer());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 문의 ID로 호출하면 예외를 던진다")
+    void itThrows_whenInquiryNotFound() {
+        // given
+        Long inquiryId = 99L;
+        InquiryAnswerForm form = new InquiryAnswerForm("답변");
+        given(inquiryRepository.findById(inquiryId))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(InquiryNotFoundException.class,
+                () -> inquiryService.answerInquiry(inquiryId, form));
     }
 
     @Test

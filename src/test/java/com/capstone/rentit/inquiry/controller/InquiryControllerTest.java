@@ -3,6 +3,7 @@ package com.capstone.rentit.inquiry.controller;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.file.service.FileStorageService;
+import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
 import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
 import com.capstone.rentit.inquiry.dto.InquiryResponse;
 import com.capstone.rentit.inquiry.dto.InquirySearchForm;
@@ -50,13 +51,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -122,7 +123,7 @@ class InquiryControllerTest {
                                 fieldWithPath("content").type(JsonFieldType.STRING).description("문의 내용"),
                                 fieldWithPath("type").type(JsonFieldType.STRING).description("문의 타입")
                         ),
-                        PayloadDocumentation.responseFields(
+                        responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 문의 ID"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지 또는 빈 문자열")
@@ -146,7 +147,7 @@ class InquiryControllerTest {
                         pathParameters(
                                 parameterWithName("id").description("문의 ID")
                         ),
-                        PayloadDocumentation.responseFields(
+                        responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
                                 fieldWithPath("data.inquiryId").type(JsonFieldType.NUMBER).description("문의 ID"),
                                 fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("문의 요청 사용자 ID"),
@@ -192,7 +193,7 @@ class InquiryControllerTest {
                         RequestDocumentation.queryParameters(
                                 parameterWithName("type").description("문의 타입")
                         ),
-                        PayloadDocumentation.responseFields(
+                        responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
                                 fieldWithPath("data[].inquiryId").type(JsonFieldType.NUMBER).description("문의 ID"),
                                 fieldWithPath("data[].memberId").type(JsonFieldType.NUMBER).description("작성자 ID"),
@@ -221,7 +222,7 @@ class InquiryControllerTest {
                         pathParameters(
                                 parameterWithName("id").description("문의 ID")
                         ),
-                        PayloadDocumentation.responseFields(
+                        responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
                                 fieldWithPath("data.inquiryId").type(JsonFieldType.NUMBER).description("문의 ID"),
                                 fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("문의 요청 사용자 ID"),
@@ -278,10 +279,53 @@ class InquiryControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /api/v1/{id}/processed - 관리자 처리 API")
+    @DisplayName("PUT /api/v1/admin/inquiries/{id}/answer - 관리자 답변 등록")
+    @WithMockUser(roles = "ADMIN")
+    void answerInquiryForAdmin() throws Exception {
+        // GIVEN
+        Long inquiryId = 42L;
+        var form = new InquiryAnswerForm("회신 내용");
+        doNothing().when(inquiryService).answerInquiry(inquiryId, form);
+
+        // WHEN & THEN
+        mockMvc.perform(put("/api/v1/admin/inquiries/{id}/answer", inquiryId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(form)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").value(nullValue()))
+                .andExpect(jsonPath("$.message").value(""))
+                .andDo(document("admin-answer-inquiry",
+                        Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                        pathParameters(
+                                parameterWithName("id").description("문의 ID")
+                        ),
+                        requestFields(
+                                fieldWithPath("answer")
+                                        .type(JsonFieldType.STRING)
+                                        .description("관리자가 남기는 답변 내용")
+                        ),
+                        responseFields(
+                                fieldWithPath("success")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("성공 여부"),
+                                fieldWithPath("data")
+                                        .type(JsonFieldType.NULL)
+                                        .description("항상 null"),
+                                fieldWithPath("message")
+                                        .type(JsonFieldType.STRING)
+                                        .description("에러 메시지 또는 빈 문자열")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("PUT /admin/inquiries/{id}/processed - 관리자 처리 API")
     @WithMockUser(roles = "ADMIN")
     void markProcessed() throws Exception {
-        mockMvc.perform(put("/api/v1/{id}/processed", 99L)
+        mockMvc.perform(put("/admin/inquiries/{id}/processed", 99L)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(document("mark-processed",
@@ -290,7 +334,7 @@ class InquiryControllerTest {
                         pathParameters(
                                 parameterWithName("id").description("문의 ID")
                         ),
-                        PayloadDocumentation.responseFields(
+                        responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지 또는 빈 문자열")
