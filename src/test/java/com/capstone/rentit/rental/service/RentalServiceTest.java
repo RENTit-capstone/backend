@@ -441,4 +441,80 @@ class RentalServiceTest {
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 소유자가 아닙니다.");
     }
+
+    @Test
+    @DisplayName("대여 정보가 없으면 RentalNotFoundException")
+    void uploadReturnImage_notFound() {
+        // given
+        given(rentalRepository.findById(1L)).willReturn(Optional.empty());
+        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(1L, 10L, file))
+                .isInstanceOf(RentalNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 대여 정보입니다.");
+    }
+
+    @Test
+    @DisplayName("renterId 가 일치하지 않으면 RentalUnauthorizedException")
+    void uploadReturnImage_unauthorized() {
+        // given
+        Rental rental = Rental.builder()
+                .rentalId(2L)
+                .renterId(5L)              // 실제 대여자 ID = 5
+                .status(RentalStatusEnum.RETURNED_TO_LOCKER)
+                .build();
+        given(rentalRepository.findById(2L)).willReturn(Optional.of(rental));
+        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(2L, 99L, file))
+                .isInstanceOf(RentalUnauthorizedException.class)
+                .hasMessageContaining("대여자가 아닙니다.");
+    }
+
+    @Test
+    @DisplayName("상태가 RETURNED_TO_LOCKER 가 아니면 ItemNotReturnedException")
+    void uploadReturnImage_wrongState() {
+        // given
+        Rental rental = Rental.builder()
+                .rentalId(3L)
+                .renterId(7L)
+                .status(RentalStatusEnum.PICKED_UP)  // 아직 RETURNED_TO_LOCKER 아님
+                .build();
+        given(rentalRepository.findById(3L)).willReturn(Optional.of(rental));
+        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(3L, 7L, file))
+                .isInstanceOf(ItemNotReturnedException.class)
+                .hasMessageContaining("반납된 물품이 아닙니다.");
+    }
+
+    @Test
+    @DisplayName("정상 흐름: 파일 저장 후 Rental.uploadReturnImageUrl 호출")
+    void uploadReturnImage_success() {
+        // given
+        Rental rental = Mockito.spy(Rental.builder()
+                .rentalId(4L)
+                .renterId(8L)
+                .status(RentalStatusEnum.RETURNED_TO_LOCKER)
+                .build());
+        given(rentalRepository.findById(4L)).willReturn(Optional.of(rental));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "returnImage",
+                "receipt.jpg",
+                "image/jpeg",
+                "dummy".getBytes()
+        );
+        given(fileStorageService.store(file)).willReturn("stored/object/key.jpg");
+
+        // when
+        rentalService.uploadReturnImage(4L, 8L, file);
+
+        // then
+        then(fileStorageService).should().store(file);
+        then(rental).should().uploadReturnImageUrl("stored/object/key.jpg");
+    }
 }

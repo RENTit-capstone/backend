@@ -37,8 +37,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
@@ -400,5 +402,55 @@ class RentalControllerTest {
                 ));
 
         verify(rentalService).getRentalsByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/v1/rentals/{rentalId}/return-image — 반납 이미지 업로드 성공")
+    void uploadReturnImage_success() throws Exception {
+        // given
+        long rentalId = 42L;
+        Student student = Student.builder().memberId(20L).role(MemberRoleEnum.STUDENT).build();
+        MemberDetails md = new MemberDetails(student);
+        Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
+
+        //when, then
+        MockMultipartFile returnImage = new MockMultipartFile(
+                "returnImage",
+                "photo.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "dummy-bytes".getBytes()
+        );
+
+        willDoNothing().given(rentalService)
+                .uploadReturnImage(eq(rentalId), anyLong(), any());
+
+        // when & then
+        mockMvc.perform(multipart("/api/v1/rentals/{rentalId}/return-image", rentalId)
+                        .file(returnImage)
+                        .with(csrf())
+                        .with(authentication(auth))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.message").isEmpty())
+                .andDo(document("upload-return-image",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        pathParameters(
+                                parameterWithName("rentalId").description("대여 정보 ID")
+                        ),
+                        requestParts(
+                                partWithName("returnImage").description("업로드할 반납 이미지 파일")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("요청 성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("응답 데이터 (항상 null)"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공시 빈 문자열 실패시 에러 메시지")
+                        )
+                ));
+
+        verify(rentalService).uploadReturnImage(eq(rentalId), anyLong(), any());
     }
 }
