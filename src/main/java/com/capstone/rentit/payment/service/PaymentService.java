@@ -3,6 +3,8 @@ package com.capstone.rentit.payment.service;
 import com.capstone.rentit.payment.domain.*;
 import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.ExternalPaymentFailedException;
+import com.capstone.rentit.payment.exception.PaymentNotLockerException;
+import com.capstone.rentit.payment.exception.WalletNotFoundException;
 import com.capstone.rentit.payment.nh.*;
 import com.capstone.rentit.payment.repository.*;
 import com.capstone.rentit.payment.type.PaymentType;
@@ -14,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final WalletRepository walletRepo;
-    private final PaymentRepository payRepo;
+    private final WalletRepository walletRepository;
+    private final PaymentRepository paymentRepository;
     private final NhBankClient nhBank;
 
     /* ------------ 1. 현금 ⇆ 포인트 ------------ */
@@ -24,7 +26,7 @@ public class PaymentService {
     public PaymentResponse topUp(TopUpRequest req) {
 
         Wallet wallet = getOrCreateWallet(req.memberId());
-        Payment payment = payRepo.save(
+        Payment payment = paymentRepository.save(
                 Payment.create(PaymentType.TOP_UP, req.memberId(), null, req.amount()));
 
         NhTransferResponse nh = nhBank.withdrawFromUser(req.memberId(), req.amount(),
@@ -41,8 +43,8 @@ public class PaymentService {
     @Transactional
     public PaymentResponse withdraw(WithdrawalRequest req) {
 
-        Wallet wallet = walletRepo.findForUpdate(req.memberId());
-        Payment payment = payRepo.save(
+        Wallet wallet = findWallet(req.memberId());
+        Payment payment = paymentRepository.save(
                 Payment.create(PaymentType.WITHDRAWAL, null, req.memberId(), req.amount()));
 
         wallet.withdraw(req.amount());
@@ -63,10 +65,10 @@ public class PaymentService {
     @Transactional
     public PaymentResponse payRentalFee(RentalPaymentRequest req) {
 
-        Wallet renter = walletRepo.findForUpdate(req.renterId());
-        Wallet owner  = walletRepo.findForUpdate(req.ownerId());
+        Wallet renter = findWallet(req.renterId());
+        Wallet owner  = findWallet(req.ownerId());
 
-        Payment tx = payRepo.save(
+        Payment tx = paymentRepository.save(
                 Payment.create(PaymentType.RENTAL_FEE, req.renterId(), req.ownerId(), req.rentalFee()));
 
         renter.withdraw(req.rentalFee());
@@ -80,21 +82,18 @@ public class PaymentService {
     @Transactional
     public PaymentResponse payLockerFee(LockerPaymentRequest req) {
 
-        if (req.lockerFeeType() != PaymentType.LOCKER_FEE_OWNER &&
-                req.lockerFeeType() != PaymentType.LOCKER_FEE_RENTER) {
-            throw new IllegalArgumentException("lockerFeeType must be *_LOCKER_*");
-        }
+        assertLockerFee(req);
 
-        Wallet payer = walletRepo.findForUpdate(req.payerId());
+        Wallet payer = findWallet(req.payerId());
 
         /* 사물함 운영 계정(가맹점) — 시스템 내 pseudo memberId. 예: 0L */
-        Wallet operator = walletRepo.findForUpdate(0L);
+//        Wallet operator = walletRepository.findForUpdate(0L);
 
-        Payment tx = payRepo.save(
+        Payment tx = paymentRepository.save(
                 Payment.create(req.lockerFeeType(), req.payerId(), 0L, req.fee()));
 
         payer.withdraw(req.fee());
-        operator.deposit(req.fee());
+//        operator.deposit(req.fee());
 
         tx.approve(null);
         return new PaymentResponse(tx.getId(), tx.getStatus());
@@ -102,9 +101,22 @@ public class PaymentService {
 
     /* ------------ Util ------------ */
 
+    private Wallet findWallet(Long memberId){
+        return walletRepository.findForUpdate(memberId)
+                .orElseThrow(() ->
+                        new WalletNotFoundException("해당 사용자의 지갑을 찾을 수 없습니다."));
+    }
+
     private Wallet getOrCreateWallet(Long memberId) {
-        return walletRepo.findById(memberId)
-                .orElseGet(() -> walletRepo.save(
+        return walletRepository.findById(memberId)
+                .orElseGet(() -> walletRepository.save(
                         Wallet.builder().memberId(memberId).balance(0L).build()));
+    }
+
+    private void assertLockerFee(LockerPaymentRequest req) {
+        if (req.lockerFeeType() != PaymentType.LOCKER_FEE_OWNER &&
+                req.lockerFeeType() != PaymentType.LOCKER_FEE_RENTER) {
+            throw new PaymentNotLockerException("사물함 비용 결제가 아닙니다.");
+        }
     }
 }
