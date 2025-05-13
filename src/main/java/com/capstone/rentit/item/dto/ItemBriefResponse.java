@@ -14,7 +14,7 @@ public class ItemBriefResponse {
 
     private Long itemId;
     private String name;
-    private Integer price;
+    private long price;
     private ItemStatusEnum status;
     private String thumbnailUrl;
     private LocalDateTime createdAt;

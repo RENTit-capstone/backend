@@ -45,7 +45,7 @@ public class Item {
     @Column(length = 500)
     private String damagedDescription;
 
-    private Integer price;
+    private long price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

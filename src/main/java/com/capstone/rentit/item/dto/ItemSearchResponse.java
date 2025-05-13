@@ -21,7 +21,7 @@ public class ItemSearchResponse {
     private List<String> imageUrls;
     private String description;
     private String damagedDescription;
-    private Integer price;
+    private long price;
     private ItemStatusEnum status;
     private String damagedPolicy;
     private String returnPolicy;
