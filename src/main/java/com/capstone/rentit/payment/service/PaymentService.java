@@ -99,6 +99,11 @@ public class PaymentService {
         return new PaymentResponse(tx.getId(), tx.getStatus());
     }
 
+    public void assertCheckBalance(Long memberId, long fee){
+        Wallet wallet = findWallet(memberId);
+        wallet.checkBalance(fee);
+    }
+
     /* ------------ Util ------------ */
 
     private Wallet findWallet(Long memberId){
