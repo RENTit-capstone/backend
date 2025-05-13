@@ -38,4 +38,9 @@ public class RentalExceptionHandler {
         return CommonResponse.failure(ex.getMessage());
     }
 
+    @ExceptionHandler(RentalCantCanceledException.class)
+    public CommonResponse<Void> handleCantCancel(RentalCantCanceledException ex) {
+        log.info("Cant cancel rental: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
 }
