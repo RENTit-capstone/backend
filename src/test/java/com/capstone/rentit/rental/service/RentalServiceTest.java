@@ -7,6 +7,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.payment.service.PaymentService;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
 import com.capstone.rentit.rental.dto.RentalDto;
@@ -41,6 +42,7 @@ class RentalServiceTest {
     @Mock RentalRepository     rentalRepository;
     @Mock ItemRepository       itemRepository;
     @Mock FileStorageService   fileStorageService;
+    @Mock PaymentService paymentService;
 
     @InjectMocks RentalService rentalService;
 
@@ -283,12 +285,23 @@ class RentalServiceTest {
     @Test
     @DisplayName("reject: 거절 후 상태 REJECTED")
     void reject_success() {
-        Rental r = Rental.builder().rentalId(8L).build();
+        Rental r = Rental.builder().rentalId(8L).status(RentalStatusEnum.REQUESTED).build();
         given(rentalRepository.findById(8L)).willReturn(Optional.of(r));
 
         rentalService.reject(8L);
 
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.REJECTED);
+    }
+
+    @Test
+    @DisplayName("reject: 승인된 대여는 RentalCantCanceledException")
+    void reject_cantCancel() {
+        Rental r = Rental.builder().rentalId(8L).status(RentalStatusEnum.APPROVED).build();
+        given(rentalRepository.findById(8L)).willReturn(Optional.of(r));
+
+        assertThatThrownBy(() -> rentalService.reject(8L))
+                .isInstanceOf(RentalCantCanceledException.class)
+                .hasMessageContaining("승인된 대여는 취소할 수 없습니다.");
     }
 
     // ---- cancel ----
@@ -309,7 +322,7 @@ class RentalServiceTest {
                 .rentalId(7L)
                 .itemId(100L)
                 .renterId(20L)
-                .status(RentalStatusEnum.APPROVED)
+                .status(RentalStatusEnum.REQUESTED)
                 .build();
         given(rentalRepository.findById(7L)).willReturn(Optional.of(r));
         Item i = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
@@ -322,6 +335,22 @@ class RentalServiceTest {
         assertThatThrownBy(() -> rentalService.cancel(7L,999L))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 대여자가 아닙니다.");
+    }
+
+    @Test
+    @DisplayName("cancel: 대여 취소 불가능하면 RentalCantCanceledException")
+    void cancel_cant() {
+        Rental r = Rental.builder()
+                .rentalId(7L)
+                .itemId(100L)
+                .renterId(20L)
+                .status(RentalStatusEnum.APPROVED)
+                .build();
+        given(rentalRepository.findById(7L)).willReturn(Optional.of(r));
+
+        assertThatThrownBy(() -> rentalService.cancel(7L,20L))
+                .isInstanceOf(RentalCantCanceledException.class)
+                .hasMessageContaining("승인된 대여는 취소할 수 없습니다.");
     }
 
     // ---- dropOffToLocker ----
