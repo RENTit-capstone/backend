@@ -174,4 +174,44 @@ class PaymentServiceTest {
                     .isInstanceOf(PaymentNotLockerException.class);
         }
     }
+
+    @Nested class AssertBalanceTests {
+
+        @Test void assertCheckBalance_success() {
+            // given – 잔액이 충분한 지갑
+            Wallet wallet = walletOf(MEMBER_A, AMOUNT);
+            given(walletRepo.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
+
+            // when / then – 예외가 발생하지 않아야 한다
+            paymentService.assertCheckBalance(MEMBER_A, AMOUNT);
+        }
+
+        @Test void assertCheckBalance_insufficient_throws() {
+            // given – 잔액 부족
+            Wallet wallet = walletOf(MEMBER_A, 1_000);
+            given(walletRepo.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
+
+            // when / then
+            assertThatThrownBy(() ->
+                    paymentService.assertCheckBalance(MEMBER_A, AMOUNT))
+                    .isInstanceOf(InsufficientBalanceException.class);
+        }
+
+        @Test void assertCheckBalance_invalidAmount_throws() {
+            Wallet wallet = walletOf(MEMBER_A, AMOUNT);
+            given(walletRepo.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
+
+            assertThatThrownBy(() ->
+                    paymentService.assertCheckBalance(MEMBER_A, 0))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test void assertCheckBalance_walletNotFound_throws() {
+            given(walletRepo.findForUpdate(MEMBER_A)).willReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                    paymentService.assertCheckBalance(MEMBER_A, AMOUNT))
+                    .isInstanceOf(WalletNotFoundException.class);
+        }
+    }
 }
