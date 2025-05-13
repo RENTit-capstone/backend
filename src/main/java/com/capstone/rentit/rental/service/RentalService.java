@@ -7,6 +7,10 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.payment.dto.LockerPaymentRequest;
+import com.capstone.rentit.payment.dto.RentalPaymentRequest;
+import com.capstone.rentit.payment.service.PaymentService;
+import com.capstone.rentit.payment.type.PaymentType;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.*;
 import com.capstone.rentit.rental.exception.*;
@@ -32,21 +36,15 @@ public class RentalService {
     private final RentalRepository rentalRepository;
     private final ItemRepository itemRepository;
     private final FileStorageService fileStorageService;
+    private final PaymentService paymentService;
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
         Item item = findItem(form.getItemId());
         assertItemAvailable(item);
+        paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
-        Rental rental = Rental.builder()
-                .itemId(form.getItemId())
-                .ownerId(form.getOwnerId())
-                .renterId(form.getRenterId())
-                .requestDate(LocalDateTime.now())
-                .startDate(form.getStartDate())
-                .status(RentalStatusEnum.REQUESTED)
-                .dueDate(form.getDueDate())
-                .build();
+        Rental rental = Rental.create(form);
         return rentalRepository.save(rental).getRentalId();
     }
 
@@ -76,22 +74,32 @@ public class RentalService {
 
         Item item = findItem(r.getItemId());
         item.updateOut();
+
+        paymentService.payRentalFee(new RentalPaymentRequest(r.getRenterId(), r.getOwnerId(), item.getPrice()));
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
     public void reject(Long rentalId) {
         Rental r = findRental(rentalId);
+        assertBeforeApproved(r);
         r.reject(LocalDateTime.now());
     }
 
     /** 6) 대여 취소 (반드시 대여자만) */
-    public void cancel(Long rentalId, Long requesterId) {
+    public void cancel(Long rentalId, Long renterId) {
         Rental r = findRental(rentalId);
-        assertRenter(r, requesterId);
+        assertRenter(r, renterId);
+        assertBeforeApproved(r);
 
         r.cancel();
         Item item = findItem(r.getItemId());
         item.updateAvailable();
+    }
+
+    private void assertBeforeApproved(Rental r) {
+        if(r.getStatus() != RentalStatusEnum.REQUESTED){
+            throw new RentalCantCanceledException("승인된 대여는 취소할 수 없습니다.");
+        }
     }
 
     /** 관리자: 특정 사용자 대여 목록 조회 */
@@ -126,6 +134,9 @@ public class RentalService {
 
         r.clearLocker();
         r.pickUpByRenter(LocalDateTime.now());
+
+        paymentService.payLockerFee(
+                new LockerPaymentRequest(renterId, PaymentType.LOCKER_FEE_RENTER, r.getItem().getPrice()));
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
@@ -161,6 +172,9 @@ public class RentalService {
 
         Item item = findItem(r.getItemId());
         item.updateAvailable();
+
+        paymentService.payLockerFee(
+                new LockerPaymentRequest(ownerId, PaymentType.LOCKER_FEE_OWNER, r.getItem().getPrice()));
     }
 
     private Rental findRental(Long id) {
