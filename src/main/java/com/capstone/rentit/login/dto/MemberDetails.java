@@ -4,6 +4,7 @@ import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.member.domain.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -64,4 +65,6 @@ public class MemberDetails implements UserDetails {
     public boolean isEnabled() {
         return !member.isLocked();
     }
+
+    public Long getMemberId() { return member.getMemberId(); }
 }
