@@ -7,6 +7,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.payment.domain.Wallet;
 import com.capstone.rentit.payment.service.PaymentService;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
@@ -196,34 +197,55 @@ class RentalServiceTest {
         // given
         Long memberId = 42L;
         RentalLockerAction action = RentalLockerAction.PICK_UP_BY_RENTER;
+        long walletBalance = 20000L;
+        long lockerFee     = 1000L;
 
-        Rental sample = Rental.builder()
+        Item item = Item.builder()
+                .itemId(555L)
+                .ownerId(99L)
+                .name("test item")
+                .build();
+
+        Rental rental = Rental.builder()
                 .rentalId(123L)
                 .ownerId(99L)
                 .renterId(memberId)
-                .itemId(555L)
-                .item(Item.builder().itemId(555L).name("test item").ownerId(99L).build())
+                .itemId(item.getItemId())
+                .item(item)
                 .status(RentalStatusEnum.LEFT_IN_LOCKER)
                 .requestDate(LocalDateTime.of(2025,5,1,10,30))
                 .dueDate(LocalDateTime.of(2025,5,8,10,30))
                 .startDate(LocalDateTime.of(2025,5,2,10,30))
                 .build();
 
+        Wallet wallet = Wallet.builder()
+                .memberId(memberId)
+                .balance(walletBalance)
+                .build();
+
+        given(paymentService.findWallet(memberId)).willReturn(wallet);
         given(rentalRepository.findEligibleRentals(memberId, action))
-                .willReturn(List.of(sample));
+                .willReturn(List.of(rental));
+        given(paymentService.getLockerFeeByAction(action, rental))
+                .willReturn(lockerFee);
 
         // when
         List<RentalBriefResponseForLocker> dtos =
                 rentalService.findEligibleRentals(memberId, action);
 
         // then
+        then(paymentService).should().findWallet(memberId);
         then(rentalRepository).should().findEligibleRentals(memberId, action);
+        then(paymentService).should().getLockerFeeByAction(action, rental);
+
         assertThat(dtos)
                 .hasSize(1)
                 .first()
                 .satisfies(dto -> {
                     assertThat(dto.getRentalId()).isEqualTo(123L);
                     assertThat(dto.getItemId()).isEqualTo(555L);
+                    assertThat(dto.getBalance()).isEqualTo(walletBalance); // DTO 필드명에 맞게 조정
+                    assertThat(dto.getFee()).isEqualTo(lockerFee);        // DTO 필드명에 맞게 조정
                 });
     }
 
@@ -386,7 +408,7 @@ class RentalServiceTest {
     @DisplayName("pickUpByRenter: 대여 없으면 RentalNotFoundException")
     void pickUp_notFound() {
         given(rentalRepository.findById(11L)).willReturn(Optional.empty());
-        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,20L))
+        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,20L, 0))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -398,11 +420,11 @@ class RentalServiceTest {
         r.assignLocker(777L, 4L);
         given(rentalRepository.findById(11L)).willReturn(Optional.of(r));
 
-        rentalService.pickUpByRenter(11L,20L);
+        rentalService.pickUpByRenter(11L,20L, 0);
         assertThat(r.getLockerId()).isNull();
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.PICKED_UP);
 
-        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,999L))
+        assertThatThrownBy(() -> rentalService.pickUpByRenter(11L,999L, 0))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 대여자가 아닙니다.");
     }
@@ -449,7 +471,7 @@ class RentalServiceTest {
     @DisplayName("retrieveByOwner: 대여 없으면 RentalNotFoundException")
     void retrieve_notFound() {
         given(rentalRepository.findById(14L)).willReturn(Optional.empty());
-        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,10L))
+        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,10L, 0))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -462,11 +484,11 @@ class RentalServiceTest {
         Item i = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
         given(itemRepository.findById(100L)).willReturn(Optional.of(i));
 
-        rentalService.retrieveByOwner(14L,10L);
+        rentalService.retrieveByOwner(14L,10L, 0);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.COMPLETED);
         assertThat(i.getStatus()).isEqualTo(ItemStatusEnum.AVAILABLE);
 
-        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,999L))
+        assertThatThrownBy(() -> rentalService.retrieveByOwner(14L,999L, 0))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 소유자가 아닙니다.");
     }
