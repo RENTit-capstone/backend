@@ -1,5 +1,6 @@
 package com.capstone.rentit.payment.service;
 
+import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.payment.domain.*;
 import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.ExternalPaymentFailedException;
@@ -8,9 +9,14 @@ import com.capstone.rentit.payment.exception.WalletNotFoundException;
 import com.capstone.rentit.payment.nh.*;
 import com.capstone.rentit.payment.repository.*;
 import com.capstone.rentit.payment.type.PaymentType;
+import com.capstone.rentit.rental.domain.Rental;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -104,12 +110,34 @@ public class PaymentService {
         wallet.checkBalance(fee);
     }
 
+    private final long LOCKER_FEE_BASIC = 1000;
+    private final long LOCKER_FEE_PER_HOUR = 500;
+    public long getLockerFeeByAction(RentalLockerAction action, Rental rental, LocalDateTime now){
+        if(action == RentalLockerAction.PICK_UP_BY_RENTER){
+            return calculateLockerFee(rental.getLeftAt(), now);
+        }
+        else if(action == RentalLockerAction.RETRIEVE_BY_OWNER){
+            return calculateLockerFee(rental.getReturnedAt(), now);
+        }
+        else throw new IllegalArgumentException("부적절한 액션 타입 입니다.");
+    }
+
+    public long calculateLockerFee(LocalDateTime start, LocalDateTime end){
+        Duration duration = Duration.between(start, end);
+        return LOCKER_FEE_BASIC + LOCKER_FEE_PER_HOUR * duration.toHours();
+    }
+
     /* ------------ Util ------------ */
 
-    private Wallet findWallet(Long memberId){
+    public Wallet findWallet(Long memberId){
         return walletRepository.findForUpdate(memberId)
                 .orElseThrow(() ->
                         new WalletNotFoundException("해당 사용자의 지갑을 찾을 수 없습니다."));
+    }
+
+    public Long createWallet(Long memberId){
+        return walletRepository.save(
+                Wallet.builder().memberId(memberId).balance(0L).build()).getMemberId();
     }
 
     private Wallet getOrCreateWallet(Long memberId) {
