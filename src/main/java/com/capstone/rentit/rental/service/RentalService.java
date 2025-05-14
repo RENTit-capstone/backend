@@ -118,7 +118,9 @@ public class RentalService {
         Wallet wallet = paymentService.findWallet(memberId);
         List<Rental> list = rentalRepository.findEligibleRentals(memberId, action);
         return list.stream().map(r ->
-                RentalBriefResponseForLocker.fromEntity(r, paymentService.getLockerFeeByAction(action, r), wallet.getBalance())).toList();
+                RentalBriefResponseForLocker.fromEntity(r,
+                        paymentService.getLockerFeeByAction(action, r, LocalDateTime.now()),
+                        wallet.getBalance())).toList();
     }
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
