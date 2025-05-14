@@ -51,13 +51,13 @@ public class RentalLockerEventListener {
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId());
                 case PICK_UP_BY_RENTER ->
                         rentalService.pickUpByRenter(
-                                msg.rentalId(), msg.memberId());
+                                msg.rentalId(), msg.memberId(), msg.fee());
                 case RETURN_BY_RENTER ->
                         rentalService.returnToLocker(
                                 msg.rentalId(), msg.memberId(), msg.deviceId(), msg.lockerId(), null);
                 case RETRIEVE_BY_OWNER ->
                         rentalService.retrieveByOwner(
-                                msg.rentalId(), msg.memberId());
+                                msg.rentalId(), msg.memberId(), msg.fee());
             }
             response = CommonResponse.success(new LockerActionResultEvent(msg.deviceId(), msg.lockerId(), msg.rentalId()));
         } catch (Exception e) {
