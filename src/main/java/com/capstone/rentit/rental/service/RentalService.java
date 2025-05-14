@@ -7,6 +7,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.payment.domain.Wallet;
 import com.capstone.rentit.payment.dto.LockerPaymentRequest;
 import com.capstone.rentit.payment.dto.RentalPaymentRequest;
 import com.capstone.rentit.payment.service.PaymentService;
@@ -114,8 +115,10 @@ public class RentalService {
 
     @Transactional(readOnly = true)
     public List<RentalBriefResponseForLocker> findEligibleRentals(Long memberId, RentalLockerAction action) {
+        Wallet wallet = paymentService.findWallet(memberId);
         List<Rental> list = rentalRepository.findEligibleRentals(memberId, action);
-        return list.stream().map(RentalBriefResponseForLocker::fromEntity).toList();
+        return list.stream().map(r ->
+                RentalBriefResponseForLocker.fromEntity(r, paymentService.getLockerFeeByAction(action, r), wallet.getBalance())).toList();
     }
 
     /** 7) 소유자가 사물함에 물건을 맡길 때 */
@@ -128,7 +131,7 @@ public class RentalService {
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
-    public void pickUpByRenter(Long rentalId, Long renterId) {
+    public void pickUpByRenter(Long rentalId, Long renterId, long fee) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
 
@@ -136,7 +139,7 @@ public class RentalService {
         r.pickUpByRenter(LocalDateTime.now());
 
         paymentService.payLockerFee(
-                new LockerPaymentRequest(renterId, PaymentType.LOCKER_FEE_RENTER, r.getItem().getPrice()));
+                new LockerPaymentRequest(renterId, PaymentType.LOCKER_FEE_RENTER, fee));
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
@@ -163,7 +166,7 @@ public class RentalService {
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
-    public void retrieveByOwner(Long rentalId, Long ownerId) {
+    public void retrieveByOwner(Long rentalId, Long ownerId, long fee) {
         Rental r = findRental(rentalId);
         assertOwner(r, ownerId);
 
@@ -174,7 +177,7 @@ public class RentalService {
         item.updateAvailable();
 
         paymentService.payLockerFee(
-                new LockerPaymentRequest(ownerId, PaymentType.LOCKER_FEE_OWNER, r.getItem().getPrice()));
+                new LockerPaymentRequest(ownerId, PaymentType.LOCKER_FEE_OWNER, fee));
     }
 
     private Rental findRental(Long id) {

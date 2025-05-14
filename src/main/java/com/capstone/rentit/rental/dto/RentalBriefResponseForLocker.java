@@ -13,13 +13,20 @@ public class RentalBriefResponseForLocker {
     Long itemId;
     String itemName;
     Long lockerId;
+    long fee;
+    long balance;
+    boolean payable;
 
-    public static RentalBriefResponseForLocker fromEntity(Rental entity) {
+    public static RentalBriefResponseForLocker fromEntity(
+            Rental entity, long fee, long balance) {
         return new RentalBriefResponseForLocker(
                 entity.getRentalId(),
                 entity.getItemId(),
                 entity.getItem().getName(),
-                entity.getLockerId()
+                entity.getLockerId(),
+                fee,
+                balance,
+                balance >= fee
         );
     }
 }
