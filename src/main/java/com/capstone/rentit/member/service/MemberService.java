@@ -8,6 +8,7 @@ import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.*;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.payment.service.PaymentService;
 import com.capstone.rentit.register.exception.EmailAlreadyRegisteredException;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalBriefResponse;
@@ -28,12 +29,15 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PaymentService paymentService;
     private final PasswordEncoder passwordEncoder;
     private final FileStorageService fileStorageService;
 
     public Long createMember(MemberCreateForm form) {
         Member member = Member.createEntity(form, passwordEncoder.encode(form.getPassword()));
-        return memberRepository.save(member).getMemberId();
+        Long memberId = memberRepository.save(member).getMemberId();
+        paymentService.createWallet(memberId);
+        return memberId;
     }
 
     @Transactional(readOnly = true)
