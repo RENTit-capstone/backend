@@ -3,6 +3,7 @@ package com.capstone.rentit.login.controller;
 import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.login.dto.JwtTokens;
 import com.capstone.rentit.login.dto.LoginRequest;
+import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.cache.support.NullValue;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -107,6 +109,7 @@ class LoginControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("회원 식별자 id"),
                                 fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("액세스 토큰"),
                                 fieldWithPath("data.refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
@@ -179,7 +182,7 @@ class LoginControllerTest {
         when(tokenProvider.getUsernameFromRefreshToken(oldRefresh))
                 .thenReturn(email);
 
-        UserDetails user = mock(UserDetails.class);
+        MemberDetails user = mock(MemberDetails.class);
         when(user.getAuthorities()).thenReturn(null);
         when(memberDetailsService.loadUserByUsername(email))
                 .thenReturn(user);
@@ -199,6 +202,7 @@ class LoginControllerTest {
                         .content(objectMapper.writeValueAsString(reqTokens)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.memberId").value(user.getMemberId()))
                 .andExpect(jsonPath("$.data.accessToken").value("NEW_ACCESS"))
                 .andExpect(jsonPath("$.data.refreshToken").value("NEW_REFRESH"))
                 .andExpect(jsonPath("$.message").value(""))
@@ -209,6 +213,7 @@ class LoginControllerTest {
                 ),
                 responseFields(
                         fieldWithPath("success").description("API 호출 성공 여부").type(JsonFieldType.BOOLEAN),
+                        fieldWithPath("data.memberId").description("회원 식별자 Id").type(JsonFieldType.NUMBER),
                         fieldWithPath("data.accessToken").description("Access Token").type(JsonFieldType.STRING),
                         fieldWithPath("data.refreshToken").description("Refresh Token").type(JsonFieldType.STRING),
                         fieldWithPath("message").description("성공 시 빈 문자열, 실패 시 에러 메시지").type(JsonFieldType.STRING)
