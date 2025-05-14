@@ -223,10 +223,12 @@ class RentalServiceTest {
                 .balance(walletBalance)
                 .build();
 
+        LocalDateTime now = LocalDateTime.now();
         given(paymentService.findWallet(memberId)).willReturn(wallet);
         given(rentalRepository.findEligibleRentals(memberId, action))
                 .willReturn(List.of(rental));
-        given(paymentService.getLockerFeeByAction(action, rental))
+        given(paymentService.getLockerFeeByAction(
+                eq(action), eq(rental), any(LocalDateTime.class)))   // ← now 아무 값이나 허용
                 .willReturn(lockerFee);
 
         // when
@@ -236,7 +238,8 @@ class RentalServiceTest {
         // then
         then(paymentService).should().findWallet(memberId);
         then(rentalRepository).should().findEligibleRentals(memberId, action);
-        then(paymentService).should().getLockerFeeByAction(action, rental);
+        then(paymentService).should()
+                .getLockerFeeByAction(eq(action), eq(rental), any(LocalDateTime.class));
 
         assertThat(dtos)
                 .hasSize(1)
