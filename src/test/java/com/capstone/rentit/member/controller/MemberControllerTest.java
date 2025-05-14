@@ -416,7 +416,7 @@ class MemberControllerTest {
                                 subsectionWithPath("data.items").type(JsonFieldType.ARRAY).description("등록한 아이템 목록"),
                                 fieldWithPath("data.items[].itemId").type(JsonFieldType.NUMBER).description("아이템 ID"),
                                 fieldWithPath("data.items[].name").type(JsonFieldType.STRING).description("아이템 이름"),
-                                fieldWithPath("data.items[].price").type(JsonFieldType.NULL).description("가격 (현재 null)"),
+                                fieldWithPath("data.items[].price").type(JsonFieldType.NUMBER).description("가격"),
                                 fieldWithPath("data.items[].status").type(JsonFieldType.NULL).description("상태 (현재 null)"),
                                 fieldWithPath("data.items[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
                                 fieldWithPath("data.items[].createdAt").type(JsonFieldType.NULL).description("등록일자 (현재 null)"),
