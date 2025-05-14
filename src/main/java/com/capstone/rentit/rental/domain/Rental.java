@@ -3,6 +3,7 @@ package com.capstone.rentit.rental.domain;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.locker.domain.Locker;
 import com.capstone.rentit.member.domain.Member;
+import com.capstone.rentit.rental.dto.RentalRequestForm;
 import com.capstone.rentit.rental.status.RentalStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -145,5 +146,17 @@ public class Rental {
     /** 반납 사진 URL 설정 */
     public void uploadReturnImageUrl(String url) {
         this.returnImageUrl = url;
+    }
+
+    static public Rental create(RentalRequestForm form){
+        return Rental.builder()
+                .itemId(form.getItemId())
+                .ownerId(form.getOwnerId())
+                .renterId(form.getRenterId())
+                .requestDate(LocalDateTime.now())
+                .startDate(form.getStartDate())
+                .status(RentalStatusEnum.REQUESTED)
+                .dueDate(form.getDueDate())
+                .build();
     }
 }

@@ -7,5 +7,6 @@ public record RentalLockerEventMessage(
         Long lockerId,
         Long rentalId,
         Long memberId,
-        RentalLockerAction action
+        RentalLockerAction action,
+        Long fee
 ) { }

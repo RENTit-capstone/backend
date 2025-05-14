@@ -3,8 +3,11 @@ package com.capstone.rentit.login.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.login.dto.JwtTokens;
 import com.capstone.rentit.login.dto.LoginRequest;
+import com.capstone.rentit.login.dto.LoginResponse;
+import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
+import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +29,7 @@ public class LoginController {
 
     @PostMapping("/auth/login")
     public CommonResponse<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        memberService.getMemberByEmail(loginRequest.getEmail());
+        MemberDto memberDto = memberService.getMemberByEmail(loginRequest.getEmail());
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -38,7 +41,7 @@ public class LoginController {
             String accessToken = tokenProvider.generateToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            return new CommonResponse<>(true, new JwtTokens(accessToken, refreshToken), "");
+            return new CommonResponse<>(true, new LoginResponse(memberDto.getMemberId(), accessToken, refreshToken), "");
         } catch (Exception ex) {
             return new CommonResponse<>(false, null, "accessToken validation error.");
         }
@@ -55,14 +58,14 @@ public class LoginController {
 
         // refresh 토큰에서 username 추출 후, 해당 사용자 정보를 로드
         String username = tokenProvider.getUsernameFromRefreshToken(refreshToken);
-        UserDetails userDetails = memberDetailsService.loadUserByUsername(username);
+        MemberDetails userDetails = (MemberDetails)memberDetailsService.loadUserByUsername(username);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String newAccessToken = tokenProvider.generateToken(authentication);
         String newRefreshToken = tokenProvider.generateRefreshToken(authentication);
 
-        return new CommonResponse<>(true, new JwtTokens(newAccessToken, newRefreshToken), "");
+        return new CommonResponse<>(true, new LoginResponse(userDetails.getMemberId(), newAccessToken, newRefreshToken), "");
 
     }
 }

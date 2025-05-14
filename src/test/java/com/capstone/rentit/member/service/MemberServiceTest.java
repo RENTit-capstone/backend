@@ -14,6 +14,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
+import com.capstone.rentit.payment.service.PaymentService;
 import com.capstone.rentit.register.exception.EmailAlreadyRegisteredException;
 import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.dto.RentalBriefResponse;
@@ -49,6 +50,9 @@ class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private PaymentService paymentService;
 
     @Mock
     private PasswordEncoder passwordEncoder;

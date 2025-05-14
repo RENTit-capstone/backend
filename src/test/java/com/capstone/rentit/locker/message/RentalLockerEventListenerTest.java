@@ -58,7 +58,8 @@ class RentalLockerEventListenerTest {
                     2L, // lockerId
                     3L, // rentalId
                     4L, // memberId
-                    RentalLockerAction.DROP_OFF_BY_OWNER
+                    RentalLockerAction.DROP_OFF_BY_OWNER,
+                    1000L
             );
             Message<byte[]> mqtt = mqttMsg(msg, "locker/other/topic");
 
@@ -86,7 +87,8 @@ class RentalLockerEventListenerTest {
                         20L, // lockerId
                         30L, // rentalId
                         40L, // memberId
-                        type
+                        type,
+                        1000L
                 );
                 Message<byte[]> mqtt = mqttMsg(ev, "locker/request/event");
 
@@ -96,13 +98,13 @@ class RentalLockerEventListenerTest {
                 // then: service method invoked
                 switch (type) {
                     case DROP_OFF_BY_OWNER ->
-                            verify(rentalService).dropOffToLocker(30L, 40L, 10L, 20L);
+                            verify(rentalService).dropOffToLocker(ev.rentalId(), ev.memberId(), ev.deviceId(), ev.lockerId());
                     case PICK_UP_BY_RENTER ->
-                            verify(rentalService).pickUpByRenter(30L, 40L);
+                            verify(rentalService).pickUpByRenter(ev.rentalId(), ev.memberId(), ev.fee());
                     case RETURN_BY_RENTER ->
-                            verify(rentalService).returnToLocker(30L, 40L, 10L, 20L, null);
+                            verify(rentalService).returnToLocker(ev.rentalId(), ev.memberId(), ev.deviceId(), ev.lockerId(), null);
                     case RETRIEVE_BY_OWNER ->
-                            verify(rentalService).retrieveByOwner(30L, 40L);
+                            verify(rentalService).retrieveByOwner(ev.rentalId(), ev.memberId(), ev.fee());
                 }
 
                 // then: producer.pushResult with success
@@ -133,13 +135,14 @@ class RentalLockerEventListenerTest {
                     6L,  // lockerId
                     7L,  // rentalId
                     8L,  // memberId
-                    RentalLockerAction.DROP_OFF_BY_OWNER
+                    RentalLockerAction.DROP_OFF_BY_OWNER,
+                    1000L
             );
             Message<byte[]> mqtt = mqttMsg(ev, "locker/request/event");
 
             var ex = new RuntimeException("X error");
             doThrow(ex).when(rentalService)
-                    .dropOffToLocker(7L, 8L, 5L, 6L);
+                    .dropOffToLocker(ev.rentalId(), ev.memberId(), ev.deviceId(), ev.lockerId());
 
             // when
             listener.consume(mqtt);
