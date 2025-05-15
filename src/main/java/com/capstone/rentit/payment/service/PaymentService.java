@@ -6,12 +6,10 @@ import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.ExternalPaymentFailedException;
 import com.capstone.rentit.payment.exception.PaymentNotLockerException;
 import com.capstone.rentit.payment.exception.WalletNotFoundException;
-import com.capstone.rentit.payment.nh.*;
 import com.capstone.rentit.payment.repository.*;
 import com.capstone.rentit.payment.type.PaymentType;
 import com.capstone.rentit.rental.domain.Rental;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,55 +18,45 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PaymentService {
 
     private final WalletRepository walletRepository;
     private final PaymentRepository paymentRepository;
-    private final NhBankClient nhBank;
+    private final NhApiClient nhClient;
 
     /* ------------ 1. 현금 ⇆ 포인트 ------------ */
+    public Long topUp(TopUpRequest request) {
 
-    @Transactional
-    public PaymentResponse topUp(TopUpRequest req) {
-
-        Wallet wallet = getOrCreateWallet(req.memberId());
+        Wallet wallet = findWallet(request.memberId());
         Payment payment = paymentRepository.save(
-                Payment.create(PaymentType.TOP_UP, req.memberId(), null, req.amount()));
+                Payment.create(PaymentType.TOP_UP, request.memberId(), null, request.amount()));
 
-        NhTransferResponse nh = nhBank.withdrawFromUser(req.memberId(), req.amount(),
-                "[RENTit] 포인트 충전");
+        DrawingTransferResponse res = nhClient.drawingTransfer(request.pinAccount(), request.amount(), "RENTit 충전");
+        if (res == null) throw new ExternalPaymentFailedException("NH 응답 없음");
 
-        if (!nh.success()) throw new ExternalPaymentFailedException(nh.message());
-
-        wallet.deposit(req.amount());
-        payment.approve(nh.txId());
-
-        return new PaymentResponse(payment.getId(), payment.getStatus());
+        wallet.deposit(request.amount());
+        payment.approve(res.Header().IsTuno());
+        return payment.getId();
     }
 
-    @Transactional
-    public PaymentResponse withdraw(WithdrawalRequest req) {
+    public Long withdraw(WithdrawRequest request) {
 
-        Wallet wallet = findWallet(req.memberId());
+        Wallet wallet = findWallet(request.memberId());
         Payment payment = paymentRepository.save(
-                Payment.create(PaymentType.WITHDRAWAL, null, req.memberId(), req.amount()));
+                Payment.create(PaymentType.WITHDRAWAL, null, request.memberId(), request.amount()));
 
-        wallet.withdraw(req.amount());
+        wallet.withdraw(request.amount());
+        DepositResponse res = nhClient.deposit(request.pinAccount(), request.amount(), "RENTit 출금");
+        if (res == null) throw new ExternalPaymentFailedException("NH 응답 없음");
 
-        NhTransferResponse nh = nhBank.depositToUser(req.memberId(), req.amount(),
-                "[RENTit] 포인트 출금");
-
-        if (!nh.success()) throw new ExternalPaymentFailedException(nh.message());
-
-        payment.approve(nh.txId());
-
-        return new PaymentResponse(payment.getId(), payment.getStatus());
+        payment.approve(res.Header().IsTuno());
+        return payment.getId();
     }
 
     /* ------------ 2. 대여 흐름 ------------ */
 
     /** 대여비 (대여자 → 소유자) */
-    @Transactional
     public PaymentResponse payRentalFee(RentalPaymentRequest req) {
 
         Wallet renter = findWallet(req.renterId());
@@ -85,7 +73,6 @@ public class PaymentService {
     }
 
     /** 사물함 이용료 (LockerPaymentRequest) */
-    @Transactional
     public PaymentResponse payLockerFee(LockerPaymentRequest req) {
 
         assertLockerFee(req);
@@ -96,7 +83,7 @@ public class PaymentService {
 //        Wallet operator = walletRepository.findForUpdate(0L);
 
         Payment tx = paymentRepository.save(
-                Payment.create(req.lockerFeeType(), req.payerId(), 0L, req.fee()));
+                Payment.create(req.lockerFeeType(), req.payerId(), null, req.fee()));
 
         payer.withdraw(req.fee());
 //        operator.deposit(req.fee());
@@ -105,6 +92,7 @@ public class PaymentService {
         return new PaymentResponse(tx.getId(), tx.getStatus());
     }
 
+    @Transactional(readOnly = true)
     public void assertCheckBalance(Long memberId, long fee){
         Wallet wallet = findWallet(memberId);
         wallet.checkBalance(fee);
@@ -112,6 +100,7 @@ public class PaymentService {
 
     private final long LOCKER_FEE_BASIC = 1000;
     private final long LOCKER_FEE_PER_HOUR = 500;
+    @Transactional(readOnly = true)
     public long getLockerFeeByAction(RentalLockerAction action, Rental rental, LocalDateTime now){
         if(action == RentalLockerAction.PICK_UP_BY_RENTER){
             return calculateLockerFee(rental.getLeftAt(), now);
@@ -122,6 +111,7 @@ public class PaymentService {
         else throw new IllegalArgumentException("부적절한 액션 타입 입니다.");
     }
 
+    @Transactional(readOnly = true)
     public long calculateLockerFee(LocalDateTime start, LocalDateTime end){
         Duration duration = Duration.between(start, end);
         return LOCKER_FEE_BASIC + LOCKER_FEE_PER_HOUR * duration.toHours();
@@ -138,12 +128,6 @@ public class PaymentService {
     public Long createWallet(Long memberId){
         return walletRepository.save(
                 Wallet.builder().memberId(memberId).balance(0L).build()).getMemberId();
-    }
-
-    private Wallet getOrCreateWallet(Long memberId) {
-        return walletRepository.findById(memberId)
-                .orElseGet(() -> walletRepository.save(
-                        Wallet.builder().memberId(memberId).balance(0L).build()));
     }
 
     private void assertLockerFee(LockerPaymentRequest req) {
