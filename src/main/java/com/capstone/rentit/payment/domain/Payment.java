@@ -28,7 +28,7 @@ public class Payment {
     @Column(nullable = false)
     private long amount;
 
-    private String extTxId;           // NH 거래 번호
+    private String istuno;           //기관 거래 고유 번호
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
 
@@ -43,9 +43,9 @@ public class Payment {
                 .build();
     }
 
-    public void approve(String extTxId) {
+    public void approve(String istuno) {
         this.status = PaymentStatus.APPROVED;
-        this.extTxId = extTxId;
+        this.istuno = istuno;
         this.approvedAt = LocalDateTime.now();
     }
 }
