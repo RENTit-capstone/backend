@@ -6,42 +6,40 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * NhApiClient 단위 테스트
  */
+@ExtendWith(MockitoExtension.class)
 class NhApiClientTest {
 
     @Mock
     RestTemplate restTemplate;
 
-    NhApiClient sut;          // System Under Test
+    @Mock NhApiProperties props;
 
-    // 고정 테스트 설정값
-    NhApiProperties props = new NhApiProperties(
-            "https://developers.nonghyup.com",
-            "900001",                   // iscd
-            "001",                      // fintech aps no
-            "dummy-token",
-            new NhApiProperties.SvcCodes(
-                    "DrawingTransferA",
-                    "ReceivedTransferAccountNumberA")
-    );
+    @InjectMocks NhApiClient nhApiClient;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        sut = new NhApiClient(restTemplate, props);
-    }
+        NhApiProperties.SvcCodes svc =
+                new NhApiProperties.SvcCodes("DrawingTransferA",
+                        "ReceivedTransferAccountNumberA");
 
+        given(props.getSvcCodes()).willReturn(svc);
+    }
     /* ---------------- 지갑 충전 ---------------- */
     @Nested
     @DisplayName("drawingTransfer")
@@ -67,7 +65,7 @@ class NhApiClientTest {
 
             // when
             DrawingTransferResponse result =
-                    sut.drawingTransfer(pinAccount, amount, memo);
+                    nhApiClient.drawingTransfer(pinAccount, amount, memo);
 
             // then
             assertThat(result).isSameAs(dummyRes);
@@ -75,7 +73,7 @@ class NhApiClientTest {
             // --- RestTemplate 호출 파라미터 검증 ---
             ArgumentCaptor<HttpEntity> entityCap = ArgumentCaptor.forClass(HttpEntity.class);
             verify(restTemplate).postForObject(
-                    eq(props.baseUrl() + "/nhapis/v1/DrawingTransfer.nh"),
+                    eq(props.getBaseUrl() + "/nhapis/v1/DrawingTransfer.nh"),
                     entityCap.capture(),
                     eq(DrawingTransferResponse.class)
             );
@@ -115,7 +113,7 @@ class NhApiClientTest {
             )).thenReturn(dummyRes);
 
             // when
-            DepositResponse result = sut.deposit(pinAccount, amount, memo);
+            DepositResponse result = nhApiClient.deposit(pinAccount, amount, memo);
 
             // then
             assertThat(result).isSameAs(dummyRes);
@@ -123,7 +121,7 @@ class NhApiClientTest {
             // --- RestTemplate 호출 파라미터 검증 ---
             ArgumentCaptor<HttpEntity> entityCap = ArgumentCaptor.forClass(HttpEntity.class);
             verify(restTemplate).postForObject(
-                    eq(props.baseUrl() + "/nhapis/v1/ReceivedTransferAccountNumber.nh"),
+                    eq(props.getBaseUrl() + "/nhapis/v1/ReceivedTransferAccountNumber.nh"),
                     entityCap.capture(),
                     eq(DepositResponse.class)
             );
