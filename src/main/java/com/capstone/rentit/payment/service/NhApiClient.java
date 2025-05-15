@@ -24,7 +24,7 @@ public class NhApiClient {
         HttpEntity<T> entity = new HttpEntity<>(body, headers);
 
         return restTemplate.postForObject(
-                prop.baseUrl() + path,
+                prop.getBaseUrl() + path,
                 entity,
                 resType
         );
@@ -35,7 +35,7 @@ public class NhApiClient {
 
         DrawingTransferRequest req = new DrawingTransferRequest(
                 NhHeader.create("DrawingTransfer",
-                        prop.svcCodes().drawing(),
+                        prop.getSvcCodes().drawing(),
                         prop),
                 pinAccount,
                 String.valueOf(amount),
@@ -51,7 +51,7 @@ public class NhApiClient {
 
         DepositRequest req = new DepositRequest(
                 NhHeader.create("ReceivedTransferAccountNumber",
-                        prop.svcCodes().deposit(),
+                        prop.getSvcCodes().deposit(),
                         prop),
                 pinAccount,
                 String.valueOf(amount),

@@ -33,11 +33,11 @@ public record NhHeader(
                 .ApiNm(apiNm)
                 .Tsymd(ts)
                 .Trtm(tm)
-                .Iscd(prop.iscd())
-                .FintechApsno(prop.fintechApsNo())
+                .Iscd(prop.getIscd())
+                .FintechApsno(prop.getFintechApsNo())
                 .ApiSvcCd(svcCd)
                 .IsTuno(isTuno)
-                .AccessToken(prop.accessToken())
+                .AccessToken(prop.getAccessToken())
                 .build();
     }
 }
