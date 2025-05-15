@@ -108,7 +108,7 @@ public class PaymentService {
         else if(action == RentalLockerAction.RETRIEVE_BY_OWNER){
             return calculateLockerFee(rental.getReturnedAt(), now);
         }
-        else throw new IllegalArgumentException("부적절한 액션 타입 입니다.");
+        return 0;
     }
 
     @Transactional(readOnly = true)
