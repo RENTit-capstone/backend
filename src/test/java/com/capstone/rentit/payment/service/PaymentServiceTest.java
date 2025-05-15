@@ -1,6 +1,7 @@
 package com.capstone.rentit.payment.service;
 
 import com.capstone.rentit.locker.event.RentalLockerAction;
+import com.capstone.rentit.payment.config.NhApiProperties;
 import com.capstone.rentit.payment.domain.*;
 import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.*;
@@ -28,12 +29,14 @@ class PaymentServiceTest {
 
     @Mock  WalletRepository walletRepository;
     @Mock  PaymentRepository paymentRepository;
-    @Mock  NhBankClient nhBank;
+    @Mock  NhApiClient nhApiClient;
+    @Mock  NhApiProperties prop;
     @InjectMocks PaymentService paymentService;
 
     private static final long MEMBER_A = 1L;
     private static final long MEMBER_B = 2L;
     private static final long AMOUNT   = 10_000L;
+    final String pinAccount = "99988877766655544433322211";
 
     private static Wallet walletOf(long memberId, long balance) {
         return Wallet.builder().memberId(memberId).balance(balance).build();
@@ -44,81 +47,105 @@ class PaymentServiceTest {
         @Test void topUp_success_deposits_existingWallet() {
             // given
             Wallet wallet = walletOf(MEMBER_A, 0);
-            Payment saved = Payment.create(PaymentType.TOP_UP, MEMBER_A, null, AMOUNT);
-            given(walletRepository.findById(MEMBER_A)).willReturn(Optional.of(wallet));
-            given(paymentRepository.save(any(Payment.class))).willReturn(saved);
-            given(nhBank.withdrawFromUser(eq(MEMBER_A), eq(AMOUNT), anyString()))
-                    .willReturn(new NhTransferResponse(true, "TX1", "OK"));
 
-            // when
-            PaymentResponse res =
-                    paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT));
+            given(walletRepository.findForUpdate(MEMBER_A))
+                    .willReturn(Optional.of(wallet));
 
-            // then
-            assertThat(wallet.getBalance()).isEqualTo(AMOUNT);
-            assertThat(res.status()).isEqualTo(PaymentStatus.APPROVED);
-            then(paymentRepository).should().save(any(Payment.class));
-        }
-
-        @Test void topUp_createsWallet_ifNotExists() {
-            // given
-            given(walletRepository.findById(MEMBER_A)).willReturn(Optional.empty());
-            given(walletRepository.save(any(Wallet.class)))
-                    .willAnswer(inv -> inv.getArgument(0));   // return 새 Wallet
             given(paymentRepository.save(any(Payment.class)))
                     .willAnswer(inv -> inv.getArgument(0));
-            given(nhBank.withdrawFromUser(anyLong(), anyLong(), anyString()))
-                    .willReturn(new NhTransferResponse(true, "TX2", "OK"));
+
+            DrawingTransferResponse resp = new DrawingTransferResponse(
+                    mock(NhHeader.class),  // 헤더 상세값 필요 없으면 mock
+                    pinAccount,
+                    "20250515"
+            );
+            given(nhApiClient.drawingTransfer(eq(pinAccount), eq(AMOUNT), anyString()))
+                    .willReturn(resp);
+
+            ArgumentCaptor<Payment> payCap = ArgumentCaptor.forClass(Payment.class);
 
             // when
-            paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT));
+            paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT));
 
             // then
-            then(walletRepository).should().save(any(Wallet.class));
+            assertThat(wallet.getBalance()).isEqualTo(AMOUNT);      // 1) 지갑 증가 확인
+
+            then(paymentRepository).should().save(payCap.capture()); // 2) save 호출 검증
+            Payment saved = payCap.getValue();
+
+            assertThat(saved.getType()).isEqualTo(PaymentType.TOP_UP);
+            assertThat(saved.getStatus()).isEqualTo(PaymentStatus.APPROVED);
+            assertThat(saved.getAmount()).isEqualTo(AMOUNT);
+            assertThat(saved.getFromMemberId()).isEqualTo(MEMBER_A);
+        }
+
+        @Test void topUp_walletNotFound_throws() {
+            given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.empty());
+            assertThatThrownBy(() ->
+                    paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT)))
+                    .isInstanceOf(WalletNotFoundException.class);
         }
 
         @Test void topUp_externalFail_throws_and_noDeposit() {
             // given
             Wallet wallet = walletOf(MEMBER_A, 0);
-            given(walletRepository.findById(MEMBER_A)).willReturn(Optional.of(wallet));
+
+            given(walletRepository.findForUpdate(MEMBER_A))
+                    .willReturn(Optional.of(wallet));
+
             given(paymentRepository.save(any(Payment.class)))
                     .willAnswer(inv -> inv.getArgument(0));
-            given(nhBank.withdrawFromUser(anyLong(), anyLong(), anyString()))
-                    .willReturn(new NhTransferResponse(false, null, "ERR"));
+
+            given(nhApiClient.drawingTransfer(anyString(), anyLong(), anyString()))
+                    .willReturn(null);
 
             // when / then
             assertThatThrownBy(() ->
-                    paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT)))
+                    paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT)))
                     .isInstanceOf(ExternalPaymentFailedException.class);
 
             assertThat(wallet.getBalance()).isZero();
         }
     }
 
+
     @Nested class WithdrawTests {
 
         @Test void withdraw_success() {
             // given
             Wallet wallet = walletOf(MEMBER_A, AMOUNT);
-            Payment saved = Payment.create(PaymentType.WITHDRAWAL, null, MEMBER_A, AMOUNT);
-            given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
-            given(paymentRepository.save(any(Payment.class))).willReturn(saved);
-            given(nhBank.depositToUser(anyLong(), anyLong(), anyString()))
-                    .willReturn(new NhTransferResponse(true, "TX3", "OK"));
+            given(walletRepository.findForUpdate(MEMBER_A))
+                    .willReturn(Optional.of(wallet));                                   // id 세팅
+
+            given(paymentRepository.save(any(Payment.class)))
+                    .willAnswer(inv -> inv.getArgument(0));
+
+            DepositResponse resp = new DepositResponse(
+                    mock(NhHeader.class),          // 헤더 값 필요 없으면 mock
+                    pinAccount,
+                    "20250515"
+            );
+            given(nhApiClient.deposit(anyString(), anyLong(), anyString()))
+                    .willReturn(resp);
+            ArgumentCaptor<Payment> payCap = ArgumentCaptor.forClass(Payment.class);
 
             // when
-            PaymentResponse res =
-                    paymentService.withdraw(new WithdrawalRequest(MEMBER_A, AMOUNT));
+            paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT));
 
             // then
-            assertThat(wallet.getBalance()).isZero();
-            assertThat(res.status()).isEqualTo(PaymentStatus.APPROVED);
+            assertThat(wallet.getBalance()).isZero();           // 1) 지갑 차감 확인
+            then(paymentRepository).should().save(payCap.capture());
+
+            Payment saved = payCap.getValue();                  // 2) 저장된 Payment 검증
+            assertThat(saved.getType()).isEqualTo(PaymentType.WITHDRAWAL);
+            assertThat(saved.getStatus()).isEqualTo(PaymentStatus.APPROVED);
+            assertThat(saved.getAmount()).isEqualTo(AMOUNT);
         }
 
         @Test void withdraw_walletNotFound_throws() {
             given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.empty());
             assertThatThrownBy(() ->
-                    paymentService.withdraw(new WithdrawalRequest(MEMBER_A, AMOUNT)))
+                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT)))
                     .isInstanceOf(WalletNotFoundException.class);
         }
 
@@ -126,7 +153,7 @@ class PaymentServiceTest {
             Wallet wallet = walletOf(MEMBER_A, 1_000);
             given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
             assertThatThrownBy(() ->
-                    paymentService.withdraw(new WithdrawalRequest(MEMBER_A, AMOUNT)))
+                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT)))
                     .isInstanceOf(InsufficientBalanceException.class);
         }
     }
