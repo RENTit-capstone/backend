@@ -2,6 +2,7 @@ package com.capstone.rentit.payment.domain;
 
 import com.capstone.rentit.payment.type.PaymentStatus;
 import com.capstone.rentit.payment.type.PaymentType;
+import com.capstone.rentit.rental.domain.Rental;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor @Builder
+@AllArgsConstructor
+@Builder
 public class Payment {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +34,18 @@ public class Payment {
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
 
-    public static Payment create(PaymentType type, Long fromId, Long toId, long amount) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rental_id")
+    private Rental rental;
+
+    public static Payment create(PaymentType type, Long fromId, Long toId, long amount, Rental rental) {
         return Payment.builder()
                 .type(type)
                 .status(PaymentStatus.REQUESTED)
                 .fromMemberId(fromId)
                 .toMemberId(toId)
                 .amount(amount)
+                .rental(rental)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
