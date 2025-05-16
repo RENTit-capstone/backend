@@ -1,10 +1,7 @@
 package com.capstone.rentit.exception;
 
 import com.capstone.rentit.common.CommonResponse;
-import com.capstone.rentit.payment.exception.ExternalPaymentFailedException;
-import com.capstone.rentit.payment.exception.InsufficientBalanceException;
-import com.capstone.rentit.payment.exception.PaymentNotLockerException;
-import com.capstone.rentit.payment.exception.WalletNotFoundException;
+import com.capstone.rentit.payment.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -37,6 +34,18 @@ public class PaymentExceptionHandler {
     @ExceptionHandler(WalletNotFoundException.class)
     public CommonResponse<Void> handleNotFound(WalletNotFoundException ex) {
         log.warn("Wallet Not found: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountConsentExpiredException.class)
+    public CommonResponse<Void> handleAccountExpired(AccountConsentExpiredException ex) {
+        log.warn("Account Expired: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountNotRegisteredException.class)
+    public CommonResponse<Void> handleAccountNotRegistered(AccountNotRegisteredException ex) {
+        log.warn("Account Not registered: {}", ex.getMessage());
         return CommonResponse.failure(ex.getMessage());
     }
 }
