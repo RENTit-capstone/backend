@@ -25,6 +25,13 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final NhApiClient nhClient;
 
+    public Long registerAccount(AccountRegisterRequest request) {
+
+        Wallet wallet = findWallet(request.memberId());
+        wallet.registerAccount(request.finAcno(), request.bankCode());
+        return wallet.getMemberId();
+    }
+
     /* ------------ 1. 현금 ⇆ 포인트 ------------ */
     public Long topUp(TopUpRequest request) {
 
@@ -32,7 +39,9 @@ public class PaymentService {
         Payment payment = paymentRepository.save(
                 Payment.create(PaymentType.TOP_UP, request.memberId(), null, request.amount()));
 
-        DrawingTransferResponse res = nhClient.drawingTransfer(request.pinAccount(), request.amount(), "RENTit 충전");
+        wallet.ensureAccountRegistered();
+
+        DrawingTransferResponse res = nhClient.drawingTransfer(wallet.getFinAcno(), request.amount(), "RENTit 충전");
         if (res == null) throw new ExternalPaymentFailedException("NH 응답 없음");
 
         wallet.deposit(request.amount());
@@ -46,8 +55,10 @@ public class PaymentService {
         Payment payment = paymentRepository.save(
                 Payment.create(PaymentType.WITHDRAWAL, null, request.memberId(), request.amount()));
 
+        wallet.ensureAccountRegistered();
         wallet.withdraw(request.amount());
-        DepositResponse res = nhClient.deposit(request.pinAccount(), request.amount(), "RENTit 출금");
+
+        DepositResponse res = nhClient.deposit(wallet.getFinAcno(), request.amount(), "RENTit 출금");
         if (res == null) throw new ExternalPaymentFailedException("NH 응답 없음");
 
         payment.approve(res.Header().IsTuno());

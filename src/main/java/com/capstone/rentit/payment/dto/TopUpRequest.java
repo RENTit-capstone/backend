@@ -1,5 +1,4 @@
 package com.capstone.rentit.payment.dto;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.validation.annotation.Validated;
@@ -7,6 +6,5 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public record TopUpRequest(
         @NotNull Long memberId,
-        @NotBlank String pinAccount,   // NH 핀-어카운트
         @Positive long amount          // 1원 단위
 ) {}

@@ -1,6 +1,7 @@
 package com.capstone.rentit.payment.controller;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.payment.dto.AccountRegisterRequest;
 import com.capstone.rentit.payment.dto.TopUpRequest;
 import com.capstone.rentit.payment.dto.WithdrawRequest;
 import com.capstone.rentit.payment.service.PaymentService;
@@ -17,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     private final PaymentService walletPaymentService;
+
+    @PostMapping("")
+    public CommonResponse<?> register(@RequestBody @Valid AccountRegisterRequest body) {
+        return CommonResponse.success(walletPaymentService.registerAccount(body));
+    }
 
     /** 지갑 충전 (현금 → 포인트) */
     @PostMapping("/top-up")
