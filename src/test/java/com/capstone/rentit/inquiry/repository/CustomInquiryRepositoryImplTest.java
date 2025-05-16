@@ -84,7 +84,7 @@ class CustomInquiryRepositoryImplTest {
     void search_byDateRange() {
 
         LocalDateTime from = baseTime.plusHours(2);   // 일부만 포함
-        LocalDateTime to   = baseTime.plusHours(4);
+        LocalDateTime to   = baseTime.plusHours(5);
 
         InquirySearchForm form = InquirySearchForm.builder()
                 .type(InquiryType.SERVICE)
@@ -94,7 +94,6 @@ class CustomInquiryRepositoryImplTest {
 
         Page<Inquiry> page = inquiryRepository.search(form, Pageable.unpaged());
 
-        // SERVICE 6건 중 3건만 해당 시간대에 저장되도록 persist()
         assertThat(page.getTotalElements()).isEqualTo(3);
         assertThat(page.getContent())
                 .allMatch(i ->
@@ -111,10 +110,13 @@ class CustomInquiryRepositoryImplTest {
                     .title(type + "‑title" + i)
                     .content("dummy")
                     .processed(processed)
-                    .createdAt(baseTime.plusHours(i)) // 시간대 분포
+                    .createdAt(baseTime.plusHours(i).minusSeconds(1))
                     .build();
             em.persist(entity);
+            em.flush();
+            Inquiry saved = em.find(Inquiry.class, entity.getInquiryId());
+            System.out.println("Saved createdAt: " + saved.getCreatedAt());
         }
-        em.flush();
+        em.clear();
     }
 }

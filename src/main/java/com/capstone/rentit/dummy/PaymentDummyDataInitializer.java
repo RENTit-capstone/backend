@@ -44,7 +44,8 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
                     PaymentType.TOP_UP,
                     w.getMemberId(),              // from
                     null,                         // to
-                    amount);
+                    amount,
+                    null);
             topUp.approve("DUMMY-TX-" + "%03d".formatted(seq.getAndIncrement()));
 
             /* 저장 */
@@ -78,7 +79,7 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
     /** 내부 포인트 이동(승인 즉시) + 지갑 반영 */
     private void createInternalTransfer(Long fromId, Long toId, long amount, PaymentType type) {
 
-        Payment p = Payment.create(type, fromId, toId, amount);
+        Payment p = Payment.create(type, fromId, toId, amount, null);
         p.approve(null);                 // 내부 이동이므로 외부 거래번호 없음
         paymentRepository.save(p);
 

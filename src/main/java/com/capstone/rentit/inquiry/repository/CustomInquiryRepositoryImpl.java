@@ -23,10 +23,24 @@ public class CustomInquiryRepositoryImpl implements CustomInquiryRepository {
         BooleanBuilder cond = new BooleanBuilder();
 
         // --- 필터 조건 빌드 --- //
-        cond.and(q.type.eq(form.type()));
-        if (form.processed() != null)   cond.and(q.processed.eq(form.processed()));
-        if (form.fromDate() != null)    cond.and(q.createdAt.goe(form.fromDate()));
-        if (form.toDate() != null)      cond.and(q.createdAt.loe(form.toDate().plusSeconds(10)));
+        if (form.type() != null) {
+            cond.and(q.type.eq(form.type()));
+        }
+
+        /* 날짜 조건 */
+        if (form.fromDate() != null && form.toDate() != null) {
+            // inclusive 범위
+            cond.and(q.createdAt.between(form.fromDate(), form.toDate()));
+        } else if (form.fromDate() != null) {
+            cond.and(q.createdAt.goe(form.fromDate()));
+        } else if (form.toDate() != null) {
+            cond.and(q.createdAt.loe(form.toDate()));
+        }
+
+        /* processed 플래그 */
+        if (form.processed() != null) {
+            cond.and(q.processed.eq(form.processed()));
+        }
 
         // --- Query 준비 --- //
         var baseQuery = queryFactory
