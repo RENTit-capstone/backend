@@ -7,6 +7,7 @@ import com.capstone.rentit.payment.dto.WithdrawRequest;
 import com.capstone.rentit.payment.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +20,14 @@ public class PaymentController {
 
     private final PaymentService walletPaymentService;
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("")
     public CommonResponse<?> register(@RequestBody @Valid AccountRegisterRequest body) {
         return CommonResponse.success(walletPaymentService.registerAccount(body));
     }
 
     /** 지갑 충전 (현금 → 포인트) */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/top-up")
     public CommonResponse<?> topUp(
             @RequestBody @Valid TopUpRequest request) {
@@ -34,6 +37,7 @@ public class PaymentController {
     }
 
     /** 지갑 인출 (포인트 → 현금) */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/withdraw")
     public CommonResponse<?> withdraw(
             @RequestBody @Valid WithdrawRequest request) {
