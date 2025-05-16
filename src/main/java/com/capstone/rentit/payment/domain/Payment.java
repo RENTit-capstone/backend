@@ -2,6 +2,7 @@ package com.capstone.rentit.payment.domain;
 
 import com.capstone.rentit.payment.type.PaymentStatus;
 import com.capstone.rentit.payment.type.PaymentType;
+import com.capstone.rentit.rental.domain.Rental;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor @Builder
+@AllArgsConstructor
+@Builder
 public class Payment {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,24 +30,29 @@ public class Payment {
     @Column(nullable = false)
     private long amount;
 
-    private String extTxId;           // NH 거래 번호
+    private String istuno;           //기관 거래 고유 번호
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
 
-    public static Payment create(PaymentType type, Long fromId, Long toId, long amount) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rental_id")
+    private Rental rental;
+
+    public static Payment create(PaymentType type, Long fromId, Long toId, long amount, Rental rental) {
         return Payment.builder()
                 .type(type)
                 .status(PaymentStatus.REQUESTED)
                 .fromMemberId(fromId)
                 .toMemberId(toId)
                 .amount(amount)
+                .rental(rental)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public void approve(String extTxId) {
+    public void approve(String istuno) {
         this.status = PaymentStatus.APPROVED;
-        this.extTxId = extTxId;
+        this.istuno = istuno;
         this.approvedAt = LocalDateTime.now();
     }
 }

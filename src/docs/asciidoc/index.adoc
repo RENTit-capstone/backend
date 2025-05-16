@@ -523,3 +523,110 @@ include::{snippets}/mark-processed/response-fields.adoc[]
 
 ==== HTTP 응답
 include::{snippets}/mark-processed/http-response.adoc[]
+
+== 결제 & 지갑 관련 API
+----
+결제 상태
+{
+    REQUESTED,
+    APPROVED,
+    FAILED
+}
+----
+
+----
+결제 타입
+{
+    TOP_UP,        // 현금 → 포인트 충전
+    WITHDRAWAL,    // 포인트 → 현금 출금
+    RENTAL_FEE,            // 대여자가 소유자에게 지불
+    LOCKER_FEE_RENTER,     // 대여자가 물품을 꺼낼 때
+    LOCKER_FEE_OWNER       // 소유자가 물품을 회수할 때
+}
+----
+=== 계좌 생성
+POST /api/v1/wallet
+
+==== 요청 필드
+include::{snippets}/wallet-register/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/wallet-register/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/wallet-register/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/wallet-register/http-response.adoc[]
+
+=== 지갑 조회
+GET /api/v1/wallet
+
+==== HTTP 요청
+include::{snippets}/wallet-get-account/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/wallet-get-account/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/wallet-get-account/http-response.adoc[]
+
+=== 지갑 충전
+POST /api/v1/wallet/top-up
+
+==== 요청 필드
+include::{snippets}/wallet-top-up/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/wallet-top-up/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/wallet-top-up/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/wallet-top-up/http-response.adoc[]
+
+=== 지갑 인출
+POST /api/v1/wallet/withdraw
+
+==== 요청 필드
+include::{snippets}/wallet-withdraw/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/wallet-withdraw/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/wallet-withdraw/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/wallet-withdraw/http-response.adoc[]
+
+=== 사용자 결제 내역 조회
+GET /api/v1/payments
+
+==== 요청 필드
+include::{snippets}/payments-user/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/payments-user/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/payments-user/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/payments-user/http-response.adoc[]
+
+=== 관리자용 사용자 결제 내역 조회
+GET /api/v1/admin/payments
+
+==== 요청 필드
+include::{snippets}/payments-admin/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/payments-admin/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/payments-admin/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/payments-admin/http-response.adoc[]
