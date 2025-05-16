@@ -58,6 +58,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }} 
           password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             echo "Pulling latest Docker image..."
             docker pull ${{ secrets.DOCKER_REPO }}:latest
