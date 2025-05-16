@@ -43,7 +43,7 @@ public class NhApiClient {
                 ""
         );
 
-        return post("/nhapis/v1/DrawingTransfer.nh", req, DrawingTransferResponse.class);
+        return post("/DrawingTransfer.nh", req, DrawingTransferResponse.class);
     }
 
     /* 지갑 출금 : ReceivedTransferAccountNumber */
@@ -58,6 +58,6 @@ public class NhApiClient {
                 memo
         );
 
-        return post("/nhapis/v1/ReceivedTransferAccountNumber.nh", req, DepositResponse.class);
+        return post("/ReceivedTransferAccountNumber.nh", req, DepositResponse.class);
     }
 }
