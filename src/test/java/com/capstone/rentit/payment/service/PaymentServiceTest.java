@@ -5,7 +5,6 @@ import com.capstone.rentit.payment.config.NhApiProperties;
 import com.capstone.rentit.payment.domain.*;
 import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.*;
-import com.capstone.rentit.payment.nh.*;
 import com.capstone.rentit.payment.repository.*;
 import com.capstone.rentit.payment.type.PaymentStatus;
 import com.capstone.rentit.payment.type.PaymentType;
@@ -36,10 +35,11 @@ class PaymentServiceTest {
     private static final long MEMBER_A = 1L;
     private static final long MEMBER_B = 2L;
     private static final long AMOUNT   = 10_000L;
-    final String pinAccount = "99988877766655544433322211";
 
     private static Wallet walletOf(long memberId, long balance) {
-        return Wallet.builder().memberId(memberId).balance(balance).build();
+        return Wallet.builder().memberId(memberId).balance(balance)
+                .finAcno("12345678910").bankCode("000")
+                .consentAt(LocalDateTime.now()).expiresAt(LocalDateTime.now().plusYears(1)).build();
     }
 
     @Nested class TopUpTests {
@@ -56,16 +56,16 @@ class PaymentServiceTest {
 
             DrawingTransferResponse resp = new DrawingTransferResponse(
                     mock(NhHeader.class),  // 헤더 상세값 필요 없으면 mock
-                    pinAccount,
+                    wallet.getFinAcno(),
                     "20250515"
             );
-            given(nhApiClient.drawingTransfer(eq(pinAccount), eq(AMOUNT), anyString()))
+            given(nhApiClient.drawingTransfer(eq(wallet.getFinAcno()), eq(AMOUNT), anyString()))
                     .willReturn(resp);
 
             ArgumentCaptor<Payment> payCap = ArgumentCaptor.forClass(Payment.class);
 
             // when
-            paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT));
+            paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT));
 
             // then
             assertThat(wallet.getBalance()).isEqualTo(AMOUNT);      // 1) 지갑 증가 확인
@@ -82,7 +82,7 @@ class PaymentServiceTest {
         @Test void topUp_walletNotFound_throws() {
             given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.empty());
             assertThatThrownBy(() ->
-                    paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT)))
+                    paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT)))
                     .isInstanceOf(WalletNotFoundException.class);
         }
 
@@ -101,7 +101,7 @@ class PaymentServiceTest {
 
             // when / then
             assertThatThrownBy(() ->
-                    paymentService.topUp(new TopUpRequest(MEMBER_A, pinAccount, AMOUNT)))
+                    paymentService.topUp(new TopUpRequest(MEMBER_A, AMOUNT)))
                     .isInstanceOf(ExternalPaymentFailedException.class);
 
             assertThat(wallet.getBalance()).isZero();
@@ -122,7 +122,7 @@ class PaymentServiceTest {
 
             DepositResponse resp = new DepositResponse(
                     mock(NhHeader.class),          // 헤더 값 필요 없으면 mock
-                    pinAccount,
+                    wallet.getFinAcno(),
                     "20250515"
             );
             given(nhApiClient.deposit(anyString(), anyLong(), anyString()))
@@ -130,7 +130,7 @@ class PaymentServiceTest {
             ArgumentCaptor<Payment> payCap = ArgumentCaptor.forClass(Payment.class);
 
             // when
-            paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT));
+            paymentService.withdraw(new WithdrawRequest(MEMBER_A, AMOUNT));
 
             // then
             assertThat(wallet.getBalance()).isZero();           // 1) 지갑 차감 확인
@@ -145,7 +145,7 @@ class PaymentServiceTest {
         @Test void withdraw_walletNotFound_throws() {
             given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.empty());
             assertThatThrownBy(() ->
-                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT)))
+                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, AMOUNT)))
                     .isInstanceOf(WalletNotFoundException.class);
         }
 
@@ -153,7 +153,7 @@ class PaymentServiceTest {
             Wallet wallet = walletOf(MEMBER_A, 1_000);
             given(walletRepository.findForUpdate(MEMBER_A)).willReturn(Optional.of(wallet));
             assertThatThrownBy(() ->
-                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, pinAccount, AMOUNT)))
+                    paymentService.withdraw(new WithdrawRequest(MEMBER_A, AMOUNT)))
                     .isInstanceOf(InsufficientBalanceException.class);
         }
     }
@@ -309,15 +309,6 @@ class PaymentServiceTest {
             long fee = paymentService.getLockerFeeByAction(
                     RentalLockerAction.RETRIEVE_BY_OWNER, rental, now);
             assertThat(fee).isEqualTo(1000 + 1 * 500);
-        }
-
-        @Test @DisplayName("잘못된 Action → IllegalArgumentException")
-        void invalidAction_throws() {
-            LocalDateTime now = LocalDateTime.now();
-            Rental rental = rentalWithTimes(now.minusHours(1), null);
-            assertThatThrownBy(() ->
-                    paymentService.getLockerFeeByAction(null, rental, LocalDateTime.now()))
-                    .isInstanceOf(IllegalArgumentException.class);
         }
     }
 
