@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +33,25 @@ public class PaymentService {
         return wallet.getMemberId();
     }
 
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPayments(PaymentSearchForm form) {
+        return paymentRepository.findByCond(form).stream()
+                .map(PaymentResponse::fromEntity).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public WalletResponse getAccount(Long memberId) {
+        Wallet w = walletRepository.findAccount(memberId)
+                .orElseThrow(() -> new WalletNotFoundException("지갑이 없습니다."));
+        return WalletResponse.fromEntity(w);
+    }
+
     /* ------------ 1. 현금 ⇆ 포인트 ------------ */
     public Long topUp(TopUpRequest request) {
 
         Wallet wallet = findWallet(request.memberId());
         Payment payment = paymentRepository.save(
-                Payment.create(PaymentType.TOP_UP, request.memberId(), null, request.amount()));
+                Payment.create(PaymentType.TOP_UP, request.memberId(), null, request.amount(), null));
 
         wallet.ensureAccountRegistered();
 
@@ -53,7 +67,7 @@ public class PaymentService {
 
         Wallet wallet = findWallet(request.memberId());
         Payment payment = paymentRepository.save(
-                Payment.create(PaymentType.WITHDRAWAL, null, request.memberId(), request.amount()));
+                Payment.create(PaymentType.WITHDRAWAL, null, request.memberId(), request.amount(), null));
 
         wallet.ensureAccountRegistered();
         wallet.withdraw(request.amount());
@@ -68,23 +82,23 @@ public class PaymentService {
     /* ------------ 2. 대여 흐름 ------------ */
 
     /** 대여비 (대여자 → 소유자) */
-    public PaymentResponse payRentalFee(RentalPaymentRequest req) {
+    public Long payRentalFee(RentalPaymentRequest req) {
 
         Wallet renter = findWallet(req.renterId());
         Wallet owner  = findWallet(req.ownerId());
 
         Payment tx = paymentRepository.save(
-                Payment.create(PaymentType.RENTAL_FEE, req.renterId(), req.ownerId(), req.rentalFee()));
+                Payment.create(PaymentType.RENTAL_FEE, req.renterId(), req.ownerId(), req.rentalFee(), null));
 
         renter.withdraw(req.rentalFee());
         owner.deposit(req.rentalFee());
 
         tx.approve(null); // 내부 이체 — 외부 참조 없음
-        return new PaymentResponse(tx.getId(), tx.getStatus());
+        return tx.getId();
     }
 
     /** 사물함 이용료 (LockerPaymentRequest) */
-    public PaymentResponse payLockerFee(LockerPaymentRequest req) {
+    public Long payLockerFee(LockerPaymentRequest req) {
 
         assertLockerFee(req);
 
@@ -94,13 +108,13 @@ public class PaymentService {
 //        Wallet operator = walletRepository.findForUpdate(0L);
 
         Payment tx = paymentRepository.save(
-                Payment.create(req.lockerFeeType(), req.payerId(), null, req.fee()));
+                Payment.create(req.lockerFeeType(), req.payerId(), null, req.fee(), null));
 
         payer.withdraw(req.fee());
 //        operator.deposit(req.fee());
 
         tx.approve(null);
-        return new PaymentResponse(tx.getId(), tx.getStatus());
+        return tx.getId();
     }
 
     @Transactional(readOnly = true)
