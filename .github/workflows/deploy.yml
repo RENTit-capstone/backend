@@ -10,8 +10,6 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "main", "dev", "test/ci-cd" ]
-  pull_request:
-    branches: [ "main", "dev", "test/ci-cd" ]
 
 jobs:
   build:
