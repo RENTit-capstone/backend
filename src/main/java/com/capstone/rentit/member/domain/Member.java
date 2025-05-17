@@ -37,6 +37,9 @@ public abstract class Member {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = true)
+    private String nickname;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberRoleEnum role;
@@ -68,6 +71,9 @@ public abstract class Member {
     @Column
     private boolean locked;
 
+    @Column(length = 255)
+    private String fcmToken;
+
     public abstract void update(MemberUpdateForm form);
 
     public void updateEntity(String name) {
@@ -93,5 +99,9 @@ public abstract class Member {
         } else {
             throw new MemberTypeMismatchException("지원하지 않는 회원 유형입니다.");
         }
+    }
+
+    public void updateFcmToken(String token) {
+        this.fcmToken = token;
     }
 }

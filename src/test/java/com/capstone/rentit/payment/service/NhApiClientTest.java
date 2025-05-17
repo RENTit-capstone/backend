@@ -1,5 +1,6 @@
 package com.capstone.rentit.payment.service;
 
+import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.payment.config.NhApiProperties;
 import com.capstone.rentit.payment.dto.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,9 @@ class NhApiClientTest {
 
     @Mock
     RestTemplate restTemplate;
+    @Mock
+    NotificationService notificationService;
+
 
     @Mock NhApiProperties props;
 
@@ -39,6 +43,7 @@ class NhApiClientTest {
                         "ReceivedTransferAccountNumberA");
 
         given(props.getSvcCodes()).willReturn(svc);
+        given(props.getBaseUrl()).willReturn("https://developers.nonghyup.com");
     }
     /* ---------------- 지갑 충전 ---------------- */
     @Nested
@@ -73,7 +78,7 @@ class NhApiClientTest {
             // --- RestTemplate 호출 파라미터 검증 ---
             ArgumentCaptor<HttpEntity> entityCap = ArgumentCaptor.forClass(HttpEntity.class);
             verify(restTemplate).postForObject(
-                    eq(props.getBaseUrl() + "/nhapis/v1/DrawingTransfer.nh"),
+                    eq(props.getBaseUrl() + "/DrawingTransfer.nh"),
                     entityCap.capture(),
                     eq(DrawingTransferResponse.class)
             );
@@ -121,7 +126,7 @@ class NhApiClientTest {
             // --- RestTemplate 호출 파라미터 검증 ---
             ArgumentCaptor<HttpEntity> entityCap = ArgumentCaptor.forClass(HttpEntity.class);
             verify(restTemplate).postForObject(
-                    eq(props.getBaseUrl() + "/nhapis/v1/ReceivedTransferAccountNumber.nh"),
+                    eq(props.getBaseUrl() + "/ReceivedTransferAccountNumber.nh"),
                     entityCap.capture(),
                     eq(DepositResponse.class)
             );
