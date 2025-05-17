@@ -83,7 +83,7 @@ public class NotificationService {
     public void notifyItemPlaced(Rental rental){
         notify(
                 rental.getRenterMember(),
-                NotificationType.REQUEST_ACCEPTED,
+                NotificationType.ITEM_PLACED,
                 "물품 넣음",
                 rental.getRenterMember().getNickname() + "님, " + rental.getItem().getName() + " 물품이 사물함으로 들어왔어요.\n\n"
                         + "사물함 위치 : " + rental.getLocker().getDevice().getUniversity()
