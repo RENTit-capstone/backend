@@ -7,6 +7,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.payment.domain.Wallet;
 import com.capstone.rentit.payment.service.PaymentService;
 import com.capstone.rentit.rental.domain.Rental;
@@ -44,6 +45,7 @@ class RentalServiceTest {
     @Mock ItemRepository       itemRepository;
     @Mock FileStorageService   fileStorageService;
     @Mock PaymentService paymentService;
+    @Mock NotificationService notificationService;
 
     @InjectMocks RentalService rentalService;
 

@@ -1,5 +1,6 @@
 package com.capstone.rentit.payment.service;
 
+import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.payment.config.NhApiProperties;
 import com.capstone.rentit.payment.dto.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,9 @@ class NhApiClientTest {
 
     @Mock
     RestTemplate restTemplate;
+    @Mock
+    NotificationService notificationService;
+
 
     @Mock NhApiProperties props;
 
