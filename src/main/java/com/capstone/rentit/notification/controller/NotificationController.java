@@ -20,7 +20,7 @@ public class NotificationController {
         return CommonResponse.success(notificationService.findByTarget(memberDto, pageable));
     }
 
-    @PatchMapping("/{id}/read")
+    @PutMapping("/{id}/read")
     public CommonResponse<?> markAsRead(@PathVariable Long id, @Login MemberDto memberDto) {
         notificationService.markAsRead(id, memberDto);
         return CommonResponse.success(null);
