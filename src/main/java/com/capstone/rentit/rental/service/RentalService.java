@@ -7,6 +7,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.payment.domain.Wallet;
 import com.capstone.rentit.payment.dto.LockerPaymentRequest;
 import com.capstone.rentit.payment.dto.RentalPaymentRequest;
@@ -38,6 +39,7 @@ public class RentalService {
     private final ItemRepository itemRepository;
     private final FileStorageService fileStorageService;
     private final PaymentService paymentService;
+    private final NotificationService notificationService;
 
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
@@ -46,6 +48,8 @@ public class RentalService {
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
+
+        notificationService.notifyRentRequest(rental);
         return rentalRepository.save(rental).getRentalId();
     }
 
@@ -77,6 +81,8 @@ public class RentalService {
         item.updateOut();
 
         paymentService.payRentalFee(new RentalPaymentRequest(r.getRenterId(), r.getOwnerId(), item.getPrice()));
+
+        notificationService.notifyRequestAccepted(r);
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
@@ -130,6 +136,8 @@ public class RentalService {
 
         r.assignLocker(deviceId, lockerId);
         r.dropOffByOwner(LocalDateTime.now());
+
+        notificationService.notifyItemPlaced(r);
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
@@ -155,6 +163,8 @@ public class RentalService {
         assertReturnImage(returnImage);
         String objectKey = fileStorageService.store(returnImage);
         r.uploadReturnImageUrl(objectKey);
+
+        notificationService.notifyItemReturned(r);
     }
 
     public void uploadReturnImage(Long rentalId, Long renterId, MultipartFile returnImage) {
