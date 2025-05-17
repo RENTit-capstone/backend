@@ -1,5 +1,6 @@
 package com.capstone.rentit.notification.controller;
 
+import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.notification.dto.TokenRequest;
@@ -18,9 +19,10 @@ public class DeviceTokenController {
     private final DeviceTokenService tokenService;
 
     @PostMapping
-    public void registerToken(@RequestBody TokenRequest dto,
-                              @Login MemberDto memberDto) {
+    public CommonResponse<?> registerToken(@RequestBody TokenRequest dto,
+                                        @Login MemberDto memberDto) {
         tokenService.saveToken(memberDto.getMemberId(), dto.token());
+        return CommonResponse.success(null);
     }
 }
 
