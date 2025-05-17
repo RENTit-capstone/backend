@@ -17,5 +17,5 @@ public interface RentalRepository extends JpaRepository<Rental, Long>, CustomRen
     List<Rental> findAllByOwnerIdOrRenterId(Long ownerId, Long renterId);
 
     List<Rental> findByStartDate(LocalDate startDate);
-    List<Rental> findByEndDate(LocalDate endDate);
+    List<Rental> findByDueDate(LocalDate endDate);
 }

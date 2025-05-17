@@ -70,8 +70,8 @@ class RentalDeadlineNotifierTest {
             // Repository 스텁 설정
             when(rentalRepository.findByStartDate(d3)).thenReturn(List.of(startD3));
             when(rentalRepository.findByStartDate(today)).thenReturn(List.of(startD0));
-            when(rentalRepository.findByEndDate(d3)).thenReturn(List.of(endD3));
-            when(rentalRepository.findByEndDate(today)).thenReturn(List.of(endD0));
+            when(rentalRepository.findByDueDate(d3)).thenReturn(List.of(endD3));
+            when(rentalRepository.findByDueDate(today)).thenReturn(List.of(endD0));
 
             // when
             sut().sendStartAndEndAlerts();
@@ -111,8 +111,8 @@ class RentalDeadlineNotifierTest {
             // 모든 케이스 빈 리스트
             when(rentalRepository.findByStartDate(today)).thenReturn(List.of());
             when(rentalRepository.findByStartDate(d3)).thenReturn(List.of());
-            when(rentalRepository.findByEndDate(today)).thenReturn(List.of());
-            when(rentalRepository.findByEndDate(d3)).thenReturn(List.of());
+            when(rentalRepository.findByDueDate(today)).thenReturn(List.of());
+            when(rentalRepository.findByDueDate(d3)).thenReturn(List.of());
 
             sut().sendStartAndEndAlerts();
 

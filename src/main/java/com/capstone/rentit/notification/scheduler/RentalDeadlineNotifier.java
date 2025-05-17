@@ -45,7 +45,7 @@ public class RentalDeadlineNotifier {
                 ));
 
         // 대여 마감 3일 전 & 당일 → 대여자
-        rentalRepository.findByEndDate(d3)
+        rentalRepository.findByDueDate(d3)
                 .forEach(r -> notificationService.notify(
                         r.getRenterMember(),
                         NotificationType.RENT_END_D_3,
@@ -54,7 +54,7 @@ public class RentalDeadlineNotifier {
                         Map.of("rentalId", r.getRentalId().toString())
                 ));
 
-        rentalRepository.findByEndDate(today)
+        rentalRepository.findByDueDate(today)
                 .forEach(r -> notificationService.notify(
                         r.getRenterMember(),
                         NotificationType.RENT_END_D_0,
