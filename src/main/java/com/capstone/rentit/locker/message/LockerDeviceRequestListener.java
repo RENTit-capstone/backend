@@ -70,7 +70,7 @@ public class LockerDeviceRequestListener {
                 }
             }
         } catch (Exception e) {
-            log.error("Error handling MQTT [{}]: {}", topic, e.getMessage(), e);
+            log.info("Error handling MQTT [{}]: {}", topic, e.getMessage(), e);
         }
     }
 
@@ -80,23 +80,28 @@ public class LockerDeviceRequestListener {
     private void handleRequest(String sub, String json) throws Exception {
         LockerDeviceRequest req = mapper.readValue(json, LockerDeviceRequest.class);
 
-        if ("eligible".equals(sub)) {
-            String email = otpService.validateAndResolveIdentifier(req.otpCode());
-            MemberDto member = memberService.getMemberByEmail(email);
-            List<RentalBriefResponseForLocker> rentals =
-                    rentalService.findEligibleRentals(member.getMemberId(), req.action());
-            producer.pushEligibleRentals(req.deviceId(),
-                    CommonResponse.success(
-                            new EligibleRentalsEvent(req.deviceId(), req.action(),
-                                    member.getMemberId(), rentals)
-                    ));
-        } else { // "available"
-            var lockers = lockerService.findAvailableLockers(req.deviceId());
-            producer.pushAvailableLockers(req.deviceId(),
-                    CommonResponse.success(
-                            new AvailableLockersEvent(req.deviceId(), req.rentalId(), lockers)
-                    ));
+        try {
+            if ("eligible".equals(sub)) {
+                String email = otpService.validateAndResolveIdentifier(req.otpCode());
+                MemberDto member = memberService.getMemberByEmail(email);
+                List<RentalBriefResponseForLocker> rentals =
+                        rentalService.findEligibleRentals(member.getMemberId(), req.action());
+                producer.pushEligibleRentals(req.deviceId(),
+                        CommonResponse.success(
+                                new EligibleRentalsEvent(req.deviceId(), req.action(),
+                                        member.getMemberId(), rentals)
+                        ));
+            } else { // "available"
+                var lockers = lockerService.findAvailableLockers(req.deviceId());
+                producer.pushAvailableLockers(req.deviceId(),
+                        CommonResponse.success(
+                                new AvailableLockersEvent(req.deviceId(), req.rentalId(), lockers)
+                        ));
+            }
+        } catch (Exception e) {
+            producer.pushResult(req.deviceId(), CommonResponse.failure(e.getMessage()));
         }
+
     }
 
     private void handleEvent(String json, String topic) throws Exception {
@@ -127,7 +132,6 @@ public class LockerDeviceRequestListener {
                     new LockerActionResultEvent(
                             event.deviceId(), event.lockerId(), event.rentalId()));
         } catch (Exception e) {
-            log.error("RentalLockerEvent 처리 실패", e);
             response = CommonResponse.failure(e.getMessage());
         }
 
