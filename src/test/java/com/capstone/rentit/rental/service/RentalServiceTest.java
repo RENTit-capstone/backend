@@ -442,7 +442,7 @@ class RentalServiceTest {
         given(rentalRepository.findById(13L)).willReturn(Optional.empty());
         MockMultipartFile file = new MockMultipartFile(
                 "f","f.jpg",MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L, 5L, file))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L, 5L))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -456,16 +456,16 @@ class RentalServiceTest {
                 "img","img.jpg",MediaType.IMAGE_JPEG_VALUE,"data".getBytes());
         given(fileStorageService.store(file)).willReturn("stored-key");
 
-        rentalService.returnToLocker(13L,20L,444L, 6L, file);
+        rentalService.returnToLocker(13L,20L,444L, 6L);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
         assertThat(r.getDeviceId()).isEqualTo(444L);
         assertThat(r.getLockerId()).isEqualTo(6L);
         assertThat(r.getReturnImageUrl()).isEqualTo("stored-key");
 
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L, 7L, file))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L, 7L))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 대여자가 아닙니다.");
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L, 8L,null))
+        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L, 8L))
                 .isInstanceOf(ReturnImageMissingException.class)
                 .hasMessageContaining("물품 반납 사진이 없습니다.");
     }
