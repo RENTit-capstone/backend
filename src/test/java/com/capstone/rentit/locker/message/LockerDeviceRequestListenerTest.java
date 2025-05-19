@@ -23,6 +23,7 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.List;
 
+import static com.capstone.rentit.locker.event.RentalLockerAction.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -43,70 +44,63 @@ class LockerDeviceRequestListenerTest {
     void setUp() {
         mapper = new ObjectMapper();
         listener = new LockerDeviceRequestListener(
-                mapper, otpService, memberService, rentalService, lockerService, producer);
-    }
-
-    private Message<byte[]> mqttMsg(String subTopic, LockerDeviceRequest req) throws Exception {
-        String fullTopic = LockerMessagingConfig.REQ_TOPIC_PREFIX + subTopic;
-        byte[] json = mapper.writeValueAsBytes(req);
-        return MessageBuilder.withPayload(json)
-                .setHeader(MqttHeaders.RECEIVED_TOPIC, fullTopic)
-                .build();
-    }
-
-    private Message<String> mqttStringMsg(String subTopic, LockerDeviceRequest req) throws Exception {
-        String fullTopic = LockerMessagingConfig.REQ_TOPIC_PREFIX + subTopic;
-        String json = mapper.writeValueAsString(req);
-        return MessageBuilder.withPayload(json)
-                .setHeader(MqttHeaders.RECEIVED_TOPIC, fullTopic)
-                .build();
-    }
-
-    private static LockerDeviceRequest dummyReq(RentalLockerAction action) {
-        return new LockerDeviceRequest(
-                10L,                   // deviceId
-                "00000",               // otpCode (available path에선 사용되지 않음)
-                action,                // action
-                20L                    // rentalId
+                mapper, otpService, memberService, rentalService, lockerService, producer
         );
+    }
+
+    /** helper to build a Message<?> with byte[] payload */
+    private Message<byte[]> mqttBytes(String subTopic, Object payload) throws Exception {
+        String fullTopic = LockerMessagingConfig.REQ_TOPIC_PREFIX + subTopic;
+        byte[] json = mapper.writeValueAsBytes(payload);
+        return MessageBuilder.withPayload(json)
+                .setHeader(MqttHeaders.RECEIVED_TOPIC, fullTopic)
+                .build();
+    }
+
+    /** helper to build a Message<?> with String payload */
+    private Message<String> mqttString(String subTopic, Object payload) throws Exception {
+        String fullTopic = LockerMessagingConfig.REQ_TOPIC_PREFIX + subTopic;
+        String json = mapper.writeValueAsString(payload);
+        return MessageBuilder.withPayload(json)
+                .setHeader(MqttHeaders.RECEIVED_TOPIC, fullTopic)
+                .build();
+    }
+
+    private static LockerDeviceRequest makeReq(RentalLockerAction action) {
+        return new LockerDeviceRequest(10L, "00000", action, 20L);
     }
 
     @Nested
     @DisplayName("sub-topic = eligible")
-    class Eligible {
+    class EligibleTests {
         @Test
-        @DisplayName("OTP 검증 후 조건에 맞는 렌털 목록을 CommonResponse로 Push")
-        void handleEligible() throws Exception {
+        @DisplayName("OTP 검증 후 eligible list push")
+        void shouldHandleEligible() throws Exception {
             // given
-            var req = dummyReq(RentalLockerAction.DROP_OFF_BY_OWNER);
-            Message<byte[]> msg = mqttMsg("eligible", req);
+            var req = makeReq(DROP_OFF_BY_OWNER);
+            Message<byte[]> msg = mqttBytes("eligible", req);
 
             when(otpService.validateAndResolveIdentifier(req.otpCode()))
-                    .thenReturn("user@test");
-            MemberDto member = StudentDto.builder()
-                    .memberId(1L)
-                    .name("Test User")
-                    .build();
-            when(memberService.getMemberByEmail("user@test")).thenReturn(member);
-
-            List<RentalBriefResponseForLocker> rentals =
-                    List.of(mock(RentalBriefResponseForLocker.class));
+                    .thenReturn("user@example.com");
+            MemberDto member = StudentDto.builder().memberId(1L).name("member").build();
+            when(memberService.getMemberByEmail("user@example.com"))
+                    .thenReturn(member);
+            List<RentalBriefResponseForLocker> rentals = List.of(mock(RentalBriefResponseForLocker.class));
             when(rentalService.findEligibleRentals(member.getMemberId(), req.action()))
                     .thenReturn(rentals);
 
             // when
-            listener.handle(msg);
+            listener.consume(msg);
 
             // then
-            ArgumentCaptor<CommonResponse<?>> captor =
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<CommonResponse<EligibleRentalsEvent>> captor =
                     ArgumentCaptor.forClass(CommonResponse.class);
             verify(producer).pushEligibleRentals(eq(req.deviceId()), captor.capture());
 
-            CommonResponse<?> resp = captor.getValue();
+            CommonResponse<EligibleRentalsEvent> resp = captor.getValue();
             assertThat(resp.isSuccess()).isTrue();
-            assertThat(resp.getData()).isInstanceOf(EligibleRentalsEvent.class);
-
-            var evt = (EligibleRentalsEvent) resp.getData();
+            EligibleRentalsEvent evt = resp.getData();
             assertThat(evt.deviceId()).isEqualTo(req.deviceId());
             assertThat(evt.action()).isEqualTo(req.action());
             assertThat(evt.memberId()).isEqualTo(member.getMemberId());
@@ -116,46 +110,115 @@ class LockerDeviceRequestListenerTest {
 
     @Nested
     @DisplayName("sub-topic = available")
-    class Available {
+    class AvailableTests {
         @Test
-        @DisplayName("사용 가능 사물함 목록을 CommonResponse로 Push")
-        void handleAvailable() throws Exception {
+        @DisplayName("available list push")
+        void shouldHandleAvailable() throws Exception {
             // given
-            var req = dummyReq(RentalLockerAction.RETURN_BY_RENTER);
-            Message<String> msg = mqttStringMsg("available", req);
+            var req = makeReq(RETURN_BY_RENTER);
+            Message<String> msg = mqttString("available", req);
 
-            List<LockerBriefResponse> lockers =
-                    List.of(mock(LockerBriefResponse.class));
+            List<LockerBriefResponse> lockers = List.of(mock(LockerBriefResponse.class));
             when(lockerService.findAvailableLockers(req.deviceId()))
                     .thenReturn(lockers);
 
             // when
-            listener.handle(msg);
+            listener.consume(msg);
 
             // then
-            ArgumentCaptor<CommonResponse<?>> captor =
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<CommonResponse<AvailableLockersEvent>> captor =
                     ArgumentCaptor.forClass(CommonResponse.class);
             verify(producer).pushAvailableLockers(eq(req.deviceId()), captor.capture());
 
-            CommonResponse<?> resp = captor.getValue();
+            CommonResponse<AvailableLockersEvent> resp = captor.getValue();
             assertThat(resp.isSuccess()).isTrue();
-            assertThat(resp.getData()).isInstanceOf(AvailableLockersEvent.class);
-
-            var evt = (AvailableLockersEvent) resp.getData();
+            AvailableLockersEvent evt = resp.getData();
             assertThat(evt.deviceId()).isEqualTo(req.deviceId());
             assertThat(evt.rentalId()).isEqualTo(req.rentalId());
             assertThat(evt.lockers()).isEqualTo(lockers);
         }
     }
 
+    @Nested
+    @DisplayName("sub-topic = event")
+    class EventTests {
+        private RentalLockerEventMessage makeEvent(RentalLockerAction action) {
+            return new RentalLockerEventMessage(
+                    20L,  // rentalId
+                    30L,  // memberId
+                    10L,  // deviceId
+                    5L,   // lockerId
+                    action,
+                    1234L // fee
+            );
+        }
+
+        @Test
+        @DisplayName("DROP_OFF_BY_OWNER 처리 및 pushResult")
+        void shouldHandleDropOffByOwner() throws Exception {
+            // given
+            var event = makeEvent(DROP_OFF_BY_OWNER);
+            Message<String> msg = mqttString("event", event);
+
+            // when
+            listener.consume(msg);
+
+            // then
+            verify(rentalService).dropOffToLocker(
+                    event.rentalId(),
+                    event.memberId(),
+                    event.deviceId(),
+                    event.lockerId()
+            );
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<CommonResponse<LockerActionResultEvent>> captor =
+                    ArgumentCaptor.forClass(CommonResponse.class);
+            verify(producer).pushResult(eq(event.deviceId()), captor.capture());
+
+            CommonResponse<LockerActionResultEvent> resp = captor.getValue();
+            assertThat(resp.isSuccess()).isTrue();
+            LockerActionResultEvent re = resp.getData();
+            assertThat(re.deviceId()).isEqualTo(event.deviceId());
+            assertThat(re.lockerId()).isEqualTo(event.lockerId());
+            assertThat(re.rentalId()).isEqualTo(event.rentalId());
+        }
+
+        @Test
+        @DisplayName("예외 발생 시 failure pushResult")
+        void shouldPushFailureOnException() throws Exception {
+            // given
+            var evt = makeEvent(PICK_UP_BY_RENTER);
+            Message<String> msg = mqttString("event", evt);
+            doThrow(new IllegalStateException("oops"))
+                    .when(rentalService).pickUpByRenter(
+                            evt.rentalId(), evt.memberId(), evt.fee()
+                    );
+
+            // when
+            listener.consume(msg);
+
+            // then
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<CommonResponse<LockerActionResultEvent>> cap =
+                    ArgumentCaptor.forClass(CommonResponse.class);
+            verify(producer).pushResult(eq(evt.deviceId()), cap.capture());
+
+            CommonResponse<LockerActionResultEvent> resp = cap.getValue();
+            assertThat(resp.isSuccess()).isFalse();
+            assertThat(resp.getMessage()).isEqualTo("oops");
+        }
+    }
+
     @Test
-    @DisplayName("알 수 없는 sub-topic인 경우 producer 호출 없음")
-    void handleUnknownSubTopic() throws Exception {
-        var req = dummyReq(RentalLockerAction.PICK_UP_BY_RENTER);
-        Message<byte[]> msg = mqttMsg("unknown", req);
+    @DisplayName("알 수 없는 sub-topic 무시")
+    void shouldIgnoreUnknownSubTopic() throws Exception {
+        var req = makeReq(PICK_UP_BY_RENTER);
+        Message<String> msg = mqttString("foo", req);
 
-        listener.handle(msg);
+        listener.consume(msg);
 
-        verifyNoInteractions(producer);
+        verifyNoInteractions(otpService, memberService, rentalService,
+                lockerService, producer);
     }
 }
