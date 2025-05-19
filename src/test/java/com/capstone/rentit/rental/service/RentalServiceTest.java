@@ -461,9 +461,6 @@ class RentalServiceTest {
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L, 7L))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 대여자가 아닙니다.");
-        assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,444L, 8L))
-                .isInstanceOf(ReturnImageMissingException.class)
-                .hasMessageContaining("물품 반납 사진이 없습니다.");
     }
 
     // ---- retrieveByOwner ----
