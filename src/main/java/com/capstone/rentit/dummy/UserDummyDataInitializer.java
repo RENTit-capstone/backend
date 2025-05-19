@@ -47,6 +47,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
                     .email(String.format("student%02d@example.com", i))       // 이메일 그대로
                     .password(passwordEncoder.encode("password"))             // 패스워드 그대로
                     .name(studentNames[i - 1])
+                    .nickname("Nick" + studentNicknames[i - 1])
                     .role(MemberRoleEnum.STUDENT)
                     .locked(false)
                     .createdAt(today)
