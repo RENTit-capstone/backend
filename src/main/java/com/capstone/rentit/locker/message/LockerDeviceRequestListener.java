@@ -41,7 +41,7 @@ public class LockerDeviceRequestListener {
     public void handle(Message<?> message) throws Exception {
         // 1) Inspect raw payload for debugging
         Object raw = message.getPayload();
-        log.debug("Raw payload action={}, value={}", raw.getClass().getSimpleName(), raw);
+        log.info("Raw payload action={}, value={}", raw.getClass().getSimpleName(), raw);
 
         // 2) Convert to JSON string
         String json;
@@ -91,8 +91,10 @@ public class LockerDeviceRequestListener {
 
 
     private void sendAvailable(LockerDeviceRequest r) {
+        log.info("find locker start--------------------------------------------");
         List<LockerBriefResponse> lockers =
                 lockerService.findAvailableLockers(r.deviceId());
+        log.info("find locker end--------------------------------------------");
         producer.pushAvailableLockers(r.deviceId(),
                 CommonResponse.success(new AvailableLockersEvent(r.deviceId(), r.rentalId(), lockers)));
     }
