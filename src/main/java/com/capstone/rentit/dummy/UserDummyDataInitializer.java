@@ -47,6 +47,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
                     .email(String.format("student%02d@example.com", i))       // 이메일 그대로
                     .password(passwordEncoder.encode("password"))             // 패스워드 그대로
                     .name(studentNames[i - 1])
+                    .nickname("Nick" + studentNicknames[i - 1])
                     .role(MemberRoleEnum.STUDENT)
                     .locked(false)
                     .createdAt(today)
@@ -63,12 +64,17 @@ public class UserDummyDataInitializer implements ApplicationRunner {
         for (int i = 1; i <= COMPANY_COUNT; i++) {
             Company comp = Company.builder()
                     .email(String.format("company%02d@example.com", i))
+                    .contactEmail(String.format("company%02d@example.com", i))
                     .password(passwordEncoder.encode("password"))
-                    .name("Company " + i)
+                    .name("기업 " + i)
+                    .nickname("기업 " + i)
                     .role(MemberRoleEnum.COMPANY)
                     .locked(false)
                     .createdAt(today)
-                    .companyName("CompName" + i)
+                    .companyName("기업" + i)
+                    .description("기업 설명" + i)
+                    .industry("기업 분야" + i)
+                    .registrationNumber("사업자 번호" + i)
                     .build();
             memberRepository.save(comp);
         }
@@ -77,11 +83,15 @@ public class UserDummyDataInitializer implements ApplicationRunner {
         for (int i = 1; i <= COUNCIL_COUNT; i++) {
             StudentCouncilMember council = StudentCouncilMember.builder()
                     .email(String.format("council%02d@example.com", i))
+                    .contactEmail(String.format("council%02d@example.com", i))
                     .password(passwordEncoder.encode("password"))
-                    .name("Council " + i)
+                    .name("학생회 " + i)
+                    .nickname("학생회 " + i)
                     .role(MemberRoleEnum.COUNCIL)
                     .locked(false)
                     .createdAt(today)
+                    .university(universities[(i - 1) % universities.length])
+                    .description(universities[(i - 1) % universities.length] + " 학생회")
                     .build();
             memberRepository.save(council);
         }

@@ -8,6 +8,7 @@ import com.capstone.rentit.rental.dto.RentalBriefResponseForLocker;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
@@ -19,6 +20,7 @@ import java.util.List;
  * MQTT 기반 Producer (서버 → 단말)
  *  topic 패턴 : locker/{deviceId}/{eligible|available|event}
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LockerDeviceProducer {
@@ -37,7 +39,7 @@ public class LockerDeviceProducer {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("페이로드 직렬화 실패", e);
         }
-
+        log.info("send to locker : {}", json);
         mqttOutboundChannel.send(
                 MessageBuilder.withPayload(json)
                         .setHeader(MqttHeaders.TOPIC, topic)

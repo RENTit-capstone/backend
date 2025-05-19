@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class StudentCouncilMemberCreateForm extends MemberCreateForm {
     private String university;
+    private String description;
 }

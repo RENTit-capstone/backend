@@ -7,4 +7,8 @@ import lombok.Setter;
 @Setter
 public class CompanyCreateForm extends MemberCreateForm {
     private String companyName;
+    private String registrationNumber;
+    private String industry;
+    private String contactEmail;
+    private String description;
 }

@@ -26,6 +26,18 @@ public class Company extends Member {
     @Column
     private String companyName;
 
+    @Column
+    private String registrationNumber;
+
+    @Column
+    private String industry;
+
+    @Column
+    private String contactEmail;
+
+    @Column
+    private String description;
+
     @Override
     public void update(MemberUpdateForm form) {
         if(form == null) return;
@@ -33,9 +45,14 @@ public class Company extends Member {
             throw new MemberTypeMismatchException("회사 정보 수정 폼이 아닙니다.");
         }
         super.updateEntity(form.getName());
-        if (companyName != null) {
+        if(f.getCompanyName() != null)
             this.companyName = companyName;
-        }
+        if(f.getRegistrationNumber() != null)
+            this.registrationNumber = registrationNumber;
+        if(f.getIndustry() != null)
+            this.industry = industry;
+        if(f.getDescription() != null)
+            this.description = description;
     }
 
     public static Company createEntity(CompanyCreateForm form, String encodedPassword) {
@@ -47,6 +64,9 @@ public class Company extends Member {
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .companyName(form.getCompanyName())
+                .registrationNumber(form.getRegistrationNumber())
+                .industry(form.getIndustry())
+                .description(form.getDescription())
                 .build();
     }
 }

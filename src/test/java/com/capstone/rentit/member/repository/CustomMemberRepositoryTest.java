@@ -52,7 +52,7 @@ class CustomMemberRepositoryTest {
     void findProfileWithAll_whenNoAssociations_thenReturnMemberWithEmptyCollections() {
         // given
         Member m = Student.builder()
-                .email("no@assoc.com").name("NoAssoc")
+                .email("no@assoc.com").name("NoAssoc").nickname("nickNoAssoc")
                 .password("123").role(MemberRoleEnum.STUDENT)
                 .university("univ").studentId("20250001")
                 .build();
@@ -77,7 +77,7 @@ class CustomMemberRepositoryTest {
     void findProfileWithAll_whenHasAssociations_thenReturnMemberWithAllFetched() {
         // given
         Member owner = Student.builder()
-                .email("owner@example.com").name("Owner")
+                .email("owner@example.com").name("Owner").nickname("NickOwner")
                 .password("123").role(MemberRoleEnum.STUDENT)
                 .university("univ").studentId("20250002")
                 .build();
@@ -93,7 +93,7 @@ class CustomMemberRepositoryTest {
 
         // 내가 대여자로서 빌린 대여 (다른 사람 소유 아이템 가정)
         Member renter = Student.builder()
-                .email("renter@example.com").name("Renter")
+                .email("renter@example.com").name("Renter").nickname("NickRenter")
                 .password("123").role(MemberRoleEnum.STUDENT)
                 .university("univ").studentId("20250003")
                 .build();

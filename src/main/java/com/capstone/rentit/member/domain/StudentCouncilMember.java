@@ -25,6 +25,12 @@ public class StudentCouncilMember extends Member {
     @Column
     private String university;
 
+    @Column
+    private String contactEmail;
+
+    @Column
+    private String description;
+
     @Override
     public void update(MemberUpdateForm form) {
         if(form == null) return;
@@ -32,17 +38,22 @@ public class StudentCouncilMember extends Member {
             throw new MemberTypeMismatchException("학생회 정보 수정 폼이 아닙니다.");
         }
         super.updateEntity(f.getName());
+        if(f.getDescription() != null)
+            this.description = f.getDescription();
     }
 
     public static StudentCouncilMember createEntity(StudentCouncilMemberCreateForm form, String encodedPassword) {
         return StudentCouncilMember.builder()
                 .name(form.getName())
+                .nickname(form.getName())
                 .role(MemberRoleEnum.COUNCIL)
                 .email(form.getEmail())
+                .contactEmail(form.getEmail())
                 .password(encodedPassword)
                 .locked(false)
                 .createdAt(LocalDate.now())
                 .university(form.getUniversity())
+                .description(form.getDescription())
                 .build();
     }
 }

@@ -49,7 +49,7 @@ public class RentalService {
 
         Rental rental = Rental.create(form);
 
-        notificationService.notifyRentRequest(rental);
+//        notificationService.notifyRentRequest(rental);
         return rentalRepository.save(rental).getRentalId();
     }
 
@@ -82,7 +82,7 @@ public class RentalService {
 
         paymentService.payRentalFee(new RentalPaymentRequest(r.getRenterId(), r.getOwnerId(), item.getPrice()));
 
-        notificationService.notifyRequestAccepted(r);
+//        notificationService.notifyRequestAccepted(r);
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
@@ -137,7 +137,7 @@ public class RentalService {
         r.assignLocker(deviceId, lockerId);
         r.dropOffByOwner(LocalDateTime.now());
 
-        notificationService.notifyItemPlaced(r);
+//        notificationService.notifyItemPlaced(r);
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
@@ -153,18 +153,13 @@ public class RentalService {
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId, Long deviceId, Long lockerId, MultipartFile returnImage) {
+    public void returnToLocker(Long rentalId, Long renterId, Long deviceId, Long lockerId) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
 
         r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
-
-        assertReturnImage(returnImage);
-        String objectKey = fileStorageService.store(returnImage);
-        r.uploadReturnImageUrl(objectKey);
-
-        notificationService.notifyItemReturned(r);
+//        notificationService.notifyItemReturned(r);
     }
 
     public void uploadReturnImage(Long rentalId, Long renterId, MultipartFile returnImage) {

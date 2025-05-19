@@ -163,14 +163,14 @@ class ItemRepositoryTest {
         student = (Student) memberRepository.save(student);
 
         Company company = Company.builder()
-                .email("comp2@example.com").password("pwd").name("company2")
+                .email("comp2@example.com").password("pwd").name("company2").nickname("company2")
                 .role(MemberRoleEnum.COMPANY).locked(false).createdAt(LocalDate.now())
                 .companyName("CompName2")
                 .build();
         company = (Company) memberRepository.save(company);
 
         StudentCouncilMember council = StudentCouncilMember.builder()
-                .email("council@example.com").password("pwd").name("council")
+                .email("council@example.com").password("pwd").name("council").nickname("council")
                 .role(MemberRoleEnum.COUNCIL).locked(false).createdAt(LocalDate.now())
                 .build();
         council = (StudentCouncilMember) memberRepository.save(council);
