@@ -37,7 +37,7 @@ public abstract class Member {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -76,9 +76,9 @@ public abstract class Member {
 
     public abstract void update(MemberUpdateForm form);
 
-    public void updateEntity(String name) {
-        if (name != null) {
-            this.name = name;
+    public void updateEntity(String nickname) {
+        if (nickname != null) {
+            this.name = nickname;
         }
 
     }
