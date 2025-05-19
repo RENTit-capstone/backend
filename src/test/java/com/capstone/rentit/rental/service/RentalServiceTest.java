@@ -452,15 +452,11 @@ class RentalServiceTest {
     void return_successAndErrors() {
         Rental r = Rental.builder().rentalId(13L).renterId(20L).build();
         given(rentalRepository.findById(13L)).willReturn(Optional.of(r));
-        MockMultipartFile file = new MockMultipartFile(
-                "img","img.jpg",MediaType.IMAGE_JPEG_VALUE,"data".getBytes());
-        given(fileStorageService.store(file)).willReturn("stored-key");
 
         rentalService.returnToLocker(13L,20L,444L, 6L);
         assertThat(r.getStatus()).isEqualTo(RentalStatusEnum.RETURNED_TO_LOCKER);
         assertThat(r.getDeviceId()).isEqualTo(444L);
         assertThat(r.getLockerId()).isEqualTo(6L);
-        assertThat(r.getReturnImageUrl()).isEqualTo("stored-key");
 
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,999L,444L, 7L))
                 .isInstanceOf(RentalUnauthorizedException.class)

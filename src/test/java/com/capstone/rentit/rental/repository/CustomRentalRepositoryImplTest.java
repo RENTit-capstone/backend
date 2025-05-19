@@ -278,6 +278,7 @@ class CustomRentalRepositoryImplTest {
                 .email(name + "@test.com")
                 .password("pwd")                    // 필수 컬럼 최소값
                 .name(name)
+                .nickname("Nick" + name)
                 .role(MemberRoleEnum.STUDENT)
                 .createdAt(LocalDateTime.now().toLocalDate())
                 .build();
