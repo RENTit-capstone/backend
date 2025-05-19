@@ -14,7 +14,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
             return;
         }
 
-        // 샘플 아이템 목록 (실제 물건처럼)
+        // 고정 샘플 아이템 목록 (필요하면 배열에 더 추가)
         String[] sampleNames = {
                 "Samsung Galaxy S21 스마트폰",
                 "Dell XPS 13 노트북",
@@ -62,41 +61,52 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                 "4K 출력 지원으로 프레젠테이션에 최적화된 케이블."
         };
 
+        // 상태들은 전역 카운터를 사용해 순환
+        ItemStatusEnum[] statuses = ItemStatusEnum.values();
+
         final int ITEMS_PER_MEMBER = 3;
         LocalDateTime now = LocalDateTime.now();
 
+        int counter = 0;
         for (Member owner : owners) {
             for (int j = 0; j < ITEMS_PER_MEMBER; j++) {
-                // 무작위 샘플 선택
-                int idx = ThreadLocalRandom.current().nextInt(sampleNames.length);
+                // 전역 counter로 이름·설명 인덱스 결정
+                int idx = counter % sampleNames.length;
+                String name = sampleNames[idx];
+                String description = sampleDescriptions[idx];
 
-                // 하루 대여 요금(원) — 실제 가격대처럼 1,000원~20,000원
-                int price = ThreadLocalRandom.current().nextInt(1_000, 20_001);
+                // 가격은 인덱스 기반으로 고정 (예: idx+1 × 5,000원)
+                int price = 5000 * ((idx % sampleNames.length) + 1);
+
+                // 상태는 counter 순환
+                ItemStatusEnum status = statuses[counter % statuses.length];
+
+                // 날짜 고정
+                LocalDateTime createdAt = now.minusDays((counter + 1) * 2);
+                LocalDateTime startDate = now.minusDays(counter + 1);
+                LocalDateTime endDate = now.plusDays(counter + 2);
+                LocalDateTime updatedAt = now;
 
                 Item item = Item.builder()
                         .ownerId(owner.getMemberId())
-                        .name(sampleNames[idx])
-                        .description(sampleDescriptions[idx])
+                        .name(name)
+                        .description(description)
                         .price(price)
-                        .status(randomStatus())
-                        .startDate(now.minusDays(ThreadLocalRandom.current().nextInt(0, 3)))
-                        .endDate(now.plusDays(ThreadLocalRandom.current().nextInt(1, 7)))
+                        .status(status)
+                        .startDate(startDate)
+                        .endDate(endDate)
                         .damagedPolicy("분실 또는 파손 시 전액 배상 처리합니다.")
                         .returnPolicy("반납 기한 엄수 부탁드립니다.")
-                        .createdAt(now.minusDays(ThreadLocalRandom.current().nextInt(1, 10)))
-                        .updatedAt(now)
+                        .createdAt(createdAt)
+                        .updatedAt(updatedAt)
                         .build();
 
                 itemRepository.save(item);
+                counter++;
             }
         }
 
-        System.out.printf("[ItemDummyDataInitializer] %d members × %d realistic items generated.%n",
+        System.out.printf("[ItemDummyDataInitializer] %d members × %d fixed items generated.%n",
                 owners.size(), ITEMS_PER_MEMBER);
-    }
-
-    private ItemStatusEnum randomStatus() {
-        ItemStatusEnum[] values = ItemStatusEnum.values();
-        return values[ThreadLocalRandom.current().nextInt(values.length)];
     }
 }

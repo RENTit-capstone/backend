@@ -16,7 +16,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
@@ -29,35 +30,46 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // 이미 렌털 데이터가 있으면 스킵
         if (rentalRepository.count() > 0) {
             return;
         }
 
         List<Item>   items   = itemRepository.findAll();
         List<Member> members = memberRepository.findAll();
-
         if (CollectionUtils.isEmpty(items) || members.size() < 2) {
             System.out.println("[RentalDummyDataInitializer] Not enough data – skip rental seeding");
             return;
         }
 
-        final int RENTALS_PER_ITEM = 2;
+        // owner 제외한 렌터 후보 리스트
+        List<Member> rentersAll = members;
         LocalDateTime now = LocalDateTime.now();
 
         for (Item item : items) {
             Long ownerId = item.getOwnerId();
+            List<Member> renters = rentersAll.stream()
+                    .filter(m -> !m.getMemberId().equals(ownerId))
+                    .collect(Collectors.toList());
+            if (renters.isEmpty()) continue;
 
-            for (int i = 0; i < RENTALS_PER_ITEM; i++) {
-                Member renter = randomRenter(members, ownerId);
+            // WAITING 을 제외한 상태만 명시
+            RentalStatusEnum[] statuses = {
+                    RentalStatusEnum.APPROVED,
+                    RentalStatusEnum.PICKED_UP,
+                    RentalStatusEnum.COMPLETED,
+                    RentalStatusEnum.REJECTED
+            };
 
-                LocalDateTime requestDate = now.minusDays(rand(1, 7));
+            IntStream.range(0, statuses.length).forEach(i -> {
+                RentalStatusEnum status = statuses[i];
+                Member renter = renters.get(i % renters.size());
+
+                // 날짜를 i+1 일 전으로 고정
+                LocalDateTime requestDate = now.minusDays(i + 1L);
                 LocalDateTime startDate   = requestDate.plusDays(1);
-                LocalDateTime dueDate     = startDate.plusDays(rand(3, 14));
+                LocalDateTime dueDate     = startDate.plusDays(7);
 
-                RentalStatusEnum status = randomStatus();
-
-                Rental.RentalBuilder builder = Rental.builder()
+                Rental.RentalBuilder b = Rental.builder()
                         .itemId(item.getItemId())
                         .ownerId(ownerId)
                         .renterId(renter.getMemberId())
@@ -65,59 +77,37 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
                         .startDate(startDate)
                         .dueDate(dueDate)
                         .status(status)
-                        /* 공통 필드 기본값 */
+                        // 공통 필드는 기본 null
                         .approvedDate(null)
                         .rejectedDate(null)
                         .leftAt(null)
                         .pickedUpAt(null)
                         .returnedAt(null)
                         .retrievedAt(null)
+                        .deviceId(null)
                         .lockerId(null)
                         .returnImageUrl(null);
 
-                /* 상태별 날짜 세팅 */
+                // 상태별 고정된 타임스탬프 세팅
                 switch (status) {
-                    case APPROVED -> builder
-                            .approvedDate(requestDate.plusHours(rand(1, 12)));
-                    case PICKED_UP -> builder
+                    case APPROVED -> b.approvedDate(requestDate.plusHours(2));
+                    case PICKED_UP -> b
                             .approvedDate(requestDate.plusHours(2))
                             .leftAt(startDate)
                             .pickedUpAt(startDate.plusHours(1));
-                    case COMPLETED -> builder
+                    case COMPLETED -> b
                             .approvedDate(requestDate.plusHours(2))
                             .leftAt(startDate)
                             .pickedUpAt(startDate.plusHours(1))
                             .returnedAt(dueDate.minusDays(1))
                             .retrievedAt(dueDate.minusDays(1).plusHours(3))
                             .returnImageUrl("dummy/return-image.jpg");
-                    case REJECTED -> builder
-                            .rejectedDate(requestDate.plusHours(rand(1, 6)));
-                    default -> { /* WAITING → 추가 필드 없음 */ }
+                    case REJECTED -> b.rejectedDate(requestDate.plusHours(1));
+                    default -> {}
                 }
 
-                rentalRepository.save(builder.build());
-            }
+                rentalRepository.save(b.build());
+            });
         }
-
-        System.out.printf("[RentalDummyDataInitializer] %d items × %d rentals generated.%n",
-                items.size(), RENTALS_PER_ITEM);
-    }
-
-    private int rand(int minInclusive, int maxInclusive) {
-        return ThreadLocalRandom.current().nextInt(minInclusive, maxInclusive + 1);
-    }
-
-    private RentalStatusEnum randomStatus() {
-        RentalStatusEnum[] values = RentalStatusEnum.values();
-        return values[rand(0, values.length - 1)];
-    }
-
-    /** owner 와 다른 member 중 무작위 선택 */
-    private Member randomRenter(List<Member> members, Long ownerId) {
-        Member renter;
-        do {
-            renter = members.get(rand(0, members.size() - 1));
-        } while (renter.getMemberId().equals(ownerId));
-        return renter;
     }
 }
