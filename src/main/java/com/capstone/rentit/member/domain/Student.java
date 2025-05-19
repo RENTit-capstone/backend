@@ -23,9 +23,6 @@ import java.time.LocalDate;
 public class Student extends Member {
 
     @Column
-    private String nickname;
-
-    @Column
     private String university;
 
     @Column
@@ -61,9 +58,6 @@ public class Student extends Member {
             throw new MemberTypeMismatchException("학생 정보 수정 폼이 아닙니다.");
         }
         updateEntity(form.getName());
-        if (nickname != null) {
-            this.nickname = nickname;
-        }
         if (phone != null) {
             this.phone = phone;
         }
