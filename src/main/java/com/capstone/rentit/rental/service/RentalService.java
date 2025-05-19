@@ -153,17 +153,12 @@ public class RentalService {
     }
 
     /** 9) 대여자가 사물함에 물건을 반환할 때 */
-    public void returnToLocker(Long rentalId, Long renterId, Long deviceId, Long lockerId, MultipartFile returnImage) {
+    public void returnToLocker(Long rentalId, Long renterId, Long deviceId, Long lockerId) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
 
         r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
-
-        assertReturnImage(returnImage);
-        String objectKey = fileStorageService.store(returnImage);
-        r.uploadReturnImageUrl(objectKey);
-
 //        notificationService.notifyItemReturned(r);
     }
 
