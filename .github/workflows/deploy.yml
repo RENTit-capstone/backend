@@ -28,82 +28,11 @@ jobs:
 
     - name: set application.yml
       run: |
-
-      # 1) application.yml 생성
-        mkdir -p src/main/resources
-        cat << 'EOF' > src/main/resources/application.yml
-        spring:
-          application:
-            name: oauth2
-          datasource:
-            url: ${DATABASE_URL}
-            username: ${DATABASE_USERNAME}
-            password: ${DOCKER_PASSWORD}
-            driver-class-name: com.mysql.cj.jdbc.Driver
-
-          jpa:
-            database-platform: org.hibernate.dialect.H2Dialect
-            hibernate:
-              ddl-auto: create-drop
-            properties:
-              hibernate:
-                dialect: org.hibernate.dialect.H2Dialect
-                format_sql: false
-                show_sql: false
-
-        mqtt:
-          broker: ${MQTT_BROKER_URL}
-          username: ${MQTT_USERNAME}
-          password: ${MQTT_PASSWORD}
-
-        univcert:
-          api:
-            key: ${UNIVCERT_API_KEY}
-
-        jwt:
-          secret: ${JWT_SECRET}
-          expiration: 3600000 #1시간
-
-        storage:
-          local:
-            upload-dir: ${UPLOAD_DIR}
-
-        ncp:
-          object-storage:
-            endpoint: ${NCP_ENDPOINT}
-            region: kr-standard
-            bucket-name: ${NCP_BUCKET}
-            access-key: ${NCP_ACCESS_KEY}
-            secret-key: ${NCP_SECRET_KEY}
-            presign-expire-minutes: 15
-
-        nhapi:
-          base-url: ${NH_BASE_URL}
-          iscd: ${NH_ISCD}
-          fintech-aps-no: ${NH_FINTECH_APS_NO}
-          access-token: ${NH_ACCESS_TOKEN}
-          svc-codes:
-            drawing: ${NH_SVC_DRAWING}
-            deposit: ${NH_SVC_DEPOSIT}
-        EOF
-  
-        # 2) Firebase 서비스 계정 JSON 생성
         mkdir -p src/main/resources/firebase
-        cat << 'EOF' > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
-        {
-          "type": "${GCP_SERVICE_ACCOUNT_TYPE}",
-          "project_id": "${GCP_SERVICE_ACCOUNT_PROJECT_ID}",
-          "private_key_id": "${GCP_SERVICE_ACCOUNT_PRIVATE_KEY_ID}",
-          "private_key": "${GCP_SERVICE_ACCOUNT_PRIVATE_KEY}",
-          "client_email": "${GCP_SERVICE_ACCOUNT_CLIENT_EMAIL}",
-          "client_id": "${GCP_SERVICE_ACCOUNT_CLIENT_ID}",
-          "auth_uri": "${GCP_SERVICE_ACCOUNT_AUTH_URI}",
-          "token_uri": "${GCP_SERVICE_ACCOUNT_TOKEN_URI}",
-          "auth_provider_x509_cert_url": "${GCP_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL}",
-          "client_x509_cert_url": "${GCP_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL}",
-          "universe_domain": "${GCP_SERVICE_ACCOUNT_UNIVERSE_DOMAIN}"
-        }
-        EOF
+        printf '%s\n' "${{ secrets.APPLICATION }}" \
+        > src/main/resources/application.yml
+        printf '%s\n' "${{ secrets.FCM_JSON }}" \
+        > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
