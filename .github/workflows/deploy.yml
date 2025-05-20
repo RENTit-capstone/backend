@@ -27,6 +27,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Create dummy Firebase JSON for tests
+        run: |
+          mkdir -p src/test/resources/firebase
+      # 테스트용으로만 쓰이는 빈 JSON
+          echo '{}' > src/test/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+
       - name: Run tests
         run: ./gradlew clean test -Dspring.profiles.active=test
 
