@@ -76,11 +76,11 @@ jobs:
       run: |
         mkdir -p src/main/resources/firebase
         
-        echo "${{ secrets.APPLICATION }}" \
-        > src/main/resources/application.yml
+        printf '%s\n' "${{ secrets.APPLICATION }}" \
+          > src/main/resources/application.yml
         
-        echo "${{ secrets.FCM_JSON }}" \
-        > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+        printf '%s\n' "${{ secrets.FCM_JSON }}" \
+          > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
