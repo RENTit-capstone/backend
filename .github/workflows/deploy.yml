@@ -31,6 +31,7 @@ jobs:
         touch ./src/main/resources/application.yml
         echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
         
+        mkdir -p ./src/main/resources/firebase
         touch ./src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
         echo "${{ secrets.FCM_JSON }}" > ./src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
