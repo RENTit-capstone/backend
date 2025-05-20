@@ -121,4 +121,27 @@ jobs:
             docker rm  rentit || true
   
             echo "Starting new container..."
-            docker run -d --name rentit -p 8080:8080 ${{ secrets.DOCKER_REPO }}:latest
+            docker run -d \
+              --name rentit \
+              -p 8080:8080 \
+              -e DATABASE_URL="$DATABASE_URL" \
+              -e DATABASE_USERNAME="$DATABASE_USERNAME" \
+              -e DOCKER_PASSWORD="$DOCKER_PASSWORD" \
+              -e MQTT_BROKER_URL="$MQTT_BROKER_URL" \
+              -e MQTT_USERNAME="$MQTT_USERNAME" \
+              -e MQTT_PASSWORD="$MQTT_PASSWORD" \
+              -e UNIVCERT_API_KEY="$UNIVCERT_API_KEY" \
+              -e JWT_SECRET="$JWT_SECRET" \
+              -e UPLOAD_DIR="$UPLOAD_DIR" \
+              -e NCP_ENDPOINT="$NCP_ENDPOINT" \
+              -e NCP_BUCKET="$NCP_BUCKET" \
+              -e NCP_ACCESS_KEY="$NCP_ACCESS_KEY" \
+              -e NCP_SECRET_KEY="$NCP_SECRET_KEY" \
+              -e NH_BASE_URL="$NH_BASE_URL" \
+              -e NH_ISCD="$NH_ISCD" \
+              -e NH_FINTECH_APS_NO="$NH_FINTECH_APS_NO" \
+              -e NH_ACCESS_TOKEN="$NH_ACCESS_TOKEN" \
+              -e NH_SVC_DRAWING="$NH_SVC_DRAWING" \
+              -e NH_SVC_DEPOSIT="$NH_SVC_DEPOSIT" \
+              -e GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-service-account.json \
+              ${{ secrets.DOCKER_REPO }}:latest
