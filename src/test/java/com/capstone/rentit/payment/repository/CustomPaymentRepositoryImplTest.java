@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@ActiveProfiles("test")
 @Import(QuerydslConfig.class)
 class CustomPaymentRepositoryImplTest {
     @Autowired CustomPaymentRepositoryImpl customPaymentRepository;
@@ -107,22 +108,4 @@ class CustomPaymentRepositoryImplTest {
                             assertThat(p.getFromMemberId()).isEqualTo(MEMBER_A));
         }
     }
-}
-
-/* -------------------------------------------------- */
-/*     테스트 전용 Configuration (Querydsl Bean)      */
-/* -------------------------------------------------- */
-class TestConfig {
-
-    @Bean
-    JPAQueryFactory jpaQueryFactory(EntityManager em) {
-        return new JPAQueryFactory(em);
-    }
-
-    /* Repository 구현체 수동 등록 (스캔 패키지에 있으면 생략 가능) */
-    @Bean
-    CustomPaymentRepository customPaymentRepository(JPAQueryFactory qf) {
-        return new CustomPaymentRepositoryImpl(qf);
-    }
-
 }
