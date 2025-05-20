@@ -30,6 +30,9 @@ jobs:
       run: |
         touch ./src/main/resources/application.yml
         echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+        
+        touch ./src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+        echo "${{ secrets.FCM_JSON }}" > ./src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
