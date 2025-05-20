@@ -16,13 +16,15 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import jakarta.persistence.EntityManager;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@ActiveProfiles("test")
 @Import({QuerydslConfig.class})
 class CustomLockerRepositoryImplTest {
 
