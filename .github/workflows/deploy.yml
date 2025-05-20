@@ -13,8 +13,54 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    env:
+    # Database
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    # MQTT
+      MQTT_BROKER_URL: ${{ secrets.MQTT_BROKER_URL }}
+      MQTT_USERNAME: ${{ secrets.MQTT_USERNAME }}
+      MQTT_PASSWORD: ${{ secrets.MQTT_PASSWORD }}
+
+    # UnivCert
+      UNIVCERT_API_KEY: ${{ secrets.UNIVCERT_API_KEY }}
+
+    # JWT
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    # Storage
+      UPLOAD_DIR: ${{ secrets.UPLOAD_DIR }}
+
+    # NCP Object Storage
+      NCP_ENDPOINT: ${{ secrets.NCP_ENDPOINT }}
+      NCP_BUCKET: ${{ secrets.NCP_BUCKET }}
+      NCP_ACCESS_KEY: ${{ secrets.NCP_ACCESS_KEY }}
+      NCP_SECRET_KEY: ${{ secrets.NCP_SECRET_KEY }}
+
+    # NH API
+      NH_BASE_URL: ${{ secrets.NH_BASE_URL }}
+      NH_ISCD: ${{ secrets.NH_ISCD }}
+      NH_FINTECH_APS_NO: ${{ secrets.NH_FINTECH_APS_NO }}
+      NH_ACCESS_TOKEN: ${{ secrets.NH_ACCESS_TOKEN }}
+      NH_SVC_DRAWING: ${{ secrets.NH_SVC_DRAWING }}
+      NH_SVC_DEPOSIT: ${{ secrets.NH_SVC_DEPOSIT }}
+
+    # GCP 서비스 계정
+      GCP_SERVICE_ACCOUNT_TYPE: ${{ secrets.GCP_SERVICE_ACCOUNT_TYPE }}
+      GCP_SERVICE_ACCOUNT_PROJECT_ID: ${{ secrets.GCP_SERVICE_ACCOUNT_PROJECT_ID }}
+      GCP_SERVICE_ACCOUNT_PRIVATE_KEY_ID: ${{ secrets.GCP_SERVICE_ACCOUNT_PRIVATE_KEY_ID }}
+      GCP_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_PRIVATE_KEY }}
+      GCP_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.GCP_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+      GCP_SERVICE_ACCOUNT_CLIENT_ID: ${{ secrets.GCP_SERVICE_ACCOUNT_CLIENT_ID }}
+      GCP_SERVICE_ACCOUNT_AUTH_URI: ${{ secrets.GCP_SERVICE_ACCOUNT_AUTH_URI }}
+      GCP_SERVICE_ACCOUNT_TOKEN_URI: ${{ secrets.GCP_SERVICE_ACCOUNT_TOKEN_URI }}
+      GCP_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL: ${{ secrets.GCP_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL }}
+      GCP_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL: ${{ secrets.GCP_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL }}
+      GCP_SERVICE_ACCOUNT_UNIVERSE_DOMAIN: ${{ secrets.GCP_SERVICE_ACCOUNT_UNIVERSE_DOMAIN }}
+
     permissions:
       contents: read
 
