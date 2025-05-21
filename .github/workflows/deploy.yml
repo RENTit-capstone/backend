@@ -38,7 +38,6 @@ jobs:
         run: ./gradlew clean test -Dspring.profiles.active=test
 
       - name: Prepare production config
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
         run: |
           mkdir -p src/main/resources/firebase
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
