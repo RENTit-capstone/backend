@@ -1,10 +1,16 @@
 package com.capstone.rentit.dummy;
 
+import com.capstone.rentit.item.repository.ItemRepository;
+import com.capstone.rentit.locker.repository.DeviceRepository;
+import com.capstone.rentit.locker.repository.LockerRepository;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.payment.repository.PaymentRepository;
+import com.capstone.rentit.payment.repository.WalletRepository;
+import com.capstone.rentit.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,8 +29,21 @@ public class UserDummyDataInitializer implements ApplicationRunner {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final DeviceRepository deviceRepository;
+    private final LockerRepository lockerRepository;
+    private final ItemRepository itemRepository;
+    private final WalletRepository walletRepository;
+    private final PaymentRepository paymentRepository;
+    private final RentalRepository rentalRepository;
+
     @Override
     public void run(ApplicationArguments args) {
+        paymentRepository.deleteAllInBatch();
+        walletRepository.deleteAllInBatch();
+        deviceRepository.deleteAllInBatch();
+        lockerRepository.deleteAllInBatch();
+        rentalRepository.deleteAllInBatch();
+        itemRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
 //        if (memberRepository.count() > 0) {return;}
 

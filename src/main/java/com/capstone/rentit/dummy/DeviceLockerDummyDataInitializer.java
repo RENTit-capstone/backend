@@ -26,9 +26,6 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        deviceRepository.deleteAllInBatch();
-        lockerRepository.deleteAllInBatch();
-
 //        if (deviceRepository.count() > 0) {
 //            return;
 //        }
