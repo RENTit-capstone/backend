@@ -47,10 +47,6 @@ jobs:
           ${{ secrets.FCM_JSON }}
           EOF
 
-      - name:
-          Debug: show application.yml
-        run: cat src/main/resources/application.yml
-
       - name: Build JAR (skip tests)
         run: ./gradlew bootJar -x test
 
