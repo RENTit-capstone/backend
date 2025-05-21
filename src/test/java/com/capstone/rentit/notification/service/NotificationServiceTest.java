@@ -1,8 +1,6 @@
 package com.capstone.rentit.notification.service;
 
 import com.capstone.rentit.item.domain.Item;
-import com.capstone.rentit.locker.domain.Device;
-import com.capstone.rentit.locker.domain.Locker;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -132,7 +130,7 @@ class NotificationServiceTest {
                     .type(NotificationType.RENT_REQUESTED)
                     .title("t")
                     .body("b")
-                    .read(false)
+                    .isRead(false)
                     .createdAt(LocalDateTime.now())
                     .build();
 
@@ -157,7 +155,7 @@ class NotificationServiceTest {
                     .type(NotificationType.RENT_REQUESTED)
                     .title("t")
                     .body("b")
-                    .read(false)
+                    .isRead(false)
                     .createdAt(LocalDateTime.now())
                     .build();
 
@@ -183,7 +181,7 @@ class NotificationServiceTest {
                 .type(NotificationType.RENT_REQUESTED)
                 .title("t")
                 .body("b")
-                .read(false)
+                .isRead(false)
                 .createdAt(LocalDateTime.now())
                 .build();
 
