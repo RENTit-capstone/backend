@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: read
     env:
-      FCM_JSON: ${{ secrets.FCM_JSON }}
+      FCM_JSON:    ${{ secrets.FCM_JSON }}
       APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
 
     steps:
@@ -28,11 +28,8 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Create dummy Firebase JSON for tests
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/test/')
+        if: startsWith(github.ref, 'refs/heads/test/')
         run: |
           mkdir -p src/main/resources/firebase
           echo '{}' > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
@@ -44,10 +41,10 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
         run: |
           mkdir -p src/main/resources/firebase
-          echo ${{ secrets.APPLICATION_YML }} | base64 --decode > ./src/main/resources/application-secret.yml
-          echo ${{ secrets.FCM_JSON }} | base64 --decode > ./src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+          echo "${{ secrets.FCM_JSON }}"    | base64 --decode > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
-      - name: Build JAR (skip tests)
+      - name: Build JAR (skip tests & docs)
         run: ./gradlew clean bootJar -x test -x asciidoctor
 
       - name: Build & push Docker image
@@ -57,9 +54,7 @@ jobs:
           DOCKER_REPO:     ${{ secrets.DOCKER_REPO }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build \
-            --build-arg FCM_JSON="$FCM_JSON" \
-            -t "$DOCKER_REPO:latest" .
+          docker build -t "$DOCKER_REPO:latest" .
           docker push "$DOCKER_REPO:latest"
 
   deploy:
@@ -81,5 +76,6 @@ jobs:
               --name rentit \
               --add-host host.docker.internal:host-gateway \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/rentit \
+              -e FCM_JSON="${{ secrets.FCM_JSON }}" \
               -p 8080:8080 \
               "${{ secrets.DOCKER_REPO }}:latest"
