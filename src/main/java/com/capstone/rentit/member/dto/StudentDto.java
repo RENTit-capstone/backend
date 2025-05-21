@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class StudentDto extends MemberDto {
-    private String nickname;
     private GenderEnum gender;
     private String studentId;
     private String university;

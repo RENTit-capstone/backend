@@ -9,5 +9,6 @@ public record EligibleRentalsEvent(
         Long deviceId,
         RentalLockerAction action,
         Long memberId,
+        String nickname,
         List<RentalBriefResponseForLocker> rentals
 ) implements LockerDeviceEvent { }
