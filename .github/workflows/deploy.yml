@@ -80,5 +80,7 @@ jobs:
               docker rm   rentit || true
               docker run -d \
                 --name rentit \
+                --add-host host.docker.internal:host-gateway \
+                -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/mydb \
                 -p 8080:8080 \
                 "${{ secrets.DOCKER_REPO }}:latest"
