@@ -39,11 +39,10 @@ jobs:
       - name: Prepare production config
         # secrets 내용을 env 로 불러옵니다.
         env:
-          APPLICATION: ${{ secrets.APPLICATION }}
+          APPLICATION: ${{ secrets.APPLICATION_YML }}
           FCM_JSON:    ${{ secrets.FCM_JSON }}
         run: |
           mkdir -p src/main/resources/firebase
-          # 멀티라인 시크릿을 그대로 파일로 덤프
           echo "$APPLICATION" > src/main/resources/application.yml
           echo "$FCM_JSON"    > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
@@ -82,6 +81,4 @@ jobs:
               docker run -d \
                 --name rentit \
                 -p 8080:8080 \
-                -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-                -e JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}" \
                 "${{ secrets.DOCKER_REPO }}:latest"
