@@ -30,7 +30,8 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (rentalRepository.count() > 0) return;
+        rentalRepository.deleteAllInBatch();
+//        if (rentalRepository.count() > 0) return;
 
         List<Member> members = memberRepository.findAll().stream()
                 .filter(m -> m.getRole() == MemberRoleEnum.STUDENT).toList();
