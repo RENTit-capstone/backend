@@ -5,6 +5,7 @@ FROM gradle:8.5-jdk21 AS builder
 WORKDIR /app
 # Copy files into container
 COPY . .
+COPY src/main/resources/application.yml ./application.yml
 # Run gradle to build
 RUN gradle bootJar --no-daemon
 
