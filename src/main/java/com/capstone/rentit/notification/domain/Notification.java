@@ -35,11 +35,11 @@ public class Notification {
     private String body;
 
     @Column(nullable = false)
-    private boolean read;                 // 읽음 여부
+    private boolean isRead;                 // 읽음 여부
 
     private LocalDateTime createdAt;
 
     public void updateRead(boolean read){
-        this.read = read;
+        this.isRead = read;
     }
 }
