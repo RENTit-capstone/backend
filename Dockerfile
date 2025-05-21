@@ -5,16 +5,12 @@ WORKDIR /app
 # 소스 전체 복사
 COPY . .
 
-# production 설정
-COPY src/main/resources/application.yml            src/main/resources/application.yml
-# test 전용 설정
-COPY src/main/resources/application-test.yml       src/main/resources/application-test.yml
-
-# 1-1) test 프로파일로 테스트 실행 (application-test.yml 적용)
-RUN gradle test --no-daemon -Dspring.profiles.active=test
+# 1-1) test 프로파일로 테스트 실행
+#   옵션은 gradle 명령어 바로 뒤에 와야 합니다.
+RUN gradle --no-daemon -Dspring.profiles.active=test test
 
 # 1-2) 테스트 제외하고 패키징
-RUN gradle bootJar --no-daemon -x test
+RUN gradle --no-daemon bootJar -x test
 
 # 2) Run 단계: 실제 실행 이미지만 추출
 FROM eclipse-temurin:21-jre-alpine
