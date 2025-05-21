@@ -41,6 +41,7 @@ jobs:
           mkdir -p src/main/resources/firebase
           echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
           echo "${{ secrets.FCM_JSON }}"  > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+          ls src/main/resources/application.yml
 
       - name: Build JAR (skip tests)
         run: ./gradlew bootJar -x test
