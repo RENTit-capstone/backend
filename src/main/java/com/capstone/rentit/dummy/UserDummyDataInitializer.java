@@ -25,9 +25,8 @@ public class UserDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (memberRepository.count() > 0) {
-            return;
-        }
+        memberRepository.deleteAllInBatch();
+//        if (memberRepository.count() > 0) {return;}
 
         final int STUDENT_COUNT = 5;
         final int COMPANY_COUNT = 2;

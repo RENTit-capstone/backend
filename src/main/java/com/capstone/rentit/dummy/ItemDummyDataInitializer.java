@@ -25,7 +25,8 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (itemRepository.count() > 0) return;
+        itemRepository.deleteAllInBatch();
+//        if (itemRepository.count() > 0) return;
 
         List<Member> owners = memberRepository.findAll();
         if (CollectionUtils.isEmpty(owners)) {

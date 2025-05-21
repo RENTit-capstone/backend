@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Order(6)
 public class PaymentDummyDataInitializer implements ApplicationRunner {
 
-    private final MemberRepository memberRepo;
-    private final WalletRepository walletRepo;
-    private final PaymentRepository paymentRepo;
+    private final MemberRepository memberRepository;
+    private final WalletRepository walletRepository;
+    private final PaymentRepository paymentRepository;
 
     /* 샌드박스용 NH 핀-어카운트 더미 생성기 */
     private String fakeFinAcno(long memberId) {
@@ -34,12 +34,13 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        paymentRepository.deleteAllInBatch();
 
         /* ─── 0. 지갑 준비 & 계좌 등록 ─── */
-        List<Member> members = memberRepo.findAll();
+        List<Member> members = memberRepository.findAll();
         members.forEach(m -> {
-            Wallet w = walletRepo.findById(m.getMemberId())
-                    .orElseGet(() -> walletRepo.save(
+            Wallet w = walletRepository.findById(m.getMemberId())
+                    .orElseGet(() -> walletRepository.save(
                             Wallet.builder()
                                     .memberId(m.getMemberId())
                                     .balance(0L)
@@ -51,21 +52,21 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
                         fakeFinAcno(m.getMemberId()),
                         "011"                   // 농협 코드
                 );
-                walletRepo.save(w);
+                walletRepository.save(w);
             }
         });
 
         /* ─── 1. 더미 결제 내역 생성 (TOP_UP) ─── */
-        if (paymentRepo.count() == 0) {
+        if (paymentRepository.count() == 0) {
             AtomicInteger seq = new AtomicInteger(1);
-            walletRepo.findAll().forEach(w -> {
+            walletRepository.findAll().forEach(w -> {
                 long amt = 10_000L * seq.get();
                 Payment topUp = Payment.create(
                         PaymentType.TOP_UP, w.getMemberId(), null, amt, null);
                 topUp.approve("DUMMY-" + seq.getAndIncrement());
-                paymentRepo.save(topUp);
+                paymentRepository.save(topUp);
                 w.deposit(amt);
-                walletRepo.save(w);
+                walletRepository.save(w);
             });
         }
 
@@ -88,9 +89,9 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
     private void createInternal(Long from, Long to, long amt, PaymentType type) {
         Payment p = Payment.create(type, from, to, amt, null);
         p.approve(null);
-        paymentRepo.save(p);
+        paymentRepository.save(p);
 
-        walletRepo.findById(from).ifPresent(w -> { w.withdraw(amt); walletRepo.save(w); });
-        walletRepo.findById(to).ifPresent(w -> { w.deposit(amt);  walletRepo.save(w); });
+        walletRepository.findById(from).ifPresent(w -> { w.withdraw(amt); walletRepository.save(w); });
+        walletRepository.findById(to).ifPresent(w -> { w.deposit(amt);  walletRepository.save(w); });
     }
 }

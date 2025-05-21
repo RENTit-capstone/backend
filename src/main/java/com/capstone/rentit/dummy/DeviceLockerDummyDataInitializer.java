@@ -26,16 +26,18 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // 이미 디바이스가 있으면 스킵
-        if (deviceRepository.count() > 0) {
-            return;
-        }
+        deviceRepository.deleteAllInBatch();
+        lockerRepository.deleteAllInBatch();
+
+//        if (deviceRepository.count() > 0) {
+//            return;
+//        }
 
         // 더미 대학 및 위치 설명 맵
         List<String> universities = List.of("아주대학교");
         Map<String, String> locations = Map.of(
-                "아주대학교", "팔달관 1층 복도",
-                "아주대학교", "중앙도서관 1층 복도"
+                "아주대학교-1", "팔달관 1층 복도",
+                "아주대학교-2", "중앙도서관 1층 복도"
         );
 
         if (CollectionUtils.isEmpty(universities)) {
