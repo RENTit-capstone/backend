@@ -34,8 +34,6 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        paymentRepository.deleteAllInBatch();
-
         /* ─── 0. 지갑 준비 & 계좌 등록 ─── */
         List<Member> members = memberRepository.findAll();
         members.forEach(m -> {
