@@ -43,13 +43,12 @@ jobs:
       - name: Prepare production config
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
         run: |
-          # Inject real application.yml and Firebase JSON into resources
           mkdir -p src/main/resources/firebase
           echo "$APPLICATION_YML" > src/main/resources/application.yml
           echo "$FCM_JSON" > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
       - name: Build JAR (skip tests)
-        run: ./gradlew bootJar -x test
+        run: ./gradlew clean bootJar -x test
 
       - name: Build & push Docker image
         env:
