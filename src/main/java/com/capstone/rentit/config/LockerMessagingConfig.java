@@ -43,8 +43,8 @@ public class LockerMessagingConfig {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions opts = new MqttConnectOptions();
         opts.setServerURIs(new String[]{brokerUrl});
-        // opts.setUserName(username);
-        // opts.setPassword(password.toCharArray());
+         opts.setUserName(username);
+         opts.setPassword(password.toCharArray());
         opts.setAutomaticReconnect(true);
         opts.setCleanSession(false);      // 세션 유지 모드
         opts.setMaxInflight(500);         // 동시에 in-flight 메시지 허용 수

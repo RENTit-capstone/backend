@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.capstone.rentit.member.domain.QMember.member;
 
@@ -33,6 +34,18 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private final JPAQueryFactory queryFactory;
     private final QItem item = QItem.item;
     private final QMember member = QMember.member;
+
+    @Override
+    public Optional<Item> findWithOwnerByItemId(Long itemId) {
+        Item found = queryFactory
+                .select(item)
+                .from(item)
+                .join(item.owner, member).fetchJoin()
+                .where(item.itemId.eq(itemId))
+                .fetchOne();
+
+        return Optional.ofNullable(found);
+    }
 
     @Override
     public Page<Item> search(ItemSearchForm form, Pageable pageable) {
