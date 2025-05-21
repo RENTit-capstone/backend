@@ -70,7 +70,7 @@ public class ItemService {
     }
 
     private Item findItem(Long itemId) {
-        return itemRepository.findById(itemId)
+        return itemRepository.findWithOwnerByItemId(itemId)
                 .orElseThrow(() ->
                         new ItemNotFoundException("존재하지 않는 물품입니다.")
                 );
