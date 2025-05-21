@@ -39,8 +39,17 @@ jobs:
       - name: Prepare production config
         run: |
           mkdir -p src/main/resources/firebase
-          echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
-          echo "${{ secrets.FCM_JSON }}"  > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+          cat <<'EOF' > src/main/resources/application.yml
+          ${{ secrets.APPLICATION }}
+          EOF
+          
+          cat <<'EOF' > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+          ${{ secrets.FCM_JSON }}
+          EOF
+
+      - name:
+          Debug: show application.yml
+        run: cat src/main/resources/application.yml
 
       - name: Build JAR (skip tests)
         run: ./gradlew bootJar -x test
