@@ -13,6 +13,7 @@ import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.StudentDto;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,8 +63,8 @@ class ItemServiceTest {
     void setUp() {
         // 공통 테스트 데이터 준비
 
-        ownerMember = StudentDto.builder().memberId(100L).build();
-        otherMember = StudentDto.builder().memberId(999L).build();
+        ownerMember = StudentDto.builder().memberId(100L).role(MemberRoleEnum.STUDENT).build();
+        otherMember = StudentDto.builder().memberId(999L).role(MemberRoleEnum.STUDENT).build();
 
         createForm = ItemCreateForm.builder()
                 .name("Sample")
@@ -91,6 +92,7 @@ class ItemServiceTest {
                 .ownerId(ownerMember.getMemberId())
                 .owner(Student.builder()
                         .memberId(ownerMember.getMemberId())
+                        .role(ownerMember.getRole())
                         .profileImg("owner/profile.png")
                         .build())
                 .name(createForm.getName())
@@ -186,7 +188,7 @@ class ItemServiceTest {
                 .ownerId(101L)
                 .owner(Student.builder()
                         .memberId(otherMember.getMemberId())
-                        .profileImg("other/profile.png")
+                        .role(otherMember.getRole())
                         .build())
                 .name("Other")
                 .description("o desc")
@@ -240,7 +242,7 @@ class ItemServiceTest {
     @Test
     void getItem_existingId_thenReturnDto() {
         // given
-        given(itemRepository.findById(sampleItem.getItemId()))
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
 
         // when
@@ -255,7 +257,7 @@ class ItemServiceTest {
     @Test
     void getItem_missingId_thenThrow() {
         // given
-        given(itemRepository.findById(anyLong())).willReturn(Optional.empty());
+        given(itemRepository.findWithOwnerByItemId(anyLong())).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> itemService.getItem(1L))
                 .isInstanceOf(ItemNotFoundException.class)
@@ -266,7 +268,7 @@ class ItemServiceTest {
     @Test
     void updateItem_existing_thenFieldsUpdated() {
         // given
-        given(itemRepository.findById(sampleItem.getItemId()))
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
         given(fileStorageService.store(any(MultipartFile.class)))
                 .willReturn("new1","new2");
@@ -284,7 +286,7 @@ class ItemServiceTest {
     @Test
     void updateItem_missingId_thenThrowNotFound() {
         // given
-        given(itemRepository.findById(anyLong())).willReturn(Optional.empty());
+        given(itemRepository.findWithOwnerByItemId(anyLong())).willReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 itemService.updateItem(ownerMember, 999L, updateForm, mockImages))
@@ -295,7 +297,7 @@ class ItemServiceTest {
     @Test
     void updateItem_notOwner_thenThrowUnauthorized() {
         // given
-        given(itemRepository.findById(sampleItem.getItemId()))
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
 
         // when, then
@@ -308,7 +310,7 @@ class ItemServiceTest {
     @Test
     void deleteItem_whenCalled_thenRepositoryDeleteById() {
         //given
-        given(itemRepository.findById(sampleItem.getItemId()))
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
         // when
         itemService.deleteItem(ownerMember, sampleItem.getItemId());
@@ -321,7 +323,7 @@ class ItemServiceTest {
     @Test
     void deleteItem_missingId_thenThrowNotFound() {
         // given
-        given(itemRepository.findById(anyLong())).willReturn(Optional.empty());
+        given(itemRepository.findWithOwnerByItemId(anyLong())).willReturn(Optional.empty());
 
         // when, then
         assertThatThrownBy(() ->
@@ -333,7 +335,7 @@ class ItemServiceTest {
     @Test
     void deleteItem_notOwner_thenThrowUnauthorized() {
         // given
-        given(itemRepository.findById(sampleItem.getItemId()))
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .willReturn(Optional.of(sampleItem));
 
         // when, then
