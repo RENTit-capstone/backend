@@ -40,8 +40,8 @@ public class UserDummyDataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         paymentRepository.deleteAllInBatch();
         walletRepository.deleteAllInBatch();
-        deviceRepository.deleteAllInBatch();
         lockerRepository.deleteAllInBatch();
+        deviceRepository.deleteAllInBatch();
         rentalRepository.deleteAllInBatch();
         itemRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
