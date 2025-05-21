@@ -37,26 +37,31 @@ jobs:
         run: ./gradlew clean test -Dspring.profiles.active=test
 
       - name: Prepare production config
+        # secrets 내용을 env 로 불러옵니다.
+        env:
+          APPLICATION: ${{ secrets.APPLICATION }}
+          FCM_JSON:    ${{ secrets.FCM_JSON }}
         run: |
           mkdir -p src/main/resources/firebase
-          cat <<'EOF' > src/main/resources/application.yml
-          ${{ secrets.APPLICATION }}
-          EOF
-          
-          cat <<'EOF' > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
-          ${{ secrets.FCM_JSON }}
-          EOF
+          echo "$APPLICATION" > src/main/resources/application.yml
+          echo "$FCM_JSON"    > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+
+      - name: "Debug: show application.yml"
+        run: cat src/main/resources/application.yml
 
       - name: Build JAR (skip tests)
         run: ./gradlew bootJar -x test
 
       - name: Build & push Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO:     ${{ secrets.DOCKER_REPO }}
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" \
-            | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          ls src/main/resources/application.yml
-          docker build --no-cache -t "${{ secrets.DOCKER_REPO }}:latest" .
-          docker push "${{ secrets.DOCKER_REPO }}:latest"
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          ls -l src/main/resources/application.yml
+          docker build --no-cache -t "$DOCKER_REPO:latest" .
+          docker push "$DOCKER_REPO:latest"
 
   deploy:
     runs-on: ubuntu-latest
