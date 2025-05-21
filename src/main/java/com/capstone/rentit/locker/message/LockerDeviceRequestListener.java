@@ -15,13 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.Message;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.capstone.rentit.locker.event.RentalLockerAction.*;
 
 /**
  * MQTT Inbound Listener
@@ -54,7 +51,7 @@ public class LockerDeviceRequestListener {
         } else {
             json = payloadObj.toString();
         }
-
+        log.info("MQTT request : {}", json);
         // 3) sub-topic 분기
         String sub = topic.substring(LockerMessagingConfig.REQ_TOPIC_PREFIX.length());
 
