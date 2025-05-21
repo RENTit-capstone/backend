@@ -7,7 +7,6 @@ import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -18,6 +17,7 @@ public abstract class MemberDto {
     Long memberId;
     String email;
     String name;
+    String nickname;
     MemberRoleEnum role;
     String profileImg;
     LocalDate createdAt;

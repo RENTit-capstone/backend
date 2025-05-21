@@ -13,6 +13,7 @@ public class StudentCouncilMemberDto extends MemberDto {
         return StudentCouncilMemberDto.builder()
                 .memberId(entity.getMemberId())
                 .name(entity.getName())
+                .nickname(entity.getNickname())
                 .email(entity.getEmail())
                 .role(entity.getRole())
                 .profileImg(presignedUrl)

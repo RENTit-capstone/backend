@@ -86,7 +86,7 @@ public class LockerDeviceRequestListener {
                 producer.pushEligibleRentals(req.deviceId(),
                         CommonResponse.success(
                                 new EligibleRentalsEvent(req.deviceId(), req.action(),
-                                        member.getMemberId(), rentals)
+                                        member.getMemberId(), member.getNickname(), rentals)
                         ));
             } else { // "available"
                 var lockers = lockerService.findAvailableLockers(req.deviceId());

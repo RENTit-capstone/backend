@@ -13,6 +13,7 @@ public class CompanyDto extends MemberDto {
         return CompanyDto.builder()
                 .memberId(entity.getMemberId())
                 .name(entity.getName())
+                .nickname(entity.getNickname())
                 .email(entity.getEmail())
                 .role(entity.getRole())
                 .profileImg(presignedUrl)
