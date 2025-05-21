@@ -28,23 +28,8 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Create dummy Firebase JSON for tests
-        if: startsWith(github.ref, 'refs/heads/test/')
-        run: |
-          mkdir -p src/main/resources/firebase
-          echo '{}' > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
-
-      - name: Run tests
+      - name: Run tests (test profile)
         run: ./gradlew clean test -Dspring.profiles.active=test
-
-      - name: Prepare production config
-        run: |
-          mkdir -p src/main/resources/firebase
-          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-          echo "${{ secrets.FCM_JSON }}"    | base64 --decode > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
-
-      - name: Build JAR (skip tests & docs)
-        run: ./gradlew clean bootJar -x test -x asciidoctor
 
       - name: Build & push Docker image
         env:
@@ -53,7 +38,10 @@ jobs:
           DOCKER_REPO:     ${{ secrets.DOCKER_REPO }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build -t "$DOCKER_REPO:latest" .
+          docker build \
+            --build-arg APPLICATION_YML="${{ secrets.APPLICATION_YML }}" \
+            --build-arg FCM_JSON="${{ secrets.FCM_JSON }}" \
+            -t "$DOCKER_REPO:latest" .
           docker push "$DOCKER_REPO:latest"
 
   deploy:
