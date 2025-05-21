@@ -83,4 +83,5 @@ jobs:
                 --name rentit \
                 -p 8080:8080 \
                 -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+                -e JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}" \
                 "${{ secrets.DOCKER_REPO }}:latest"
