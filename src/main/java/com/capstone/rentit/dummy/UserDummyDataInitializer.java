@@ -8,11 +8,9 @@ import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
@@ -40,7 +38,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
         // 1) 학생 생성 (실제 사용자처럼 이름·닉네임·대학교 설정)
         String[] studentNames     = {"김민수", "이서연", "박지훈", "최지우", "정우진"};
         String[] studentNicknames = {"minsu_k", "seoyeon_l", "jihun_p", "jiwoo_c", "woojin_j"};
-        String[] universities      = {"아주대학교", "서울대학교"};
+        String[] universities      = {"아주대학교"};
 
         for (int i = 1; i <= STUDENT_COUNT; i++) {
             Student stu = Student.builder()

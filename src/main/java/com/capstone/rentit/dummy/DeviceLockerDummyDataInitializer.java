@@ -32,10 +32,10 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
         }
 
         // 더미 대학 및 위치 설명 맵
-        List<String> universities = List.of("아주대학교", "서울대학교");
+        List<String> universities = List.of("아주대학교");
         Map<String, String> locations = Map.of(
-                "아주대학교", "IT관 1층 복도",
-                "서울대학교", "중앙도서관 앞 광장"
+                "아주대학교", "팔달관 1층 복도",
+                "아주대학교", "중앙도서관 1층 복도"
         );
 
         if (CollectionUtils.isEmpty(universities)) {
