@@ -11,9 +11,15 @@ WORKDIR /app
 COPY . .
 
 # 1-1) resources 덮어쓰기: Base64 → 디코딩 → 파일로 저장
+# 1) 리소스 덮어쓰기
 RUN mkdir -p src/main/resources/firebase \
- && echo "${APPLICATION_YML}" | base64 --decode > src/main/resources/application.yml \
- && echo "${FCM_JSON}"    | base64 --decode > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+ && echo "$APPLICATION_YML" | base64 --decode > src/main/resources/application.yml \
+ && echo "$FCM_JSON"    | base64 --decode > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+
+# 2) 항상 clean 붙여서 테스트·패키징
+RUN gradle --no-daemon clean \
+       -Dspring.profiles.active=test test \
+ && gradle --no-daemon clean bootJar -x test -x asciidoctor
 
 # 1-2) test 프로파일로 테스트 실행
 RUN gradle --no-daemon -Dspring.profiles.active=test test

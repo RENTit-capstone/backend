@@ -38,7 +38,7 @@ jobs:
           DOCKER_REPO:     ${{ secrets.DOCKER_REPO }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build \
+          docker build --no-cache \
             --build-arg APPLICATION_YML="${{ secrets.APPLICATION_YML }}" \
             --build-arg FCM_JSON="${{ secrets.FCM_JSON }}" \
             -t "$DOCKER_REPO:latest" .
