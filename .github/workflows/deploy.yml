@@ -48,7 +48,7 @@ jobs:
           echo "$FCM_JSON" > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
       - name: Build JAR (skip tests)
-        run: ./gradlew clean bootJar -x test
+        run: ./gradlew clean bootJar -x test -x asciidoctor
 
       - name: Build & push Docker image
         env:
