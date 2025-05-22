@@ -18,7 +18,6 @@ import java.util.List;
 public class Device {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long deviceId;
 
     @Column(length = 50, nullable = false)
