@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class RentalBriefResponse {
 
     private Long rentalId;
+    private Long itemId;
     private String itemName;
     private String ownerName;
     private String renterName;
@@ -44,6 +45,7 @@ public class RentalBriefResponse {
         }
         return RentalBriefResponse.builder()
                 .rentalId(rental.getRentalId())
+                .itemId(rental.getItemId())
                 .itemName(rental.getItem().getName())
                 .ownerName(rental.getOwnerMember().getNickname())
                 .renterName(rental.getRenterMember().getNickname())

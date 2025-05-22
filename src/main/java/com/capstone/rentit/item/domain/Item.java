@@ -67,6 +67,8 @@ public class Item {
         return Item.builder()
                 .ownerId(ownerId)
                 .name(form.getName())
+                .price(form.getPrice())
+                .damagedDescription(form.getDamagedDescription())
                 .description(form.getDescription())
                 .status(form.getStatus())
                 .damagedPolicy(form.getDamagedPolicy())

@@ -28,8 +28,8 @@ public class ItemController {
     @PostMapping(path = "/items",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Long> createItem(@Login MemberDto loginMember,
-                                           @RequestPart("form") ItemCreateForm form,
-                                           @RequestPart("images") List<MultipartFile> images) {
+                                           @ModelAttribute("form") ItemCreateForm form,
+                                           @RequestPart(value = "images", required = false  ) List<MultipartFile> images) {
         Long itemId = itemService.createItem(loginMember.getMemberId(), form, images);
         return CommonResponse.success(itemId);
     }
