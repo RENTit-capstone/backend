@@ -31,11 +31,8 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
 //        }
 
         // 더미 대학 및 위치 설명 맵
-        List<String> universities = List.of("아주대학교");
-        Map<String, String> locations = Map.of(
-                "아주대학교-1", "팔달관 1층 복도",
-                "아주대학교-2", "중앙도서관 1층 복도"
-        );
+        List<String> universities = List.of("아주대학교", "아주대학교");
+        List<String> locations = List.of("팔달관 1층 복도", "중앙도서관 1층 복도");
 
         if (CollectionUtils.isEmpty(universities)) {
             return;
@@ -44,11 +41,11 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
         final int LOCKERS_PER_DEVICE = 10;
         LocalDateTime now = LocalDateTime.now();
 
-        for (String univ : universities) {
+        for (int i = 0; i < universities.size(); i++) {
             // 1) Device 생성 & 저장
             Device device = Device.builder()
-                    .university(univ)
-                    .locationDescription(locations.getOrDefault(univ, "캠퍼스 내부"))
+                    .university(universities.get(i))
+                    .locationDescription(locations.get(i))
                     .build();
             deviceRepository.save(device);
 
