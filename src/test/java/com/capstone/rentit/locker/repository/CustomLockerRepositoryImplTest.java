@@ -3,6 +3,7 @@ package com.capstone.rentit.locker.repository;
 import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.locker.domain.Device;
 import com.capstone.rentit.locker.domain.Locker;
+import com.capstone.rentit.locker.dto.DeviceCreateForm;
 import com.capstone.rentit.locker.dto.LockerSearchForm;
 import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -43,10 +44,10 @@ class CustomLockerRepositoryImplTest {
     void setUp() {
         // 1) Device 를 먼저 저장
         Device d1 = deviceRepository.save(
-                Device.createDevice(new com.capstone.rentit.locker.dto.DeviceCreateForm("U1", "loc1"))
+                Device.createDevice(new DeviceCreateForm(99L, "U1", "loc1"))
         );
         Device d2 = deviceRepository.save(
-                Device.createDevice(new com.capstone.rentit.locker.dto.DeviceCreateForm("U2", "loc2"))
+                Device.createDevice(new DeviceCreateForm(100L, "U2", "loc2"))
         );
         deviceId1 = d1.getDeviceId();
         deviceId2 = d2.getDeviceId();
