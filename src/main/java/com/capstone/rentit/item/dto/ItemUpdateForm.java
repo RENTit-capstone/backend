@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ItemUpdateForm {
     private String name;
     private String description;
+    private String damagedDescription;
     private Integer price;
     private String damagedPolicy;
     private String returnPolicy;
