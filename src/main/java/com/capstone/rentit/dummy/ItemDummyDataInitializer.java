@@ -57,7 +57,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
         for (Member owner : owners) {
             for (int j = 0; j < ITEMS_PER_MEMBER; j++, global++) {
                 int i     = global % names.length;
-                int price = 5_000 * (i + 1);               // 5 000 원 단위
+                int price = 1_000 * (i + 1);               // 1 000 원 단위
                 ItemStatusEnum st = statuses[global % statuses.length];
 
                 itemRepository.save(Item.builder()
