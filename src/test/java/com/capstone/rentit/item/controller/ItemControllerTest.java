@@ -77,6 +77,7 @@ class ItemControllerTest {
         ItemCreateForm form = ItemCreateForm.builder()
                 .name("Sample Item")
                 .description("Sample description")
+                .damagedDescription("Sample damaged description")
                 .price(2000)
                 .status(ItemStatusEnum.AVAILABLE)
                 .damagedPolicy("No damage")
@@ -118,6 +119,7 @@ class ItemControllerTest {
                         requestPartFields("form",
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("물품 이름"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("물품 상세 설명"),
+                                fieldWithPath("damagedDescription").type(JsonFieldType.STRING).description("물품 하자 설명"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("물품 상태(`AVAILABLE`,`OUT` 등)"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
@@ -319,6 +321,7 @@ class ItemControllerTest {
         ItemUpdateForm form = ItemUpdateForm.builder()
                 .name("Updated")
                 .description("newDesc")
+                .damagedDescription("newDamagedDesc")
                 .price(2000)
                 .damagedPolicy("dp2")
                 .returnPolicy("rp2")
@@ -360,6 +363,7 @@ class ItemControllerTest {
                         ),
                         requestPartFields("form",
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("수정할 이름"),
+                                fieldWithPath("damagedDescription").type(JsonFieldType.STRING).description("수정할 설명"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("수정할 설명"),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("대여 가격"),
                                 fieldWithPath("damagedPolicy").type(JsonFieldType.STRING).description("파손 정책"),
@@ -374,7 +378,6 @@ class ItemControllerTest {
                         )
                 ));
 
-        // then: service 호출 검증
         verify(itemService).updateItem(any(MemberDto.class), eq(id), any(ItemUpdateForm.class), anyList());
     }
 
