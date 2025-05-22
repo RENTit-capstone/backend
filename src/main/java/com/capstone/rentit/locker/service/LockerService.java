@@ -32,19 +32,16 @@ public class LockerService {
         return lockerRepository.save(Locker.createLocker(form, nextId)).getLockerId();
     }
 
-    @Transactional(readOnly = true)
     public List<DeviceResponse> searchDevicesByUniversity(DeviceSearchForm form) {
         return deviceRepository.findByUniversity(form.getUniversity())
                 .stream().map(DeviceResponse::fromEntity).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<LockerResponse> searchLockers(LockerSearchForm form) {
         return lockerRepository.search(form)
                 .stream().map(LockerResponse::fromEntity).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<LockerBriefResponse> findAvailableLockers(Long deviceId) {
         LockerSearchForm form = new LockerSearchForm(deviceId, true);
         List<Locker> list = lockerRepository.search(form);

@@ -119,7 +119,6 @@ public class RentalService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<RentalBriefResponseForLocker> findEligibleRentals(Long memberId, RentalLockerAction action) {
         Wallet wallet = paymentService.findWallet(memberId);
         List<Rental> list = rentalRepository.findEligibleRentals(memberId, action);
