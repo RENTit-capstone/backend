@@ -44,6 +44,7 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
         for (int i = 0; i < universities.size(); i++) {
             // 1) Device 생성 & 저장
             Device device = Device.builder()
+                    .deviceId(i + 1L)
                     .university(universities.get(i))
                     .locationDescription(locations.get(i))
                     .build();
