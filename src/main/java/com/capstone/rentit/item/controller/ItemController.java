@@ -28,7 +28,7 @@ public class ItemController {
     @PostMapping(path = "/items",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Long> createItem(@Login MemberDto loginMember,
-                                           @RequestPart("form") ItemCreateForm form,
+                                           @ModelAttribute("form") ItemCreateForm form,
                                            @RequestPart("images") List<MultipartFile> images) {
         Long itemId = itemService.createItem(loginMember.getMemberId(), form, images);
         return CommonResponse.success(itemId);
@@ -36,7 +36,7 @@ public class ItemController {
 
     @GetMapping("/items")
     public CommonResponse<Page<ItemSearchResponse>> getAllItems(
-            @ModelAttribute ItemSearchForm searchForm,
+            @ModelAttribute("form") ItemSearchForm searchForm,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
         Page<ItemSearchResponse> page = itemService.getAllItems(searchForm, pageable);
@@ -54,7 +54,7 @@ public class ItemController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
-            @RequestPart(value = "form", required = false) ItemUpdateForm form,
+            @ModelAttribute("form") ItemUpdateForm form,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Login MemberDto loginMember) {
         itemService.updateItem(loginMember, itemId, form, images);
