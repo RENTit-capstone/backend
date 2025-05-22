@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class ItemCreateForm {
     private String name;
     private String description;
+    private String damagedDescription;
     private Integer price;
     private ItemStatusEnum status;
     private String damagedPolicy;
