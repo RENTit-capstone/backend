@@ -45,7 +45,7 @@ public class Wallet {
     }
 
     public void deposit(long amount) {
-        if (amount <= 0) throw new IllegalArgumentException("amount > 0");
+        if (amount <= 0) throw new IllegalArgumentException("amount should > 0");
         balance += amount;
     }
 
@@ -55,7 +55,7 @@ public class Wallet {
     }
 
     public void checkBalance(long amount) {
-        if (amount <= 0) throw new IllegalArgumentException("amount > 0");
+        if (amount < 0) throw new IllegalArgumentException("amount show >= 0");
         if (balance < amount) throw new InsufficientBalanceException("잔액이 부족합니다. 현재 잔액: " + balance + " 결제 금액" + amount);
     }
 }
