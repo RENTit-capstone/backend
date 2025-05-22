@@ -36,6 +36,7 @@ public class Device {
 
     static public Device createDevice(DeviceCreateForm form){
         return Device.builder()
+                .deviceId(form.getDeviceId())
                 .university(form.getUniversity())
                 .locationDescription(form.getLocationDescription())
                 .build();

@@ -8,6 +8,7 @@ import com.capstone.rentit.locker.service.LockerService;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.json.Json;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -87,7 +88,7 @@ class LockerControllerTest {
         @WithMockUser(roles = "ADMIN")
         @DisplayName("정상 등록 시 생성된 deviceId 반환 및 문서화")
         void registerDevice_success() throws Exception {
-            DeviceCreateForm form = new DeviceCreateForm("Univ1", "Location1");
+            DeviceCreateForm form = new DeviceCreateForm(101L, "Univ1", "Location1");
             long generatedId = 123L;
             given(lockerService.registerDevice(any(DeviceCreateForm.class)))
                     .willReturn(generatedId);
@@ -104,6 +105,7 @@ class LockerControllerTest {
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestFields(
+                                    fieldWithPath("deviceId").type(JsonFieldType.NUMBER).description("키오스크 번호"),
                                     fieldWithPath("university").type(JsonFieldType.STRING).description("학교 이름"),
                                     fieldWithPath("locationDescription").type(JsonFieldType.STRING).description("사물함 위치 상세 설명")
                             ),

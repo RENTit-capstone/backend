@@ -10,6 +10,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class DeviceCreateForm {
+    private Long deviceId;
     private String university;
     private String locationDescription;
 }

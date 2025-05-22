@@ -43,7 +43,7 @@ class LockerServiceTest {
     @DisplayName("registerDevice: 정상적으로 디바이스 저장 후 ID 반환")
     void registerDevice_success() {
         // given
-        DeviceCreateForm form = new DeviceCreateForm("Uni1", "Desc1");
+        DeviceCreateForm form = new DeviceCreateForm(102L, "Uni1", "Desc1");
         Device saved = Device.builder()
                 .deviceId(100L)
                 .university(form.getUniversity())
