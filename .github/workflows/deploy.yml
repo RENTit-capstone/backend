@@ -97,6 +97,10 @@ jobs:
             
             # 최신 이미지 가져오고 up -d
             cd ~
+            
+            # 이전 스택 중지 및 정리
+            docker compose --env-file ~/.env down --remove-orphans
+
             docker compose --env-file .env pull
             docker compose --env-file .env up -d
             
