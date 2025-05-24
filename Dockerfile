@@ -14,8 +14,8 @@ RUN gradle wrapper --no-daemon \
 COPY gradlew .
 RUN chmod +x gradlew
 
-# 실제 소스 복사
-COPY src ./src
+# 전체 복사
+COPY . .
 
 # 리소스 주입 (Base64 → 평문)
 RUN mkdir -p src/main/resources/firebase \
