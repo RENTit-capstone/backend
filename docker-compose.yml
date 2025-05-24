@@ -11,22 +11,6 @@ networks:
     driver: bridge
 
 services:
-  backend:
-    image: ${DOCKER_REPO}:latest
-    container_name: spring-backend
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
-    environment:
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
-      - MANAGEMENT_ENDPOINTS_WEB_BASE_PATH=/actuator
-      - LOG_PATH=/var/log/spring
-    volumes:
-      - spring_logs:/var/log/spring
-    networks:
-      - monitoring
-
   prometheus:
     image: prom/prometheus:v3.4.0
     command:
