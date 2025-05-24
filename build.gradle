@@ -10,11 +10,7 @@ plugins {
 group = 'com.capstone'
 version = '0.0.1-SNAPSHOT'
 
-//def querydslDir = layout.buildDirectory.dir("generated/querydsl")
 def snippetsDir = layout.buildDirectory.dir("generated-snippets").get().asFile
-//ext {
-//	querydslVersion = '5.0.0'
-//}
 
 java {
 	toolchain {
@@ -27,13 +23,16 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-//	querydsl.extendsFrom compileClasspath
 }
 
 repositories {
 	mavenCentral()
 	//for UnivCert
 	maven{url 'https://jitpack.io'}
+}
+
+ext {
+	set('micrometer.version', '1.15.0')
 }
 
 dependencies {
@@ -83,6 +82,11 @@ dependencies {
 
 	//FCM
 	implementation("com.google.firebase:firebase-admin:9.4.3")
+
+	//monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'net.logstash.logback:logstash-logback-encoder:8.1'
 }
 
 tasks.named('test') {
