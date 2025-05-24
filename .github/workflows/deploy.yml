@@ -89,6 +89,7 @@ jobs:
               --add-host host.docker.internal:host-gateway \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/rentit \
               -e FCM_JSON="${{ secrets.FCM_JSON }}" \
+              -v spring_logs:/var/log/spring \
               -p 8080:8080 \
               "${{ secrets.DOCKER_REPO }}:latest"
             

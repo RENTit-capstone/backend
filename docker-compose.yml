@@ -43,7 +43,7 @@ services:
       - "-config.file=/etc/promtail/config.yml"
     volumes:
       - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
-      - spring_logs:/var/log/spring:ro
+      - spring_logs:/var/log/spring
       - /var/log:/var/log:ro
     restart: unless-stopped
     depends_on:
