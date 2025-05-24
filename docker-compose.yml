@@ -1,4 +1,14 @@
-version: "0.1"
+version: "3.9"
+
+volumes:
+  prom_data:
+  loki_data:
+  grafana_data:
+  spring_logs:
+
+networks:
+  monitoring:
+    driver: bridge
 
 services:
   backend:
@@ -6,5 +16,72 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: spring-backend
+    expose:
+      - "8080"
     ports:
       - "8080:8080"
+    environment:
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MANAGEMENT_ENDPOINTS_WEB_BASE_PATH=/actuator
+      - LOG_PATH=/var/log/spring
+    volumes:
+      - spring_logs:/var/log/spring
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v3.4.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:3.5.1
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+    volumes:
+      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:3.5.1
+    command:
+      - "-config.file=/etc/promtail/config.yaml"
+    volumes:
+      - ./monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - spring_logs:/var/log/spring:ro
+      - /var/log:/var/log:ro
+    restart: unless-stopped
+    depends_on:
+      - loki
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:12.0.1
+    user: "472"
+    depends_on:
+      - prometheus
+      - loki
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD:?set_me}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - monitoring
