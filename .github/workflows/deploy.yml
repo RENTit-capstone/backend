@@ -92,13 +92,11 @@ jobs:
               -p 8080:8080 \
               "${{ secrets.DOCKER_REPO }}:latest"
             
-            echo "▶ 2) Monitoring 스택 배포(Compose)"
-            cd ~/monitoring
-            
             # .env 생성 (Base64 → 평문 디코딩)
-            echo "GF_ADMIN_PASSWORD=$(echo $GF_ADMIN_PASSWORD_B64 | base64 -d)" > .env
+            echo "GF_ADMIN_PASSWORD=$(echo $GF_ADMIN_PASSWORD_B64 | base64 -d)" > ~/.env
             
             # 최신 이미지 가져오고 up -d
+            cd ~
             docker compose --env-file .env pull
             docker compose --env-file .env up -d
             
