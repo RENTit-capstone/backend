@@ -27,9 +27,9 @@ services:
   loki:
     image: grafana/loki:3.5.1
     command:
-      - "-config.file=/etc/loki/local-config.yaml"
+      - "-config.file=/etc/loki/local-config.yml"
     volumes:
-      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yml:ro
       - loki_data:/loki
     ports:
       - "3100:3100"
@@ -40,9 +40,9 @@ services:
   promtail:
     image: grafana/promtail:3.5.1
     command:
-      - "-config.file=/etc/promtail/config.yaml"
+      - "-config.file=/etc/promtail/config.yml"
     volumes:
-      - ./monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
       - spring_logs:/var/log/spring:ro
       - /var/log:/var/log:ro
     restart: unless-stopped
