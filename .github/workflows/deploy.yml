@@ -103,6 +103,6 @@ jobs:
             docker compose --env-file ~/.env down --remove-orphans
 
             docker compose --env-file .env pull
-            docker compose --env-file .env up -d
+            docker compose --env-file ~/.env up -d --force-recreate
             
             echo "✅  Deployment complete"
