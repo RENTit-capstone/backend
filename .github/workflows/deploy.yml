@@ -100,9 +100,9 @@ jobs:
             cd ~
             
             # 이전 스택 중지 및 정리
-            docker compose -p --env-file ~/.env down --remove-orphans
+            docker compose -p monitoring --env-file ~/.env down --remove-orphans
 
-            docker compose -p --env-file .env pull
-            docker compose -p --env-file ~/.env up -d --force-recreate
+            docker compose -p monitoring --env-file ~/.env pull
+            docker compose -p monitoring --env-file ~/.env up -d --force-recreate --no-build
             
             echo "✅  Deployment complete"
