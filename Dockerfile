@@ -6,13 +6,13 @@ ARG FCM_JSON
 
 WORKDIR /app
 
-# gradle 캐시 활용을 위해 의존성 파일 먼저 복사
 COPY settings.gradle build.gradle gradle ./
+RUN gradle wrapper --no-daemon \
+        --gradle-version 8.5 \
+        --distribution-type bin
+
 COPY gradlew .
 RUN chmod +x gradlew
-
-# 의존성만 받아 두면 이후 레이어 캐시 효율 ↑
-RUN ./gradlew --no-daemon dependencyResolutionManagement
 
 # 실제 소스 복사
 COPY src ./src
