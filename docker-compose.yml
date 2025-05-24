@@ -11,24 +11,6 @@ networks:
     driver: bridge
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: spring-backend
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
-    environment:
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
-      - MANAGEMENT_ENDPOINTS_WEB_BASE_PATH=/actuator
-      - LOG_PATH=/var/log/spring
-    volumes:
-      - spring_logs:/var/log/spring
-    networks:
-      - monitoring
-
   prometheus:
     image: prom/prometheus:v3.4.0
     command:
@@ -45,9 +27,9 @@ services:
   loki:
     image: grafana/loki:3.5.1
     command:
-      - "-config.file=/etc/loki/local-config.yaml"
+      - "-config.file=/etc/loki/local-config.yml"
     volumes:
-      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yml:ro
       - loki_data:/loki
     ports:
       - "3100:3100"
@@ -58,10 +40,10 @@ services:
   promtail:
     image: grafana/promtail:3.5.1
     command:
-      - "-config.file=/etc/promtail/config.yaml"
+      - "-config.file=/etc/promtail/config.yml"
     volumes:
-      - ./monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
-      - spring_logs:/var/log/spring:ro
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - spring_logs:/tmp/spring_logs
       - /var/log:/var/log:ro
     restart: unless-stopped
     depends_on:
