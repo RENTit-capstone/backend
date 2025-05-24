@@ -20,7 +20,7 @@ COPY . .
 # 리소스 주입 (Base64 → 평문)
 RUN mkdir -p src/main/resources/firebase \
  && echo "$APPLICATION_YML" | base64 -d > src/main/resources/application.yml \
- && echo "$FCM_JSON_B64" | base64 -d > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
+ && echo "$FCM_JSON" | base64 -d > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
 # 테스트 + 패키징 (테스트는 한 번만 실행)
 RUN ./gradlew --no-daemon clean test \
