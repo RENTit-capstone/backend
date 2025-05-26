@@ -37,9 +37,7 @@ public class PaymentController {
     @PostMapping("/wallet/top-up")
     public CommonResponse<?> topUp(
             @RequestBody @Valid TopUpRequest request) {
-
-        walletPaymentService.topUp(request);
-        return CommonResponse.success(null);
+        return CommonResponse.success(walletPaymentService.topUp(request));
     }
 
     /** 지갑 인출 (포인트 → 현금) */
@@ -47,9 +45,7 @@ public class PaymentController {
     @PostMapping("/wallet/withdraw")
     public CommonResponse<?> withdraw(
             @RequestBody @Valid WithdrawRequest request) {
-
-        walletPaymentService.withdraw(request);
-        return CommonResponse.success(null);
+        return CommonResponse.success(walletPaymentService.withdraw(request));
 
     }
 
