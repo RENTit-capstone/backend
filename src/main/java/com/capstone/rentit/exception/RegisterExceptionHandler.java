@@ -19,6 +19,12 @@ public class RegisterExceptionHandler {
         return CommonResponse.failure(ex.getMessage());
     }
 
+    @ExceptionHandler(NicknameAlreadyRegisteredException.class)
+    public CommonResponse<Void> handleNicknameDup(NicknameAlreadyRegisteredException ex) {
+        log.warn(ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
     @ExceptionHandler(UnivNotCertifiedException.class)
     public CommonResponse<Void> handleNotCertified(UnivNotCertifiedException ex) {
         log.warn(ex.getMessage());
