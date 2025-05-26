@@ -154,7 +154,7 @@ class PaymentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("항상 null"),
+                                fieldWithPath("data").type(JsonFieldType.NUMBER).description("결제 ID"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
@@ -180,7 +180,7 @@ class PaymentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("항상 null"),
+                                fieldWithPath("data").type(JsonFieldType.NUMBER).description("결제 ID"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
                         )
                 ));
