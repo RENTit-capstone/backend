@@ -80,7 +80,7 @@ jobs:
           script: |
             set -e
             
-            docker network inspect monitoring >/dev/null 2>&1 || docker network create monitoring
+            docker network inspect monitoring_monitoring >/dev/null 2>&1 || docker network create --driver bridge monitoring_monitoring
             
             echo "▶ 1) Backend 업데이트"
             docker pull "${{ secrets.DOCKER_REPO }}:latest"
@@ -88,7 +88,7 @@ jobs:
             docker rm   rentit         || true
             docker run -d \
               --name rentit \
-              --network monitoring \
+              --network monitoring_monitoring \
               --add-host host.docker.internal:host-gateway \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/rentit \
               -e FCM_JSON="${{ secrets.FCM_JSON }}" \
