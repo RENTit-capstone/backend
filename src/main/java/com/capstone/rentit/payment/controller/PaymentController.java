@@ -38,7 +38,6 @@ public class PaymentController {
     public CommonResponse<?> topUp(
             @RequestBody @Valid TopUpRequest request) {
         return CommonResponse.success(walletPaymentService.topUp(request));
-);
     }
 
     /** 지갑 인출 (포인트 → 현금) */
