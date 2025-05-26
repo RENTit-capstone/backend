@@ -1,0 +1,31 @@
+<!-- src/main/resources/logback-spring.xml -->
+<configuration>
+    <property name="LOG_PATH" value="/tmp/spring_logs" />
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app"/>
+
+    <!-- 파일 롤링 정책 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 하루마다 로그 파일 생성, 최대 7일치 보관 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger — %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 기존 콘솔 앱렌더 유지 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger — %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 루트 로거에 두 앱렌더 모두 걸기 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
