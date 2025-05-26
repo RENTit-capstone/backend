@@ -86,6 +86,7 @@ jobs:
             docker rm   rentit         || true
             docker run -d \
               --name rentit \
+              --network monitoring \
               --add-host host.docker.internal:host-gateway \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/rentit \
               -e FCM_JSON="${{ secrets.FCM_JSON }}" \
