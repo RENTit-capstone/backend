@@ -40,6 +40,11 @@ public class MemberService {
         return memberId;
     }
 
+    public Long createAdmin(MemberCreateForm form){
+        Member member = Member.createEntity(form, passwordEncoder.encode(form.getPassword()));
+        return memberRepository.save(member).getMemberId();
+    }
+
     @Transactional(readOnly = true)
     public MemberDto getMemberById(Long id) {
         Member member = findMemberById(id);
@@ -55,6 +60,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public List<MemberDto> getAllMembers() {
         return memberRepository.findAll().stream()
+                .filter(member -> member.getRole() != MemberRoleEnum.ADMIN)
                 .map(member -> MemberDto.fromEntity(member, fileStorageService.generatePresignedUrl(member.getProfileImg())))
                 .collect(Collectors.toList());
     }
