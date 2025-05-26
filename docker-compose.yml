@@ -5,6 +5,7 @@ volumes:
   loki_data:
   grafana_data:
   spring_logs:
+    external: true
   promtail_positions:
 
 networks:
