@@ -58,6 +58,11 @@ public class UserDummyDataInitializer implements ApplicationRunner {
         String[] studentNames     = {"김민수", "이서연", "박지훈", "최지우", "정우진"};
         String[] studentNicknames = {"minsu_k", "seoyeon_l", "jihun_p", "jiwoo_c", "woojin_j"};
         String[] universities      = {"아주대학교"};
+        String[] profiles = {"4a36d988-5718-44b5-b5aa-3991fd425e21.png"
+                , "5dfce88b-6564-4fa3-8365-b66881fdaa19.png"
+                , "c3930f16-da0c-44ce-8b29-5611e3ea5a52.png"
+                , "b0e6c6db-b1f9-45ab-9721-3bd4ed6f49f4.png"
+                , "bd9d621c-ed59-45bc-ba80-3e253ef30fcb.png"};
 
         for (int i = 1; i <= STUDENT_COUNT; i++) {
             Student stu = Student.builder()
@@ -65,6 +70,7 @@ public class UserDummyDataInitializer implements ApplicationRunner {
                     .password(passwordEncoder.encode("password"))             // 패스워드 그대로
                     .name(studentNames[i - 1])
                     .nickname("Nick" + studentNicknames[i - 1])
+                    .profileImg(profiles[i - 1])
                     .role(MemberRoleEnum.STUDENT)
                     .locked(false)
                     .createdAt(today)

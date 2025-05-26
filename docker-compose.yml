@@ -5,6 +5,7 @@ volumes:
   loki_data:
   grafana_data:
   spring_logs:
+  promtail_positions:
 
 networks:
   monitoring:
@@ -45,6 +46,7 @@ services:
       - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
       - spring_logs:/tmp/spring_logs
       - /var/log:/var/log:ro
+      - promtail_positions:/positions
     restart: unless-stopped
     depends_on:
       - loki
