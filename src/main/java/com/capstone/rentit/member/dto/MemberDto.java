@@ -1,9 +1,6 @@
 package com.capstone.rentit.member.dto;
 
-import com.capstone.rentit.member.domain.Company;
-import com.capstone.rentit.member.domain.Member;
-import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.domain.StudentCouncilMember;
+import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.Getter;
@@ -30,6 +27,8 @@ public abstract class MemberDto {
             return StudentCouncilMemberDto.fromEntity(scm, presignedUrl);
         } else if (m instanceof Company c) {
             return CompanyDto.fromEntity(c, presignedUrl);
+        } else if (m instanceof Admin a) {
+            return AdminDto.fromEntity(a);
         } else {
             throw new MemberTypeMismatchException("지원하지 않는 회원 타입입니다.");
         }
