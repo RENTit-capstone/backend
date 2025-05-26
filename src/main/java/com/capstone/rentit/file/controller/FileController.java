@@ -22,6 +22,6 @@ public class FileController {
         log.info("이미지 업로드 시작");
         String key = storageService.store(file);
         String presignedUrl = storageService.generatePresignedUrl(key);
-        return CommonResponse.success(presignedUrl);
+        return CommonResponse.success(key);
     }
 }
