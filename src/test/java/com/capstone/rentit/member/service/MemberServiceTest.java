@@ -4,14 +4,11 @@ import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemBriefResponse;
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import com.capstone.rentit.member.domain.*;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.exception.MemberTypeMismatchException;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
-import com.capstone.rentit.member.domain.Company;
-import com.capstone.rentit.member.domain.Member;
-import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.payment.service.PaymentService;
@@ -186,6 +183,39 @@ class MemberServiceTest {
         assertThat(captured).isInstanceOf(StudentCouncilMember.class);
         assertThat(captured.getRole()).isEqualTo(MemberRoleEnum.COUNCIL);
     }
+
+    @Test @DisplayName("관리자 생성 성공")
+    void createAdminMember() {
+        // given
+        AdminCreateForm form = new AdminCreateForm();
+        form.setName("council");
+        form.setEmail("c@test.com");
+        form.setPassword(RAW_PW);
+
+        when(memberRepository.save(any(Member.class)))
+                .thenAnswer(inv -> {
+                    Admin m = (Admin) inv.getArgument(0);
+                    return Admin.builder()
+                            .memberId(ID)
+                            .name(m.getName())
+                            .email(m.getEmail())
+                            .password(m.getPassword())
+                            .role(m.getRole())
+                            .build();
+                });
+
+        // when
+        Long savedId = memberService.createAdmin(form);
+
+        // then
+        assertThat(savedId).isEqualTo(ID);
+        verify(memberRepository).save(memberCaptor.capture());
+
+        Member captured = memberCaptor.getValue();
+        assertThat(captured).isInstanceOf(Admin.class);
+        assertThat(captured.getRole()).isEqualTo(MemberRoleEnum.ADMIN);
+    }
+
 
     @Test @DisplayName("지원하지 않는 CreateForm일 경우 예외")
     void createMember_unsupportedForm() {
