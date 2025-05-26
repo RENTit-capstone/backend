@@ -11,10 +11,6 @@ networks:
     driver: bridge
 
 services:
-  rentit:
-    networks:
-      - monitoring
-
   prometheus:
     image: prom/prometheus:v3.4.0
     command:
