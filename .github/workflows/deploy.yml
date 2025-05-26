@@ -80,6 +80,8 @@ jobs:
           script: |
             set -e
             
+            docker network inspect monitoring >/dev/null 2>&1 || docker network create monitoring
+            
             echo "▶ 1) Backend 업데이트"
             docker pull "${{ secrets.DOCKER_REPO }}:latest"
             docker stop rentit         || true
