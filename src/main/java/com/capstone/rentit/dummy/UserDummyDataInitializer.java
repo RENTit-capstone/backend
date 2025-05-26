@@ -3,6 +3,7 @@ package com.capstone.rentit.dummy;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.locker.repository.LockerRepository;
+import com.capstone.rentit.member.domain.Admin;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
@@ -111,6 +112,18 @@ public class UserDummyDataInitializer implements ApplicationRunner {
                     .build();
             memberRepository.save(council);
         }
+
+        // 4) 관리자 생성
+        Admin admin = Admin.builder()
+                .email("admin01@example.com")
+                .password(passwordEncoder.encode("password"))
+                .name("관리자1")
+                .nickname("관리자1")
+                .role(MemberRoleEnum.ADMIN)
+                .locked(false)
+                .createdAt(today)
+                .build();
+        memberRepository.save(admin);
 
         System.out.printf("[UserDummyDataInitializer] Generated %d students, %d companies, %d councils.%n",
                 STUDENT_COUNT, COMPANY_COUNT, COUNCIL_COUNT);

@@ -96,6 +96,8 @@ public abstract class Member {
             return StudentCouncilMember.createEntity(f, encodedPassword);
         } else if (form instanceof CompanyCreateForm f) {
             return Company.createEntity(f, encodedPassword);
+        } else if (form instanceof AdminCreateForm f) {
+            return Admin.createEntity(f, encodedPassword);
         } else {
             throw new MemberTypeMismatchException("지원하지 않는 회원 유형입니다.");
         }
