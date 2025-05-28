@@ -254,7 +254,8 @@ class NotificationServiceTest {
 
     @Nested @DisplayName("notifyItemDamagedRequest / notifyItemDamagedResponse")
     class Damaged {
-        @Test @DisplayName("notifyItemDamagedRequest 정상 호출")
+        @Test
+        @DisplayName("notifyItemDamagedRequest 정상 호출")
         void request() {
             long rid = 7, ownerId = 16;
             Rental r = stubRental(rid, ownerId, 26);
@@ -278,27 +279,43 @@ class NotificationServiceTest {
             );
         }
 
-        @Test @DisplayName("notifyItemDamagedResponse 정상 호출")
+        @Test
+        @DisplayName("notifyItemDamagedResponse 정상 호출")
         void response() {
-            long rid = 8, renterId = 27;
-            Rental r = stubRental(rid, 17, renterId);
-            Member renter = member(renterId, "tokenH");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
-            when(memberRepository.findById(renterId)).thenReturn(Optional.of(renter));
-            when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            // given
+            long memberId = 42L;
+            long inquiryId = 7L;
+            String title = "파손문의";
+            Inquiry inq = mock(Inquiry.class);
+            when(inq.getMemberId()).thenReturn(memberId);
+            when(inq.getInquiryId()).thenReturn(inquiryId);
+            when(inq.getTitle()).thenReturn(title);
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyItemDamagedResponse(rid);
+            Member renter = member(memberId, "tokenX");
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(renter));
+            when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
+            NotificationService svc = new NotificationService(
+                    notificationRepository, memberRepository, rentalRepository, fcmService
+            );
+
+            // when
+            svc.notifyItemDamagedResponse(inq);
+
+            // then – DB 저장 검증
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
+            assertThat(n.getTarget()).isEqualTo(renter);
             assertThat(n.getType()).isEqualTo(NotificationType.ITEM_DAMAGED_RESPONSE);
+            assertThat(n.getTitle()).isEqualTo("물품 파손 신고");
+            assertThat(n.getBody()).contains("nick42").contains(title);
 
+            // then – FCM 전송 검증
             verify(fcmService).sendToToken(
-                    eq("tokenH"),
+                    eq("tokenX"),
                     eq(n.getTitle()),
                     eq(n.getBody()),
-                    anyMap()
+                    argThat(map -> "7".equals(map.get("inquiryId")))
             );
         }
     }
