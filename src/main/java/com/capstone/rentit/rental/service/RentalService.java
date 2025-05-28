@@ -65,9 +65,9 @@ public class RentalService {
 
     /** 단일 대여 조회 */
     @Transactional(readOnly = true)
-    public RentalDto getRental(Long rentalId, MemberDto loginMember) {
+    public RentalDto getRental(Long rentalId, Long memberId) {
         Rental rental = findRental(rentalId);
-        assertOwnerOrRenter(rental, loginMember.getMemberId());
+        assertOwnerOrRenter(rental, memberId);
 
         return RentalDto.fromEntity(rental, fileStorageService.generatePresignedUrl(rental.getReturnImageUrl()));
     }
