@@ -90,6 +90,8 @@ public class RentalService {
         Rental r = findRental(rentalId);
         assertBeforeApproved(r);
         r.reject(LocalDateTime.now());
+
+//        notificationService.notifyRentRejected(r);
     }
 
     /** 6) 대여 취소 (반드시 대여자만) */
@@ -101,6 +103,8 @@ public class RentalService {
         r.cancel();
         Item item = findItem(r.getItemId());
         item.updateAvailable();
+
+//        notificationService.notifyRequestCancel(r);
     }
 
     private void assertBeforeApproved(Rental r) {

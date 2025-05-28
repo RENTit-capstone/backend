@@ -92,6 +92,26 @@ public class NotificationService {
         );
     }
 
+    public void notifyRentRejected(Rental rental){
+        notify(
+                rental.getRenterMember(),
+                NotificationType.REQUEST_REJECTED,
+                "물품 대여 거부",
+                rental.getRenterMember().getNickname() + "님, " + rental.getItem().getName() + "의 대여 신청이 거부되었어요.",
+                Map.of("rentalId", rental.getRentalId().toString())
+        );
+    }
+
+    public void notifyRequestCancel(Rental rental){
+        notify(
+                rental.getOwnerMember(),
+                NotificationType.RENT_CANCEL,
+                "물품 대여 취소",
+                rental.getOwnerMember().getNickname() + "님, " + rental.getItem().getName() + "의 대여 신청이 취소되었어요.",
+                Map.of("rentalId", rental.getRentalId().toString())
+        );
+    }
+
     public void notify(Member target,
                        NotificationType type,
                        String title,
