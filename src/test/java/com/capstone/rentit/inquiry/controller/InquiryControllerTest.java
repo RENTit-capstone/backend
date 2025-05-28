@@ -69,6 +69,7 @@ class InquiryControllerTest {
     @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean private FileStorageService fileStorageService;
 
+    private final Long USER_ID = 567L;
     @BeforeEach
     void bypassSecurityFilter() throws Exception {
         doAnswer(invocation -> {
@@ -188,6 +189,58 @@ class InquiryControllerTest {
                             pathParameters(parameterWithName("id").description("신고 ID")),
                             requestFields(fieldWithPath("answer").type(JsonFieldType.STRING).description("답변 내용")),
                             responseFields(commonSuccessFields("NULL", "항상 null"))
+                    ));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        void findInquiry() throws Exception {
+            InquiryResponse dto = new InquiryResponse(11L, 100L, InquiryType.SERVICE, "t", "c", null, false, LocalDateTime.now());
+            given(inquiryService.getInquiry(10L)).willReturn(dto);
+
+            mockMvc.perform(get("/api/v1/inquiries/{id}", 10L)
+                            .with(authentication(authFor(999L, MemberRoleEnum.STUDENT))))
+                    .andExpect(status().isOk())
+                    .andDo(document("user-find-inquiry",
+                            Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+                            Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                            pathParameters(parameterWithName("id").description("문의 ID")),
+                            responseFields(commonInquiryFields())
+                    ));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        void searchInquiries() throws Exception {
+            Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+            InquiryResponse sample = new InquiryResponse(21L, USER_ID, InquiryType.REPORT, "TITLE", "CONTENT", null, true, LocalDateTime.now());
+            Page<InquiryResponse> page = new PageImpl<>(List.of(sample), pageable, 1);
+            given(inquiryService.search(any(), eq(MemberRoleEnum.ADMIN), anyLong(), eq(pageable))).willReturn(page);
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("type", "REPORT");
+            params.add("processed", "true");
+            params.add("page", "0");
+            params.add("size", "5");
+
+            mockMvc.perform(get("/api/v1/inquiries")
+                            .params(params)
+                            .with(authentication(authFor(50L, MemberRoleEnum.STUDENT))))
+                    .andExpect(status().isOk())
+                    .andDo(document("user-search-inquiries",
+                            Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+                            Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                            relaxedQueryParameters(
+                                    parameterWithName("type").description("문의 타입"),
+                                    parameterWithName("processed").description("처리 여부"),
+                                    parameterWithName("page").description("페이지 번호"),
+                                    parameterWithName("size").description("페이지 크기")
+                            ),
+                            relaxedResponseFields(
+                                    fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                    subsectionWithPath("data").description("페이지 정보 및 문의 리스트 (content, pageable 등)"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지 또는 빈 문자열")
+                            )
                     ));
         }
     }
