@@ -1,11 +1,15 @@
 package com.capstone.rentit.inquiry.domain;
 
+import com.capstone.rentit.inquiry.dto.DamageReportCreateForm;
 import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
+import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
 import com.capstone.rentit.inquiry.type.InquiryType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +28,8 @@ public class Inquiry {
     @Column(nullable = false)
     private Long memberId;
 
+    private Long targetMemberId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private InquiryType type;
@@ -34,17 +40,43 @@ public class Inquiry {
     @Column(nullable = false, length = 4000)
     private String content;
 
-    @Builder.Default
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "inquiry_damage_images")
+    @Column(name = "url")
+    private List<String> damageImageKeys;
+
     private boolean processed = false;
 
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(length = 4000)
     private String answer;
 
     @Column
     private LocalDateTime processedAt;
+
+    public static Inquiry create(Long memberId, InquiryCreateForm form){
+        return Inquiry.builder()
+                .memberId(memberId)
+                .title(form.title())
+                .content(form.content())
+                .type(form.type())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static Inquiry create(Long MemberId, Long targetId, DamageReportCreateForm form){
+        return Inquiry.builder()
+                .memberId(MemberId)
+                .targetMemberId(targetId)
+                .type(InquiryType.DAMAGE)
+                .title(form.title())
+                .content(form.content())
+                .damageImageKeys(form.images())
+                .processed(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
     public void answerInquiry(InquiryAnswerForm form){
         answer = form.answer();
