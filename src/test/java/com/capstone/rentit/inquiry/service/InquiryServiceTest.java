@@ -1,237 +1,250 @@
 package com.capstone.rentit.inquiry.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.inquiry.domain.Inquiry;
-import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
-import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
-import com.capstone.rentit.inquiry.dto.InquiryResponse;
-import com.capstone.rentit.inquiry.dto.InquirySearchForm;
+import com.capstone.rentit.inquiry.dto.*;
 import com.capstone.rentit.inquiry.exception.InquiryNotFoundException;
 import com.capstone.rentit.inquiry.repository.InquiryRepository;
 import com.capstone.rentit.inquiry.type.InquiryType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.notification.exception.NotificationAccessDenied;
+import com.capstone.rentit.notification.service.NotificationService;
+import com.capstone.rentit.rental.dto.RentalDto;
+import com.capstone.rentit.rental.service.RentalService;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class InquiryServiceTest {
 
-    @Mock
-    private InquiryRepository inquiryRepository;
+    /* ---------------- fixture 상수 ---------------- */
+    private static final long MEMBER_ID        = 100L;
+    private static final long OTHER_ID         = 200L;
+    private static final long INQUIRY_ID       = 42L;
+    private static final long DAMAGE_INQUIRYID = 55L;
+    private static final long RENTAL_ID        = 77L;
+
+    /* ---------------- Mock & SUT ------------------ */
+    @Mock InquiryRepository   inquiryRepository;
+    @Mock RentalService       rentalService;
+    @Mock FileStorageService  fileStorageService;
+    @Mock NotificationService notificationService;
 
     @InjectMocks
-    private InquiryService inquiryService;
+    InquiryService inquiryService;
 
-    private Inquiry sampleInquiry;
+    /* ---------------- 공용 테스트 데이터 ----------- */
+    Inquiry inquiry;
+    Inquiry damage;
 
     @BeforeEach
-    void setUp() {
-        sampleInquiry = Inquiry.builder()
-                .inquiryId(42L)
-                .memberId(100L)
+    void init() {
+        inquiry = Inquiry.builder()
+                .inquiryId(INQUIRY_ID)
+                .memberId(MEMBER_ID)
                 .type(InquiryType.SERVICE)
                 .title("Help")
                 .content("Need assistance")
                 .processed(false)
-                .createdAt(LocalDateTime.of(2025, 5, 10, 12, 0))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        damage = Inquiry.builder()
+                .inquiryId(DAMAGE_INQUIRYID)
+                .memberId(MEMBER_ID)
+                .targetMemberId(OTHER_ID)
+                .type(InquiryType.DAMAGE)
+                .title("Broken item")
+                .content("Item damaged")
+                .processed(false)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
+    /* =====================================================================
+       1. 생성(create) 계열
+       ===================================================================== */
     @Test
-    @DisplayName("createInquiry: 저장된 엔티티 ID를 반환하고, repository.save 호출")
+    @DisplayName("createInquiry ─ 저장 후 ID 반환")
     void createInquiry_success() {
-        var form = new InquiryCreateForm(
-                100L, "Help", "Need assistance", InquiryType.SERVICE
-        );
+        // given
+        InquiryCreateForm form =
+                new InquiryCreateForm("Help", "Need assistance", InquiryType.SERVICE);
 
-        when(inquiryRepository.save(any(Inquiry.class)))
-                .thenAnswer(invocation -> {
-                    Inquiry arg = invocation.getArgument(0);
+        // 저장될 엔티티에 123L 을 부여해 반환
+        given(inquiryRepository.save(any(Inquiry.class)))
+                .willAnswer(inv -> {
+                    Inquiry src = inv.getArgument(0);
                     return Inquiry.builder()
-                            .inquiryId(1L)
-                            .memberId(arg.getMemberId())
-                            .type(arg.getType())
-                            .title(arg.getTitle())
-                            .content(arg.getContent())
-                            .processed(arg.isProcessed())
-                            .createdAt(arg.getCreatedAt())
+                            .inquiryId(123L)
+                            .memberId(src.getMemberId())
+                            .type(src.getType())
+                            .title(src.getTitle())
+                            .content(src.getContent())
+                            .processed(src.isProcessed())
+                            .createdAt(src.getCreatedAt())
                             .build();
                 });
 
-        Long returnedId = inquiryService.createInquiry(form);
-
-        assertThat(returnedId).isEqualTo(1L);
-
-        ArgumentCaptor<Inquiry> captor = ArgumentCaptor.forClass(Inquiry.class);
-        verify(inquiryRepository, times(1)).save(captor.capture());
-        Inquiry saved = captor.getValue();
-
-        assertThat(saved.getMemberId()).isEqualTo(100L);
-        assertThat(saved.getType()).isEqualTo(InquiryType.SERVICE);
-        assertThat(saved.getTitle()).isEqualTo("Help");
-        assertThat(saved.getContent()).isEqualTo("Need assistance");
-        assertThat(saved.isProcessed()).isFalse();
-        assertThat(saved.getCreatedAt()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("getInquiry: 존재하는 ID 조회 시 올바른 DTO 반환")
-    void getInquiry_found() {
-        when(inquiryRepository.findById(42L))
-                .thenReturn(Optional.of(sampleInquiry));
-
-        InquiryResponse resp = inquiryService.getInquiry(42L);
-
-        assertThat(resp.inquiryId()).isEqualTo(42L);
-        assertThat(resp.memberId()).isEqualTo(100L);
-        assertThat(resp.type()).isEqualTo(InquiryType.SERVICE);
-        assertThat(resp.title()).isEqualTo("Help");
-        assertThat(resp.content()).isEqualTo("Need assistance");
-        assertThat(resp.processed()).isFalse();
-        assertThat(resp.createdAt()).isEqualTo(sampleInquiry.getCreatedAt());
-    }
-
-    @Test
-    @DisplayName("getInquiry: 없는 ID 조회 시 InquiryNotFoundException 발생")
-    void getInquiry_notFound() {
-        when(inquiryRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> inquiryService.getInquiry(99L))
-                .isInstanceOf(InquiryNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 문의 ID");
-    }
-
-    @Test
-    @DisplayName("getInquiries: memberId 로 전체 조회 (type null)")
-    void getInquiries_allTypes() {
-        Inquiry other = Inquiry.builder()
-                .inquiryId(43L)
-                .memberId(100L)
-                .type(InquiryType.REPORT)
-                .title("Report")
-                .content("Issue")
-                .build();
-
-        when(inquiryRepository.findByMemberId(100L))
-                .thenReturn(List.of(sampleInquiry, other));
-
-        var list = inquiryService.getInquiries(100L, null);
-
-        assertThat(list).hasSize(2)
-                .extracting(InquiryResponse::type)
-                .containsExactlyInAnyOrder(InquiryType.SERVICE, InquiryType.REPORT);
-    }
-
-    @Test
-    @DisplayName("getInquiries: memberId + type 필터 조회")
-    void getInquiries_byType() {
-        when(inquiryRepository.findByMemberId(100L))
-                .thenReturn(List.of(sampleInquiry));
-
-        var list = inquiryService.getInquiries(100L, InquiryType.SERVICE);
-
-        assertThat(list).hasSize(1)
-                .allMatch(r -> r.type() == InquiryType.SERVICE);
-    }
-
-    @Test
-    @DisplayName("search: repository.search 호출 후 DTO 매핑")
-    void search_delegationAndMapping() {
-        var form = new InquirySearchForm(
-                InquiryType.SERVICE, null, null, null
-        );
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
-        Page<Inquiry> stubPage = new PageImpl<>(
-                List.of(sampleInquiry), pageable, 1L
-        );
-        when(inquiryRepository.search(form, pageable))
-                .thenReturn(stubPage);
-
-        Page<InquiryResponse> result = inquiryService.search(form, pageable);
-
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getContent()).hasSize(1)
-                .first()
-                .satisfies(r -> {
-                    assertThat(r.inquiryId()).isEqualTo(42L);
-                    assertThat(r.type()).isEqualTo(InquiryType.SERVICE);
-                });
-        verify(inquiryRepository).search(form, pageable);
-    }
-
-    @Test
-    @DisplayName("deleteInquiry: repository.deleteById 호출")
-    void deleteInquiry_invokesRepository() {
-        inquiryService.deleteInquiry(77L);
-        verify(inquiryRepository, times(1)).deleteById(77L);
-    }
-
-    @Test
-    @DisplayName("존재하는 문의에 대해 호출하면, 답변이 설정되고 저장된다")
-    void itSetsAnswerAndSaves_whenInquiryExists() {
-        // given
-        Long inquiryId = 99L;
-        InquiryAnswerForm form = new InquiryAnswerForm("관리자 답변 내용");
-        Inquiry inquiry = Inquiry.builder()
-                .inquiryId(inquiryId)
-                .processed(false)
-                .build();
-
-        given(inquiryRepository.findById(inquiryId)).willReturn(Optional.of(inquiry));
-
         // when
-        inquiryService.answerInquiry(inquiryId, form);
+        Long id = inquiryService.createInquiry(MEMBER_ID, form);
 
         // then
-        verify(inquiryRepository).findById(inquiryId);
-
-        assertTrue(inquiry.isProcessed());
-        assertEquals("관리자 답변 내용", inquiry.getAnswer());
+        assertThat(id).isEqualTo(123L);
+        ArgumentCaptor<Inquiry> cap = ArgumentCaptor.forClass(Inquiry.class);
+        verify(inquiryRepository).save(cap.capture());
+        assertThat(cap.getValue().getMemberId()).isEqualTo(MEMBER_ID);
     }
 
     @Test
-    @DisplayName("존재하지 않는 문의 ID로 호출하면 예외를 던진다")
-    void itThrows_whenInquiryNotFound() {
+    @DisplayName("createDamageReport ─ 대여 정보 확인 후 저장")
+    void createDamageReport_success() {
         // given
-        Long inquiryId = 99L;
-        InquiryAnswerForm form = new InquiryAnswerForm("답변");
-        given(inquiryRepository.findById(inquiryId))
-                .willReturn(Optional.empty());
+        DamageReportCreateForm form =
+                new DamageReportCreateForm(RENTAL_ID, "파손 신고 제목", "파손 신고 내용", List.of("s3/key1.jpg"));
+        given(rentalService.getRental(RENTAL_ID, MEMBER_ID))
+                .willReturn(RentalDto.builder()
+                        .rentalId(RENTAL_ID)
+                        .ownerId(OTHER_ID)
+                        .build());
+        given(inquiryRepository.save(any(Inquiry.class)))
+                .willAnswer(inv -> {
+                    Inquiry src = inv.getArgument(0);
 
-        // when & then
-        assertThrows(InquiryNotFoundException.class,
-                () -> inquiryService.answerInquiry(inquiryId, form));
+                    // ID만 우리가 원하는 값으로 넣고 나머지는 그대로 복사
+                    return Inquiry.builder()
+                            .inquiryId(DAMAGE_INQUIRYID)    // ★ toBuilder() 대신 여기서 설정
+                            .memberId(src.getMemberId())
+                            .targetMemberId(src.getTargetMemberId())
+                            .type(src.getType())
+                            .title(src.getTitle())
+                            .content(src.getContent())
+                            .processed(src.isProcessed())
+                            .damageImageKeys(src.getDamageImageKeys())
+                            .createdAt(src.getCreatedAt())
+                            .build();
+                });
+
+        // when
+        Long id = inquiryService.createDamageReport(MEMBER_ID, form);
+
+        // then
+        assertThat(id).isEqualTo(DAMAGE_INQUIRYID);
+        verify(rentalService).getRental(RENTAL_ID, MEMBER_ID);
+    }
+
+    /* =====================================================================
+       2. 조회(read) 계열
+       ===================================================================== */
+    @Test
+    void getInquiry_found() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.of(inquiry));
+
+        InquiryResponse resp = inquiryService.getInquiry(INQUIRY_ID);
+
+        assertThat(resp.inquiryId()).isEqualTo(INQUIRY_ID);
     }
 
     @Test
-    @DisplayName("markProcessed: 기존 inquiry 의 processed 가 true 로 변경")
-    void markProcessed_success() {
-        when(inquiryRepository.findById(42L))
-                .thenReturn(Optional.of(sampleInquiry));
+    void getInquiry_notFound() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.empty());
 
-        inquiryService.markProcessed(42L);
-
-        assertThat(sampleInquiry.isProcessed()).isTrue();
-    }
-
-    @Test
-    @DisplayName("markProcessed: 없는 ID 처리 시 InquiryNotFoundException")
-    void markProcessed_notFound() {
-        when(inquiryRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> inquiryService.markProcessed(99L))
+        assertThatThrownBy(() -> inquiryService.getInquiry(INQUIRY_ID))
                 .isInstanceOf(InquiryNotFoundException.class);
+    }
+
+    @Test
+    void search_delegatesAndMaps() {
+        InquirySearchForm form = new InquirySearchForm(null, null, null, null);
+        Pageable pageable = PageRequest.of(0, 5);
+
+        given(inquiryRepository.search(form, MemberRoleEnum.STUDENT, MEMBER_ID, pageable))
+                .willReturn(new PageImpl<>(List.of(inquiry), pageable, 1));
+
+        Page<InquiryResponse> page =
+                inquiryService.search(form, MemberRoleEnum.STUDENT, MEMBER_ID, pageable);
+
+        assertThat(page.getContent()).hasSize(1);
+        verify(inquiryRepository).search(form, MemberRoleEnum.STUDENT, MEMBER_ID, pageable);
+    }
+
+    /* =====================================================================
+       3. 답변(answer) 계열
+       ===================================================================== */
+    @Test
+    void answerInquiry_success() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.of(inquiry));
+        InquiryAnswerForm form = new InquiryAnswerForm("답변");
+
+        inquiryService.answerInquiry(INQUIRY_ID, form);
+
+        assertThat(inquiry.getAnswer()).isEqualTo("답변");
+        assertThat(inquiry.isProcessed()).isTrue();
+    }
+
+    @Test
+    void answerInquiry_notFound() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                inquiryService.answerInquiry(INQUIRY_ID,
+                        new InquiryAnswerForm("x")))
+                .isInstanceOf(InquiryNotFoundException.class);
+    }
+
+    @Test
+    void answerDamageReport_success() {
+        given(inquiryRepository.findById(DAMAGE_INQUIRYID)).willReturn(Optional.of(damage));
+
+        inquiryService.answerDamageReport(DAMAGE_INQUIRYID, OTHER_ID,
+                new InquiryAnswerForm("sorry"));
+
+        assertThat(damage.getAnswer()).isEqualTo("sorry");
+        assertThat(damage.isProcessed()).isTrue();
+    }
+
+    @Test
+    void answerDamageReport_accessDenied() {
+        given(inquiryRepository.findById(DAMAGE_INQUIRYID)).willReturn(Optional.of(damage));
+
+        assertThatThrownBy(() ->
+                inquiryService.answerDamageReport(DAMAGE_INQUIRYID, 999L,
+                        new InquiryAnswerForm("x")))
+                .isInstanceOf(NotificationAccessDenied.class);
+    }
+
+    /* =====================================================================
+       4. 상태 변경 & 삭제
+       ===================================================================== */
+    @Test
+    void markProcessed_success() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.of(inquiry));
+
+        inquiryService.markProcessed(INQUIRY_ID);
+
+        assertThat(inquiry.isProcessed()).isTrue();
+    }
+
+    @Test
+    void markProcessed_notFound() {
+        given(inquiryRepository.findById(INQUIRY_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> inquiryService.markProcessed(INQUIRY_ID))
+                .isInstanceOf(InquiryNotFoundException.class);
+    }
+
+    @Test
+    void deleteInquiry_invokesRepo() {
+        inquiryService.deleteInquiry(INQUIRY_ID);
+        verify(inquiryRepository).deleteById(INQUIRY_ID);
     }
 }

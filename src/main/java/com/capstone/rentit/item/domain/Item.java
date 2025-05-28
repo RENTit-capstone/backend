@@ -51,7 +51,7 @@ public class Item {
     @Column(nullable = false)
     private ItemStatusEnum status;
 
-    @Column(length = 1000, nullable = false)
+    @Column(length = 5000, nullable = false)
     private String damagedPolicy;
 
     @Column(length = 1000, nullable = false)

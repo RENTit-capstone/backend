@@ -4,10 +4,10 @@ import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.inquiry.domain.Inquiry;
 import com.capstone.rentit.inquiry.dto.InquirySearchForm;
 import com.capstone.rentit.inquiry.type.InquiryType;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,106 +18,148 @@ import org.springframework.data.domain.*;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 @ActiveProfiles("test")
-@Import({QuerydslConfig.class})
+@DisplayName("CustomInquiryRepositoryImpl 통합 테스트")
 class CustomInquiryRepositoryImplTest {
-    @Autowired
-    private CustomInquiryRepository inquiryRepository;
 
-    @Autowired
-    private EntityManager em;
+    @Autowired EntityManager em;
+    @Autowired CustomInquiryRepository inquiryRepository;
 
-    private final LocalDateTime baseTime = LocalDateTime.now().minusDays(1);
+    private final LocalDateTime base = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
 
     @BeforeEach
     void setUp() {
-        // --- 테스트 픽스처: 10건(서비스 6, 신고 4) --- //
-        persist(InquiryType.SERVICE, false, 6);
-        persist(InquiryType.REPORT,  true, 2);
-        persist(InquiryType.REPORT,  false,2);
+        // A가 작성한 SERVICE 문의 3건 (processed true 1 / false 2)
+        persistBulk(1L, null, InquiryType.SERVICE, true,  1);
+        persistBulk(1L, null, InquiryType.SERVICE, false, 2);
+
+        // B가 작성 – A가 상대(target)인 DAMAGE 신고 2건
+        persistBulk(2L, 1L, InquiryType.DAMAGE,  false, 2);
+
+        // 그 외 B가 작성한 REPORT 1건
+        persistBulk(2L, null, InquiryType.REPORT, false, 1);
     }
 
-    /* -------- 단일 조건 & 페이징 조합 검증 -------- */
-    @ParameterizedTest
+    @Nested
+    @DisplayName("역할(Role) 필터링")
+    class RoleFilter {
+
+        @Test @DisplayName("ADMIN 은 모든 문의를 볼 수 있다")
+        void adminSeesAll() {
+
+            InquirySearchForm form = InquirySearchForm.builder().build();
+            Page<Inquiry> page = inquiryRepository.search(
+                    form, MemberRoleEnum.ADMIN, null, Pageable.unpaged());
+
+            assertThat(page.getTotalElements()).isEqualTo(6);
+        }
+
+        @Test @DisplayName("STUDENT 는 본인이 작성했거나 피신고된 문의만 본다")
+        void studentSeesOwnAndTarget() {
+
+            InquirySearchForm form = InquirySearchForm.builder().build();
+            Page<Inquiry> page = inquiryRepository.search(
+                    form, MemberRoleEnum.STUDENT, 1L, Pageable.unpaged());
+
+            // A가 볼 수 있는 것은 1) 자신이 쓴 SERVICE 3건 + 2) 대상이 자신인 DAMAGE 2건 = 5
+            assertThat(page.getTotalElements()).isEqualTo(5);
+            assertThat(page.getContent())
+                    .allSatisfy(inq ->
+                            assertThat(
+                                    inq.getMemberId().equals(1L)   // 내가 작성
+                                            || Long.valueOf(1L).equals(inq.getTargetMemberId()) // 혹은 피신고자
+                            ).isTrue()
+                    );
+        }
+    }
+
+    @ParameterizedTest(name = "[{index}] type={0} processed={1} ⇒ expected={2}")
     @CsvSource({
-            // type, processed, expectedTotal
-            "SERVICE, , 6",     // processed 파라미터 null
-            "REPORT,  true, 2",
-            "REPORT,  false,2"
+            "SERVICE, ,    3",
+            "DAMAGE,  false,2",
+            "REPORT,  false,1"
     })
-    @DisplayName("검색 조건(type + processed)과 totalCount 검증")
-    void search_byTypeAndProcessed(InquiryType type, Boolean processed, long expected) {
+    @DisplayName("type + processed 조건과 totalCount 검증 (ADMIN)")
+    void filterByTypeAndProcessed(InquiryType type, Boolean processed, long expected) {
 
         InquirySearchForm form = InquirySearchForm.builder()
                 .type(type)
                 .processed(processed)
                 .build();
 
-        Pageable pageable = PageRequest.of(0, 5, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
-        var page = inquiryRepository.search(form, pageable);
+        Page<Inquiry> page = inquiryRepository.search(form, MemberRoleEnum.ADMIN, null, pageable);
 
-        // total count
         assertThat(page.getTotalElements()).isEqualTo(expected);
+        assertThat(page.getContent()).allMatch(inq -> inq.getType() == type);
 
-        // 페이징: 첫 페이지면 size <= 5
-        assertThat(page.getContent().size())
-                .isBetween(0, 5);
-
-        // 결과 타입 일치
-        assertThat(page.getContent())
-                .allMatch(i -> i.getType() == type);
-
-        // processed 필터 일치 (null 이면 스킵)
         if (processed != null) {
-            assertThat(page.getContent())
-                    .allMatch(i -> i.isProcessed() == processed);
+            assertThat(page.getContent()).allMatch(inq -> inq.isProcessed() == processed);
         }
     }
 
-    /* -------- 날짜 범위 검증 -------- */
-    @DisplayName("fromDate ~ toDate 범위 조건을 만족해야 한다")
-    @Test
-    void search_byDateRange() {
+    @Test @DisplayName("fromDate ~ toDate 조건이 정확히 적용된다")
+    void filterByDateRange() {
 
-        LocalDateTime from = baseTime.plusHours(2);   // 일부만 포함
-        LocalDateTime to   = baseTime.plusHours(5);
+        LocalDateTime from = base.plusHours(1);      // 첫 SERVICE 이후
+        LocalDateTime to   = base.plusHours(2);      // 두 번째 SERVICE 까지
 
         InquirySearchForm form = InquirySearchForm.builder()
-                .type(InquiryType.SERVICE)
                 .fromDate(from)
                 .toDate(to)
                 .build();
 
-        Page<Inquiry> page = inquiryRepository.search(form, Pageable.unpaged());
+        Page<Inquiry> page = inquiryRepository.search(
+                form, MemberRoleEnum.ADMIN, null, Pageable.unpaged());
 
-        assertThat(page.getTotalElements()).isEqualTo(3);
+        assertThat(page.getTotalElements()).isEqualTo(2); // SERVICE 두 건
         assertThat(page.getContent())
-                .allMatch(i ->
-                        !i.getCreatedAt().isBefore(from) &&
-                                !i.getCreatedAt().isAfter(to));
+                .allMatch(inq ->
+                        !inq.getCreatedAt().isBefore(from)
+                                && !inq.getCreatedAt().isAfter(to));
     }
 
-    // ====== 헬퍼 ======
-    private void persist(InquiryType type, boolean processed, int count) {
+    @Test @DisplayName("page / size 파라미터에 따라 content 개수가 제한된다")
+    void pagingWorks() {
+
+        Pageable pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending());
+
+        Page<Inquiry> page = inquiryRepository.search(
+                InquirySearchForm.builder().type(InquiryType.SERVICE).build(),
+                MemberRoleEnum.ADMIN, null, pageable);
+
+        assertThat(page.getContent().size()).isEqualTo(2);
+        assertThat(page.getTotalElements()).isEqualTo(3);   // SERVICE 전체는 3
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }
+
+    private void persistBulk(Long writerId,
+                             Long targetId,
+                             InquiryType type,
+                             boolean processed,
+                             int count) {
+
         for (int i = 0; i < count; i++) {
             Inquiry entity = Inquiry.builder()
-                    .memberId(1L)
+                    .memberId(writerId)
+                    .targetMemberId(targetId)
                     .type(type)
-                    .title(type + "‑title" + i)
+                    .title("%s-title-%d".formatted(type, i))
                     .content("dummy")
                     .processed(processed)
-                    .createdAt(baseTime.plusHours(i).minusSeconds(1))
+                    .createdAt(base.plusHours(i))
                     .build();
             em.persist(entity);
-            em.flush();
-            Inquiry saved = em.find(Inquiry.class, entity.getInquiryId());
-            System.out.println("Saved createdAt: " + saved.getCreatedAt());
         }
+        em.flush();
         em.clear();
     }
 }

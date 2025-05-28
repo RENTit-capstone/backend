@@ -156,7 +156,7 @@ class RentalServiceTest {
         given(rentalRepository.findById(5L)).willReturn(Optional.empty());
 
         MemberDto anyUser = mock(MemberDto.class);
-        assertThatThrownBy(() -> rentalService.getRental(5L, anyUser))
+        assertThatThrownBy(() -> rentalService.getRental(5L, anyUser.getMemberId()))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
@@ -170,7 +170,7 @@ class RentalServiceTest {
         MemberDto stranger = mock(MemberDto.class);
         given(stranger.getMemberId()).willReturn(999L);
 
-        assertThatThrownBy(() -> rentalService.getRental(5L, stranger))
+        assertThatThrownBy(() -> rentalService.getRental(5L, stranger.getMemberId()))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("물품 소유자 또는 대여자가 아닙니다.");
     }
@@ -184,12 +184,12 @@ class RentalServiceTest {
 
         MemberDto owner = mock(MemberDto.class);
         given(owner.getMemberId()).willReturn(10L);
-        RentalDto dto1 = rentalService.getRental(5L, owner);
+        RentalDto dto1 = rentalService.getRental(5L, owner.getMemberId());
         assertThat(dto1.getRentalId()).isEqualTo(5L);
 
         MemberDto renter = mock(MemberDto.class);
         given(renter.getMemberId()).willReturn(20L);
-        RentalDto dto2 = rentalService.getRental(5L, renter);
+        RentalDto dto2 = rentalService.getRental(5L, renter.getMemberId());
         assertThat(dto2.getRentalId()).isEqualTo(5L);
     }
 

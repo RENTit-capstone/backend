@@ -234,7 +234,7 @@ class RentalControllerTest {
                 .approvedDate(null).rejectedDate(null).leftAt(null)
                 .pickedUpAt(null).returnedAt(null).retrievedAt(null)
                 .build();
-        given(rentalService.getRental(eq(rid), any(MemberDto.class))).willReturn(dto);
+        given(rentalService.getRental(eq(rid), any(Long.class))).willReturn(dto);
 
         //when, then
         mockMvc.perform(get("/api/v1/rentals/{id}", rid)

@@ -1,10 +1,7 @@
 package com.capstone.rentit.inquiry.controller;
 
 import com.capstone.rentit.common.CommonResponse;
-import com.capstone.rentit.inquiry.dto.InquiryAnswerForm;
-import com.capstone.rentit.inquiry.dto.InquiryCreateForm;
-import com.capstone.rentit.inquiry.dto.InquiryResponse;
-import com.capstone.rentit.inquiry.dto.InquirySearchForm;
+import com.capstone.rentit.inquiry.dto.*;
 import com.capstone.rentit.inquiry.service.InquiryService;
 import com.capstone.rentit.inquiry.type.InquiryType;
 import com.capstone.rentit.login.annotation.Login;
@@ -28,8 +25,29 @@ public class InquiryController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/inquiries")
-    public CommonResponse<Long> create(@RequestBody InquiryCreateForm form) {
-        return CommonResponse.success(inquiryService.createInquiry(form));
+    public CommonResponse<Long> create(
+            @Login MemberDto memberDto,
+            @RequestBody InquiryCreateForm form) {
+        return CommonResponse.success(inquiryService.createInquiry(memberDto.getMemberId(), form));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(value = "/inquiries/damage")
+    public CommonResponse<Long> createDamageReport(
+            @Login MemberDto memberDto,
+            @RequestBody DamageReportCreateForm form) {
+        return CommonResponse.success(inquiryService.createDamageReport(memberDto.getMemberId(), form));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/inquiries/{id}/answer")
+    public CommonResponse<Void> answerDamageReport(
+            @Login MemberDto memberDto,
+            @PathVariable("id") Long id,
+            @RequestBody InquiryAnswerForm form) {
+
+        inquiryService.answerDamageReport(id, memberDto.getMemberId(), form);
+        return CommonResponse.success(null);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -40,10 +58,12 @@ public class InquiryController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/inquiries")
-    public CommonResponse<List<InquiryResponse>> search(
+    public CommonResponse<?> search(
             @Login MemberDto memberDto,
-            @ModelAttribute("type") InquiryType type) {
-        return CommonResponse.success(inquiryService.getInquiries(memberDto.getMemberId(), type));
+            @ModelAttribute("form") InquirySearchForm form,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return CommonResponse.success(inquiryService.search(form, memberDto.getRole(), memberDto.getMemberId(), pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -55,20 +75,21 @@ public class InquiryController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/inquiries")
     public CommonResponse<Page<InquiryResponse>> searchForAdmin(
+            @Login MemberDto memberDto,
             @ModelAttribute("form") InquirySearchForm form,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
 
-        return CommonResponse.success(inquiryService.search(form, pageable));
+        return CommonResponse.success(inquiryService.search(form, memberDto.getRole(), memberDto.getMemberId(), pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/admin/inquiries/{id}/answer")
     public CommonResponse<Long> answerInquiry(
-            @PathVariable("id") Long inquiryId,
+            @PathVariable("id") Long id,
             @RequestBody InquiryAnswerForm form
     ) {
-        inquiryService.answerInquiry(inquiryId, form);
+        inquiryService.answerInquiry(id, form);
         return CommonResponse.success(null);
     }
 

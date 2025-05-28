@@ -53,7 +53,7 @@ public class RentalController {
             @PathVariable("rentalId") Long rentalId,
             @Login MemberDto loginMember
     ) {
-        RentalDto dto = rentalService.getRental(rentalId, loginMember);
+        RentalDto dto = rentalService.getRental(rentalId, loginMember.getMemberId());
         return CommonResponse.success(dto);
     }
 

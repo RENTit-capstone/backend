@@ -416,20 +416,59 @@ include::{snippets}/admin-list-lockers/response-fields.adoc[]
 include::{snippets}/admin-list-lockers/http-response.adoc[]
 
 == 문의 관련 API
+```
+문의 타입
+SERVICE   // 서비스 이용 문의
+REPORT    // 신고/제보 문의
+DAMAGE    // 파손 신고
+```
 === 문의 생성
 POST /api/v1/inquiries
 
 ==== 요청 필드
-include::{snippets}/create-inquiry/request-fields.adoc[]
+include::{snippets}/user-create-inquiry/request-fields.adoc[]
 
 ==== HTTP 요청
-include::{snippets}/create-inquiry/http-request.adoc[]
+include::{snippets}/user-create-inquiry/http-request.adoc[]
 
 ==== 응답 필드
-include::{snippets}/create-inquiry/response-fields.adoc[]
+include::{snippets}/user-create-inquiry/response-fields.adoc[]
 
 ==== HTTP 응답
-include::{snippets}/create-inquiry/http-response.adoc[]
+include::{snippets}/user-create-inquiry/http-response.adoc[]
+
+=== 파손 신고 생성
+POST /api/v1/inquiries/damage
+
+==== 요청 필드
+include::{snippets}/user-create-damage/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/user-create-damage/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/user-create-damage/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/user-create-damage/http-response.adoc[]
+
+=== 사용자용 문의 응답
+POST /api/v1/inquiries/{id}/answer
+
+==== 패스 파라미터
+include::{snippets}/user-answer-damage/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/user-answer-damage/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/user-answer-damage/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/user-answer-damage/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/user-answer-damage/http-response.adoc[]
 
 === 사용자용 단일 문의 조회
 GET /api/v1/inquiries/{id}
@@ -513,16 +552,16 @@ include::{snippets}/admin-answer-inquiry/http-response.adoc[]
 PUT /api/v1/admin/inquiries/{id}/processed
 
 ==== 패스 파라미터
-include::{snippets}/mark-processed/path-parameters.adoc[]
+include::{snippets}/admin-mark-processed/path-parameters.adoc[]
 
 ==== HTTP 요청
-include::{snippets}/mark-processed/http-request.adoc[]
+include::{snippets}/admin-mark-processed/http-request.adoc[]
 
 ==== 응답 필드
-include::{snippets}/mark-processed/response-fields.adoc[]
+include::{snippets}/admin-mark-processed/response-fields.adoc[]
 
 ==== HTTP 응답
-include::{snippets}/mark-processed/http-response.adoc[]
+include::{snippets}/admin-mark-processed/http-response.adoc[]
 
 == 결제 & 지갑 관련 API
 ----
@@ -632,6 +671,24 @@ include::{snippets}/payments-admin/response-fields.adoc[]
 include::{snippets}/payments-admin/http-response.adoc[]
 
 == 알림 관련 API
+```
+알림 타입
+RENT_REQUESTED  // 대여자가 대여 요청
+RENT_CANCEL     // 대여자가 대여 취소
+ITEM_RETURNED   // 대여자가 반납 완료
+ITEM_DAMAGED_REQUEST,    // 물품 파손 신고 요청
+RENT_START_D_3  // 대여 시작 3일 전
+RENT_START_D_0  // 대여 시작 당일
+
+REQUEST_ACCEPTED    // 소유자가 신청 승낙
+REQUEST_REJECTED    // 소유자가 신청 거절
+ITEM_DAMAGED_RESPONSE,   // 물품 파손 신고 응답
+ITEM_PLACED         // 소유자가 사물함에 물건 넣음
+RENT_END_D_3        // 대여 만료 3일 전
+RENT_END_D_0        // 대여 만료 당일
+
+INQUIRY_RESPONSE
+```
 === FCM 토큰 저장
 POST /api/v1/device-token
 
