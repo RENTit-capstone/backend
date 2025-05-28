@@ -46,7 +46,7 @@ public class NotificationService {
                 NotificationType.RENT_REQUESTED,
                 "새 대여 신청",
                 owner.getNickname() + "님, " + rental.getItem().getName() + "에 새 대여 신청이 들어왔어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -74,7 +74,7 @@ public class NotificationService {
                         + "사물함 위치 : " + rental.getLocker().getDevice().getUniversity()
                         + " " + rental.getLocker().getDevice().getLocationDescription()
                         + " " + rental.getLockerId() + "번 사물함",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -86,7 +86,7 @@ public class NotificationService {
                 NotificationType.REQUEST_ACCEPTED,
                 "물품 대여 승인",
                 rental.getRenterMember().getNickname() + "님, " + rental.getItem().getName() + "의 대여 신청이 승락되었어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -101,7 +101,7 @@ public class NotificationService {
                         + "사물함 위치 : " + rental.getLocker().getDevice().getUniversity()
                         + " " + rental.getLocker().getDevice().getLocationDescription()
                         + " " + rental.getLockerId() + "번 사물함",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -113,7 +113,7 @@ public class NotificationService {
                 NotificationType.REQUEST_REJECTED,
                 "물품 대여 거부",
                 renter.getNickname() + "님, " + rental.getItem().getName() + "의 대여 신청이 거부되었어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -125,7 +125,7 @@ public class NotificationService {
                 NotificationType.RENT_CANCEL,
                 "물품 대여 취소",
                 owner.getNickname() + "님, " + rental.getItem().getName() + "의 대여 신청이 취소되었어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
@@ -137,19 +137,18 @@ public class NotificationService {
                 NotificationType.ITEM_DAMAGED_REQUEST,
                 "물품 파손 신고",
                 owner.getNickname() + "님, " + rental.getItem().getName() + "의 파손 신고가 들어왔어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                Map.of("rentalId", rentalId.toString())
         );
     }
 
-    public void notifyItemDamagedResponse(Long rentalId){
-        Rental rental = findRental(rentalId);
-        Member renter = findMember(rental.getRenterId());
+    public void notifyItemDamagedResponse(Inquiry inquiry){
+        Member renter = findMember(inquiry.getMemberId());
         notify(
                 renter,
                 NotificationType.ITEM_DAMAGED_RESPONSE,
                 "물품 파손 신고",
-                renter.getNickname() + "님, " + rental.getItem().getName() + "의 파손 신고 응답이 도착했어요.",
-                Map.of("rentalId", rental.getRentalId().toString())
+                renter.getNickname() + "님, " + inquiry.getTitle() + "의 파손 신고 응답이 도착했어요.",
+                Map.of("inquiryId", inquiry.getInquiryId().toString())
         );
     }
 
