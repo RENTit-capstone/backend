@@ -37,6 +37,12 @@ public class PaymentExceptionHandler {
         return CommonResponse.failure(ex.getMessage());
     }
 
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public CommonResponse<Void> handleNotFound(PaymentNotFoundException ex) {
+        log.warn("Payment Not found: {}", ex.getMessage());
+        return CommonResponse.failure(ex.getMessage());
+    }
+
     @ExceptionHandler(AccountConsentExpiredException.class)
     public CommonResponse<Void> handleAccountExpired(AccountConsentExpiredException ex) {
         log.warn("Account Expired: {}", ex.getMessage());
