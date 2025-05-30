@@ -4,11 +4,14 @@ import com.capstone.rentit.locker.event.RentalLockerAction;
 import com.capstone.rentit.payment.domain.*;
 import com.capstone.rentit.payment.dto.*;
 import com.capstone.rentit.payment.exception.ExternalPaymentFailedException;
+import com.capstone.rentit.payment.exception.PaymentNotFoundException;
 import com.capstone.rentit.payment.exception.PaymentNotLockerException;
 import com.capstone.rentit.payment.exception.WalletNotFoundException;
 import com.capstone.rentit.payment.repository.*;
 import com.capstone.rentit.payment.type.PaymentType;
 import com.capstone.rentit.rental.domain.Rental;
+import com.capstone.rentit.rental.exception.RentalNotFoundException;
+import com.capstone.rentit.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ public class PaymentService {
 
     private final WalletRepository walletRepository;
     private final PaymentRepository paymentRepository;
+    private final RentalRepository rentalRepository;
     private final NhApiClient nhClient;
 
     public Long registerAccount(AccountRegisterRequest request) {
@@ -82,19 +86,37 @@ public class PaymentService {
     /* ------------ 2. 대여 흐름 ------------ */
 
     /** 대여비 (대여자 → 소유자) */
-    public Long payRentalFee(RentalPaymentRequest req) {
+    public Long requestRentalFee(RentalPaymentRequest req, Long rentalId) {
 
         Wallet renter = findWallet(req.renterId());
-        Wallet owner  = findWallet(req.ownerId());
 
-        Payment tx = paymentRepository.save(
-                Payment.create(PaymentType.RENTAL_FEE, req.renterId(), req.ownerId(), req.rentalFee(), null));
+        Payment payment = paymentRepository.save(
+                Payment.create(PaymentType.RENTAL_FEE, req.renterId(), req.ownerId(), req.rentalFee(), rentalId));
 
         renter.withdraw(req.rentalFee());
-        owner.deposit(req.rentalFee());
+        return payment.getId();
+    }
 
-        tx.approve(null); // 내부 이체 — 외부 참조 없음
-        return tx.getId();
+    public Long payRentalFee(Long rentalId) {
+
+        Payment payment = findPaymentByRentalId(rentalId);
+        Wallet owner  = findWallet(payment.getToMemberId());
+
+        owner.deposit(payment.getAmount());
+
+        payment.approve(null); // 내부 이체 — 외부 참조 없음
+        return payment.getId();
+    }
+
+    public Long cancelPayment(Long rentalId){
+
+        Payment payment = findPaymentByRentalId(rentalId);
+        Wallet renter = findWallet(payment.getFromMemberId());
+
+        renter.deposit(payment.getAmount());
+
+        payment.cancel();
+        return payment.getId();
     }
 
     /** 사물함 이용료 (LockerPaymentRequest) */
@@ -148,6 +170,12 @@ public class PaymentService {
         return walletRepository.findForUpdate(memberId)
                 .orElseThrow(() ->
                         new WalletNotFoundException("해당 사용자의 지갑을 찾을 수 없습니다."));
+    }
+
+    public Payment findPaymentByRentalId(Long rentalId){
+        return paymentRepository.findByRentalId(rentalId)
+                .orElseThrow(() ->
+                        new PaymentNotFoundException("해당 결제 내역을 찾을 수 없습니다."));
     }
 
     public Long createWallet(Long memberId){
