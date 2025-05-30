@@ -48,6 +48,7 @@ public class RentalService {
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
+        paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rental.getRentalId());
 
 //        notificationService.notifyRentRequest(rental);
         return rentalRepository.save(rental).getRentalId();
@@ -80,8 +81,7 @@ public class RentalService {
         Item item = findItem(r.getItemId());
         item.updateOut();
 
-        paymentService.payRentalFee(new RentalPaymentRequest(r.getRenterId(), r.getOwnerId(), item.getPrice()));
-
+        paymentService.payRentalFee(rentalId);
 //        notificationService.notifyRequestAccepted(r);
     }
 
@@ -91,6 +91,7 @@ public class RentalService {
         assertBeforeApproved(r);
         r.reject(LocalDateTime.now());
 
+        paymentService.cancelPayment(rentalId);
 //        notificationService.notifyRentRejected(r);
     }
 
@@ -104,6 +105,7 @@ public class RentalService {
         Item item = findItem(r.getItemId());
         item.updateAvailable();
 
+        paymentService.cancelPayment(rentalId);
 //        notificationService.notifyRequestCancel(r);
     }
 
