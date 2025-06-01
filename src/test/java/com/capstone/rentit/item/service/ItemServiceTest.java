@@ -15,6 +15,9 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.StudentDto;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.rental.domain.Rental;
+import com.capstone.rentit.rental.repository.RentalRepository;
+import com.capstone.rentit.rental.status.RentalStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,8 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +40,8 @@ class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+    @Mock
+    private RentalRepository rentalRepository;
 
     @Mock
     private FileStorageService fileStorageService;
@@ -198,29 +205,78 @@ class ItemServiceTest {
     }
 
     // ------------ getItem ------------
-    @DisplayName("getItem: 존재하는 ID면 DTO 반환")
+    @DisplayName("getItem: 존재하는 ID면 DTO 반환 (status AVAILABLE → rentalEndAt null)")
     @Test
     void getItem_existingId_thenReturnDto() {
-        when(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
-                .thenReturn(Optional.of(sampleItem));
+        // given
+        given(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
+                .willReturn(Optional.of(sampleItem));
 
+        // when
         ItemSearchResponse dto = itemService.getItem(sampleItem.getItemId());
 
+        // then
         assertThat(dto.getItemId()).isEqualTo(sampleItem.getItemId());
         assertThat(dto.getImageUrls()).containsExactlyInAnyOrder("url://keyA", "url://keyB");
         assertThat(dto.getOwner().getProfileImg()).isEqualTo("url://owner/profile.png");
+        assertThat(dto.getRentalEndAt()).isNull();
+
+        then(rentalRepository).should(never()).findTopByItemIdAndStatus(anyLong(), any());
+    }
+
+    @DisplayName("getItem: status OUT일 때 진행 중인 대여가 있으면 rentalEndAt 반환")
+    @Test
+    void getItem_outStatus_thenReturnRentalEndAt() {
+        // given: sampleItem을 복제하되 상태만 OUT으로 변경
+        Item sampleItemOut = Item.builder()
+                .itemId(sampleItem.getItemId())
+                .ownerId(sampleItem.getOwnerId())
+                .owner(sampleItem.getOwner())
+                .name(sampleItem.getName())
+                .description(sampleItem.getDescription())
+                .damagedDescription(sampleItem.getDamagedDescription())
+                .price(sampleItem.getPrice())
+                .status(ItemStatusEnum.OUT)
+                .damagedPolicy(sampleItem.getDamagedPolicy())
+                .returnPolicy(sampleItem.getReturnPolicy())
+                .startDate(sampleItem.getStartDate())
+                .endDate(sampleItem.getEndDate())
+                .createdAt(sampleItem.getCreatedAt())
+                .updatedAt(sampleItem.getUpdatedAt())
+                .imageKeys(sampleItem.getImageKeys())
+                .build();
+
+        given(itemRepository.findWithOwnerByItemId(sampleItemOut.getItemId()))
+                .willReturn(Optional.of(sampleItemOut));
+
+        // presigned URL은 이미 lenient로 설정됨
+        Rental sampleRental = Rental.builder()
+                .dueDate(LocalDateTime.of(2025, 6, 10, 12, 0))
+                .build();
+        given(rentalRepository.findTopByItemIdAndStatus(
+                sampleItemOut.getItemId(),
+                RentalStatusEnum.PICKED_UP
+        )).willReturn(Optional.of(sampleRental));
+
+        // when
+        ItemSearchResponse dto = itemService.getItem(sampleItemOut.getItemId());
+
+        // then
+        assertThat(dto.getRentalEndAt()).isEqualTo(sampleRental.getDueDate());
     }
 
     @DisplayName("getItem: 존재하지 않는 ID면 ItemNotFoundException")
     @Test
     void getItem_missingId_thenThrowException() {
-        when(itemRepository.findWithOwnerByItemId(anyLong()))
-                .thenReturn(Optional.empty());
+        // given
+        given(itemRepository.findWithOwnerByItemId(anyLong()))
+                .willReturn(Optional.empty());
 
-        assertThatThrownBy(() ->
-                itemService.getItem(999L))
+        // when / then
+        assertThatThrownBy(() -> itemService.getItem(999L))
                 .isInstanceOf(ItemNotFoundException.class)
                 .hasMessage("존재하지 않는 물품입니다.");
+        then(rentalRepository).should(never()).findTopByItemIdAndStatus(anyLong(), any());
     }
 
     // ------------ updateItem ------------

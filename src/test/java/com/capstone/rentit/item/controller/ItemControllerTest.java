@@ -278,6 +278,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
                                 fieldWithPath("data.startDate").type(JsonFieldType.STRING).description("시작일"),
                                 fieldWithPath("data.endDate").type(JsonFieldType.STRING).description("종료일"),
+                                fieldWithPath("data.rentalEndAt").type(JsonFieldType.NULL).description("status가 OUT인 경우 대여 마감일 표시"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("등록일"),
                                 fieldWithPath("data.updatedAt").type(JsonFieldType.STRING).description("수정일"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
