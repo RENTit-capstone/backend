@@ -4,15 +4,12 @@ import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.dto.ItemBriefResponse;
 import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
-import com.capstone.rentit.member.dto.MemberDto;
-import com.capstone.rentit.member.dto.MyProfileResponse;
+import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.capstone.rentit.config.WebConfig;
 import com.capstone.rentit.login.dto.MemberDetails;
 import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.dto.StudentCreateForm;
-import com.capstone.rentit.member.dto.StudentUpdateForm;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.rental.dto.RentalBriefResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +46,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
@@ -266,6 +264,7 @@ class MemberControllerTest {
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("Updated Student");
         form.setNickname("updatedNick");
+        form.setImageKey("updateImageKey");
         form.setPhone("010-9876-5432");
 
         Student updated = Student.builder()
@@ -273,6 +272,7 @@ class MemberControllerTest {
                 .email("student@example.com")
                 .name(form.getName())
                 .nickname(form.getNickname())
+                .profileImg(form.getImageKey())
                 .phone(form.getPhone())
                 .university("Test University")
                 .studentId("S12345678")
@@ -285,38 +285,34 @@ class MemberControllerTest {
         MemberDetails details = new MemberDetails(updated);
         Authentication auth = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
 
-        doNothing().when(memberService)
-                .updateMember(eq(id), any(StudentUpdateForm.class), any(MultipartFile.class));
+        doNothing().when(memberService).updateMember(eq(id), any(MemberUpdateForm.class));
 
-        MockMultipartFile jsonPart = new MockMultipartFile(
-                "form", "", "application/json",
-                objectMapper.writeValueAsBytes(form));
-        MockMultipartFile image = new MockMultipartFile(
-                "image", "a.jpg", "image/jpeg", "dummy".getBytes());
+        String jsonPayload = objectMapper.writeValueAsString(form);
+
         // when
-        ResultActions result = mockMvc.perform(multipart("/api/v1/members", id)
-                .file(jsonPart).file(image)
-                .with(request -> { request.setMethod("PUT"); return request; })
-                .with(csrf()).with(authentication(auth)));
-
-        // then
-        result.andExpect(status().isOk())
+        mockMvc.perform(put("/api/v1/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonPayload)
+                        .with(csrf())
+                        .with(user(details))
+                )
+                // then
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("update-member",
-                        requestParts(
-                                partWithName("form").description("MemberUpdateForm JSON"),
-                                partWithName("image").optional().description("교체 이미지 파일 (1개)")
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("name").description("변경할 이름"),
+                                fieldWithPath("nickname").description("변경할 닉네임"),
+                                fieldWithPath("imageKey").description("수정할 프로필 image key"),
+                                fieldWithPath("phone").description("변경할 연락처(학생 전용)"),
+                                fieldWithPath("memberType").description("회원 유형 (예: STUDENT, COMPANY 등)")
                         ),
-                        requestPartFields("form",
-                                fieldWithPath("name").type(JsonFieldType.STRING).description("변경할 이름"),
-                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("변경할 닉네임"),
-                                fieldWithPath("phone").type(JsonFieldType.STRING).description("변경할 연락처"),
-                                fieldWithPath("memberType").type(JsonFieldType.STRING).description("회원 역할")
-                                ),
                         responseFields(
-                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("null"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                                fieldWithPath("success").description("API 호출 성공 여부"),
+                                fieldWithPath("data").description("응답 데이터 (여기서는 null)"),
+                                fieldWithPath("message").description("응답 메시지 (빈 문자열)")
                         )
                 ));
     }

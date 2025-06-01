@@ -282,17 +282,16 @@ class MemberServiceTest {
     void updateMember_success() {
         Student mock = mock(Student.class);
         when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
-        when(fileStorageService.store(any(MultipartFile.class)))
-                .thenReturn("new1");
 
         StudentUpdateForm form = new StudentUpdateForm();
         form.setName("new");
         form.setNickname("nn");
         form.setPhone("010");
+        form.setImageKey("updateImg");
 
         doNothing().when(mock).update(form);
 
-        memberService.updateMember(ID, form, mockImage);
+        memberService.updateMember(ID, form);
 
         verify(mock).update(form);
     }
@@ -301,7 +300,7 @@ class MemberServiceTest {
     void updateMember_notFound() {
         when(memberRepository.findById(ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.updateMember(ID, new StudentUpdateForm(), mockImage))
+        assertThatThrownBy(() -> memberService.updateMember(ID, new StudentUpdateForm()))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
     }
@@ -315,7 +314,7 @@ class MemberServiceTest {
         doThrow(new MemberTypeMismatchException("회원 유형이 일치하지 않습니다."))
                 .when(mock).update(any(MemberUpdateForm.class));
 
-        assertThatThrownBy(() -> memberService.updateMember(ID, badForm, mockImage))
+        assertThatThrownBy(() -> memberService.updateMember(ID, badForm))
                 .isInstanceOf(MemberTypeMismatchException.class)
                 .hasMessage("회원 유형이 일치하지 않습니다.");
     }
