@@ -23,6 +23,14 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "member_type", discriminatorType = DiscriminatorType.STRING)
+@Table(
+        name = "member",
+        indexes = {
+                @Index(name = "idx_member_role", columnList = "role"),
+                @Index(name = "idx_member_university", columnList = "university"),
+                @Index(name = "idx_member_role_university", columnList = "role, university")
+        }
+)
 public abstract class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
