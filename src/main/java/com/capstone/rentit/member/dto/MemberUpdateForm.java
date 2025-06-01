@@ -20,4 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 })
 public abstract class MemberUpdateForm {
     private String name;
+    private String nickname;
+    private String imageKey;
 }

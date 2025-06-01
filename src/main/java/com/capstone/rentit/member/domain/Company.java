@@ -44,7 +44,7 @@ public class Company extends Member {
         if (!(form instanceof CompanyUpdateForm f)) {
             throw new MemberTypeMismatchException("회사 정보 수정 폼이 아닙니다.");
         }
-        super.updateEntity(form.getName());
+        super.updateEntity(form.getName(), form.getNickname(), form.getImageKey());
         if(f.getCompanyName() != null)
             this.companyName = companyName;
         if(f.getRegistrationNumber() != null)
