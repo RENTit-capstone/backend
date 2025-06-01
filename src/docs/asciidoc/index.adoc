@@ -184,9 +184,7 @@ include::{snippets}/get-login-member/response-fields.adoc[]
 POST /api/v1/items
 
 ==== 요청 파트
-include::{snippets}/create-item/request-parts.adoc[]
-form 세부 필드
-include::{snippets}/create-item/request-part-form-fields.adoc[]
+include::{snippets}/create-item/request-fields.adoc[]
 
 ==== HTTP 요청
 include::{snippets}/create-item/http-request.adoc[]
@@ -222,9 +220,7 @@ include::{snippets}/get-item/response-fields.adoc[]
 PUT /api/v1/items/{id}
 
 ==== 요청 필드
-include::{snippets}/update-item/request-parts.adoc[]
-form 세부 필드
-include::{snippets}/update-item/request-part-form-fields.adoc[]
+include::{snippets}/update-item/request-fields.adoc[]
 
 ==== HTTP 요청
 include::{snippets}/update-item/http-request.adoc[]
@@ -336,8 +332,8 @@ POST /api/v1//rentals/{rentalId}/return-image
 ==== 요청 필드
 include::{snippets}/upload-return-image/path-parameters.adoc[]
 
-==== 요청 필드
-include::{snippets}/upload-return-image/request-parts.adoc[]
+==== 요청 파라미터
+include::{snippets}/upload-return-image/query-parameters.adoc[]
 
 ==== HTTP 요청
 include::{snippets}/upload-return-image/http-request.adoc[]
