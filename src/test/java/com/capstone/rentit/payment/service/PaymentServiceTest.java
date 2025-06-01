@@ -199,7 +199,7 @@ class PaymentServiceTest {
 
         @Test @DisplayName("요청된 결제가 없으면 PaymentNotFoundException 을 던진다")
         void payRentalFee_shouldThrowWhenNotFound() {
-            given(paymentRepo.findByRentalId(RENTAL_ID)).willReturn(Optional.empty());
+            given(paymentRepo.findByPaymentRentalId(RENTAL_ID)).willReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.payRentalFee(RENTAL_ID))
                     .isInstanceOf(PaymentNotFoundException.class);
@@ -210,7 +210,7 @@ class PaymentServiceTest {
             Payment p = Payment.create(PaymentType.RENTAL_FEE, MEMBER_A, MEMBER_B, AMOUNT, RENTAL_ID);
             Wallet owner = walletOf(MEMBER_B, 0);
 
-            given(paymentRepo.findByRentalId(RENTAL_ID)).willReturn(Optional.of(p));
+            given(paymentRepo.findByPaymentRentalId(RENTAL_ID)).willReturn(Optional.of(p));
             given(walletRepo.findForUpdate(MEMBER_B)).willReturn(Optional.of(owner));
 
             service.payRentalFee(RENTAL_ID);
@@ -226,7 +226,7 @@ class PaymentServiceTest {
             Payment p = Payment.create(PaymentType.RENTAL_FEE, MEMBER_A, MEMBER_B, AMOUNT, RENTAL_ID);
             Wallet renter = walletOf(MEMBER_A, 100);
 
-            given(paymentRepo.findByRentalId(RENTAL_ID)).willReturn(Optional.of(p));
+            given(paymentRepo.findByPaymentRentalId(RENTAL_ID)).willReturn(Optional.of(p));
             given(walletRepo.findForUpdate(MEMBER_A)).willReturn(Optional.of(renter));
 
             service.cancelPayment(RENTAL_ID);
