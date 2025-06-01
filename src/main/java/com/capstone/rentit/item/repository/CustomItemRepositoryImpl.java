@@ -4,6 +4,7 @@ import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemSearchForm;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.domain.QMember;
+import com.capstone.rentit.member.domain.QStudent;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
@@ -34,6 +35,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private final JPAQueryFactory queryFactory;
     private final QItem item = QItem.item;
     private final QMember member = QMember.member;
+    private final QStudent student = QStudent.student;
 
     @Override
     public Optional<Item> findWithOwnerByItemId(Long itemId) {
@@ -49,11 +51,12 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
 
     @Override
     public Page<Item> search(ItemSearchForm form, Pageable pageable) {
-        Predicate filters = buildBasicFilters(form);
-        BooleanExpression roleFilter  = buildRoleFilter(form.getOwnerRoles());
+        Predicate basicFilters               = buildBasicFilters(form);
+        BooleanExpression roleFilter         = buildRoleFilter(form.getOwnerRoles());
+        BooleanExpression universityFilter   = buildUniversityFilter(form.getUniversity());
 
-        long count = countBy(filters, roleFilter);
-        List<Item> content = findContentBy(filters, roleFilter, pageable);
+        long count = countBy(basicFilters, roleFilter, universityFilter);
+        List<Item> content = findContentBy(basicFilters, roleFilter, universityFilter, pageable);
 
         return new PageImpl<>(content, pageable, count);
     }
@@ -70,43 +73,88 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     }
 
     private BooleanExpression buildRoleFilter(List<MemberRoleEnum> roles) {
-        return (roles != null && !roles.isEmpty()) ? member.role.in(roles) : null;
+        return (roles != null && !roles.isEmpty())
+                ? member.role.in(roles)
+                : null;
     }
 
-    private long countBy(Predicate filters, BooleanExpression roleFilter) {
+    private BooleanExpression buildUniversityFilter(String university) {
+        if (!StringUtils.hasText(university)) {
+            return null;
+        }
+        return student.role.eq(MemberRoleEnum.STUDENT)
+                .and(student.university.equalsIgnoreCase(university));
+    }
+
+    private long countBy(
+            Predicate basicFilter,
+            BooleanExpression roleFilter,
+            BooleanExpression universityFilter
+    ) {
         JPAQuery<Long> q = queryFactory
                 .select(item.count())
                 .from(item);
 
-        if (roleFilter != null) {
-            q.join(item.owner, member)
-                    .where(roleFilter);
+        q.join(item.owner, member);
+
+        if (universityFilter != null) {
+            q.join(student)
+                    .on(member.memberId.eq(student.memberId));
         }
 
-        Long c = q.where(filters).fetchOne();
-        return c != null ? c : 0L;
+        Predicate combined = ExpressionUtils.allOf(
+                basicFilter,
+                roleFilter,
+                universityFilter
+        );
+        if (combined != null) {
+            q.where(combined);
+        }
+
+        Long countResult = q.fetchOne();
+        return (countResult != null) ? countResult : 0L;
     }
 
-    private List<Item> findContentBy(Predicate filters,
-                                     BooleanExpression roleFilter,
-                                     Pageable pageable) {
-
+    private List<Item> findContentBy(
+            Predicate basicFilter,
+            BooleanExpression roleFilter,
+            BooleanExpression universityFilter,
+            Pageable pageable
+    ) {
         JPAQuery<Item> q = queryFactory
                 .select(item)
-                .from(item);
+                .from(item)
+                // 1) 항상 item.owner → member FetchJoin
+                .join(item.owner, member).fetchJoin();
 
-        q.join(item.owner, member).fetchJoin();
+        // 2) universityFilter가 있을 때만 Student와 ON절로 JOIN
+        if (universityFilter != null) {
+            q.join(student)
+                    .on(member.memberId.eq(student.memberId));
+        }
 
+        // 3) roleFilter 적용
         if (roleFilter != null) {
             q.where(roleFilter);
         }
 
-        q.where(filters)
-                .orderBy(orderSpecifier(pageable));
+        // 4) universityFilter 적용
+        if (universityFilter != null) {
+            q.where(universityFilter);
+        }
 
+        // 5) 기본 필터 적용
+        if (basicFilter != null) {
+            q.where(basicFilter);
+        }
+
+        // 6) 정렬
+        q.orderBy(orderSpecifier(pageable));
+
+        // 7) 페이징
         if (!pageable.isUnpaged()) {
-            q.offset(pageable.getOffset())
-                    .limit(pageable.getPageSize());
+            q.offset(pageable.getOffset());
+            q.limit(pageable.getPageSize());
         }
 
         return q.fetch();
@@ -123,13 +171,12 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                     ? item.createdAt.asc()
                     : item.createdAt.desc();
         }
-        return defaultOrder();
+        return item.createdAt.desc();
     }
 
     private BooleanExpression keywordContains(String kw) {
         if (!StringUtils.hasText(kw)) return null;
         String pattern = "%" + kw.toLowerCase() + "%";
-        // name 또는 description 중 하나라도 매칭
         return item.name.lower().like(pattern)
                 .or(item.description.lower().like(pattern));
     }
