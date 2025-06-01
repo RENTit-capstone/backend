@@ -8,7 +8,11 @@ import com.capstone.rentit.item.exception.ItemImageMissingException;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.exception.ItemUnauthorizedException;
 import com.capstone.rentit.item.repository.ItemRepository;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.rental.domain.Rental;
+import com.capstone.rentit.rental.repository.RentalRepository;
+import com.capstone.rentit.rental.status.RentalStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final RentalRepository rentalRepository;
     private final FileStorageService fileStorageService;
 
     public Long createItem(Long memberId, ItemCreateForm form) {
@@ -42,21 +47,27 @@ public class ItemService {
         return page.map(item ->
                 ItemSearchResponse.fromEntity(
                 item,
-                item.getImageKeys().stream()
-                        .map(fileStorageService::generatePresignedUrl)
-                        .toList(),
-                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
+                item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()),
+                null));
     }
 
     @Transactional(readOnly = true)
     public ItemSearchResponse getItem(Long itemId) {
         Item item = findItem(itemId);
+
+        LocalDateTime rentalEndAt = null;
+        if (item.getStatus() == ItemStatusEnum.OUT) {
+            rentalEndAt = rentalRepository
+                    .findTopByItemIdAndStatus(itemId, RentalStatusEnum.PICKED_UP)
+                    .map(Rental::getDueDate)
+                    .orElse(null);
+        }
         return ItemSearchResponse.fromEntity(
                 item,
-                item.getImageKeys().stream()
-                        .map(fileStorageService::generatePresignedUrl)
-                        .toList(),
-                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
+                item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()),
+                rentalEndAt);
     }
 
     public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {

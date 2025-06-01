@@ -30,8 +30,13 @@ public class ItemSearchResponse {
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime rentalEndAt;
 
-    public static ItemSearchResponse fromEntity(Item item, List<String> imageUrls, String ownerProfileImg) {
+    public static ItemSearchResponse fromEntity(
+            Item item,
+            List<String> imageUrls,
+            String ownerProfileImg,
+            LocalDateTime rentalEndAt) {
         return ItemSearchResponse.builder()
                 .itemId(item.getItemId())
                 .owner(MemberSearchResponse.fromEntity(item.getOwner(), ownerProfileImg))
@@ -46,8 +51,9 @@ public class ItemSearchResponse {
                 .returnPolicy(item.getReturnPolicy())
                 .startDate(item.getStartDate())
                 .endDate(item.getEndDate())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(item.getCreatedAt())
+                .updatedAt(item.getUpdatedAt())
+                .rentalEndAt(rentalEndAt)
                 .build();
     }
 }
