@@ -27,7 +27,7 @@ public class ItemController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "/items", consumes = "application/json")
     public CommonResponse<Long> createItem(@Login MemberDto loginMember,
-                                           @ModelAttribute("form") ItemCreateForm form) {
+                                           @RequestBody ItemCreateForm form) {
 
         Long itemId = itemService.createItem(loginMember.getMemberId(), form);
         return CommonResponse.success(itemId);
