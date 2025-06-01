@@ -13,6 +13,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table(
+        name = "payment",
+        indexes = {
+                @Index(name = "idx_payment_type", columnList = "type"),
+                @Index(name = "idx_payment_from_member", columnList = "from_member_id"),
+                @Index(name = "idx_payment_to_member", columnList = "to_member_id"),
+                @Index(name = "idx_payment_created_at", columnList = "created_at")
+        }
+)
 public class Payment {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

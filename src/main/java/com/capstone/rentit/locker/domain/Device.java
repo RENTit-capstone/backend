@@ -15,6 +15,12 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "device",
+        indexes = {
+                @Index(name = "idx_device_university", columnList = "university")
+        }
+)
 public class Device {
 
     @Id
