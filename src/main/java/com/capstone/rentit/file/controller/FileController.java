@@ -1,13 +1,12 @@
 package com.capstone.rentit.file.controller;
 
 import com.capstone.rentit.common.CommonResponse;
+import com.capstone.rentit.file.dto.UploadPresignedResponse;
+import com.capstone.rentit.file.dto.UploadRequest;
 import com.capstone.rentit.file.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -23,5 +22,18 @@ public class FileController {
         String key = storageService.store(file);
         String presignedUrl = storageService.generatePresignedUrl(key);
         return CommonResponse.success(key);
+    }
+
+    @PostMapping("/presigned/upload")
+    public CommonResponse<UploadPresignedResponse> getUploadUrl(
+            @RequestBody UploadRequest form) {
+
+        UploadPresignedResponse res = storageService.generateUploadPresignedUrl(form.getFileName(), form.getContentType());
+        return CommonResponse.success(res);
+    }
+
+    @GetMapping("/presigned/download")
+    public CommonResponse<String> getDownloadUrl(@RequestParam String objectKey) {
+        return CommonResponse.success(storageService.generatePresignedUrl(objectKey));
     }
 }
