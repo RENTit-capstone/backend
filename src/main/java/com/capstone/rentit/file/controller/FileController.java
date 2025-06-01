@@ -6,6 +6,7 @@ import com.capstone.rentit.file.dto.UploadRequest;
 import com.capstone.rentit.file.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,16 +25,12 @@ public class FileController {
         return CommonResponse.success(key);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/presigned/upload")
     public CommonResponse<UploadPresignedResponse> getUploadUrl(
             @RequestBody UploadRequest form) {
 
         UploadPresignedResponse res = storageService.generateUploadPresignedUrl(form.getFileName(), form.getContentType());
         return CommonResponse.success(res);
-    }
-
-    @GetMapping("/presigned/download")
-    public CommonResponse<String> getDownloadUrl(@RequestParam String objectKey) {
-        return CommonResponse.success(storageService.generatePresignedUrl(objectKey));
     }
 }
