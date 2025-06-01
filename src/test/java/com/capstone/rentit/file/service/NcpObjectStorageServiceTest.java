@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.Duration;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -95,8 +94,10 @@ class NcpObjectStorageServiceTest {
         given(file.getSize()).willReturn((long) content.length);
         given(file.getInputStream()).willReturn(new ByteArrayInputStream(content));
 
+        // when
         String key = service.store(file);
 
+        // then
         assertThat(key).matches("[0-9a-fA-F\\-]{36}");
         then(s3Client).should().putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
@@ -113,7 +114,7 @@ class NcpObjectStorageServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("파일 업로드 실패");
 
-        then(s3Client).should(never()).putObject((PutObjectRequest) any(), (RequestBody) any());
+        then(s3Client).should(never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
 
     @Test
