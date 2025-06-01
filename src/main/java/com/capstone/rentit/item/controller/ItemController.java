@@ -25,12 +25,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping(path = "/items",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/items", consumes = "application/json")
     public CommonResponse<Long> createItem(@Login MemberDto loginMember,
-                                           @ModelAttribute("form") ItemCreateForm form,
-                                           @RequestPart("images") List<MultipartFile> images) {
-        Long itemId = itemService.createItem(loginMember.getMemberId(), form, images);
+                                           @ModelAttribute("form") ItemCreateForm form) {
+
+        Long itemId = itemService.createItem(loginMember.getMemberId(), form);
         return CommonResponse.success(itemId);
     }
 
@@ -39,25 +38,26 @@ public class ItemController {
             @ModelAttribute("form") ItemSearchForm searchForm,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
+
         Page<ItemSearchResponse> page = itemService.getAllItems(searchForm, pageable);
         return CommonResponse.success(page);
     }
 
     @GetMapping("/items/{itemId}")
     public CommonResponse<ItemSearchResponse> getItem(@PathVariable("itemId") Long itemId) {
+
         ItemSearchResponse item = itemService.getItem(itemId);
         return CommonResponse.success(item);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping(path = "/items/{itemId}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/items/{itemId}", consumes = "application/json")
     public CommonResponse<Void> updateItem(
             @PathVariable("itemId") Long itemId,
-            @ModelAttribute("form") ItemUpdateForm form,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestBody ItemUpdateForm form,
             @Login MemberDto loginMember) {
-        itemService.updateItem(loginMember, itemId, form, images);
+
+        itemService.updateItem(loginMember, itemId, form);
         return CommonResponse.success(null);
     }
 

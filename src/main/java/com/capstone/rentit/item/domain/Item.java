@@ -75,6 +75,7 @@ public class Item {
                 .returnPolicy(form.getReturnPolicy())
                 .startDate(form.getStartDate())
                 .endDate(form.getEndDate())
+                .imageKeys(form.getImageKeys())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -96,6 +97,8 @@ public class Item {
             this.description = form.getDescription();
         if(form.getDescription() != null)
             this.description = form.getDescription();
+        if(form.getImageKeys() != null && !form.getImageKeys().isEmpty())
+            this.imageKeys = form.getImageKeys();
         updatedAt = LocalDateTime.now();
     }
 
@@ -105,13 +108,5 @@ public class Item {
 
     public void updateOut(){
         status = ItemStatusEnum.OUT;
-    }
-
-    public void addImageKey(String key) {
-        this.imageKeys.add(key);
-    }
-
-    public void clearImageKeys() {           // (업데이트 시 활용)
-        this.imageKeys.clear();
     }
 }
