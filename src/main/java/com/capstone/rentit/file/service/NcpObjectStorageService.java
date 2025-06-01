@@ -1,5 +1,6 @@
 package com.capstone.rentit.file.service;
 
+import com.capstone.rentit.file.dto.UploadPresignedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -53,6 +55,28 @@ public class NcpObjectStorageService implements FileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드 실패: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public UploadPresignedResponse generateUploadPresignedUrl(String originalFilename, String contentType) {
+
+        String ext = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            ext = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        }
+        String objectKey = UUID.randomUUID() + ext;
+
+        PutObjectRequest putReq = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType(contentType)
+                .build();
+
+        PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(b -> b
+                .signatureDuration(Duration.ofMinutes(presignExpireMinutes))
+                .putObjectRequest(putReq));
+
+        return new UploadPresignedResponse(objectKey, presigned.url().toString());
     }
 
     @Override
