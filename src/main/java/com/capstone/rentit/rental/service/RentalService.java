@@ -48,6 +48,7 @@ public class RentalService {
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
+        paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rental.getRentalId());
 
 //        notificationService.notifyRentRequest(rental);
         return rentalRepository.save(rental).getRentalId();
@@ -80,8 +81,7 @@ public class RentalService {
         Item item = findItem(r.getItemId());
         item.updateOut();
 
-        paymentService.payRentalFee(new RentalPaymentRequest(r.getRenterId(), r.getOwnerId(), item.getPrice()));
-
+        paymentService.payRentalFee(rentalId);
 //        notificationService.notifyRequestAccepted(r);
     }
 
@@ -91,6 +91,7 @@ public class RentalService {
         assertBeforeApproved(r);
         r.reject(LocalDateTime.now());
 
+        paymentService.cancelPayment(rentalId);
 //        notificationService.notifyRentRejected(r);
     }
 
@@ -104,6 +105,7 @@ public class RentalService {
         Item item = findItem(r.getItemId());
         item.updateAvailable();
 
+        paymentService.cancelPayment(rentalId);
 //        notificationService.notifyRequestCancel(r);
     }
 
@@ -165,14 +167,13 @@ public class RentalService {
 //        notificationService.notifyItemReturned(r);
     }
 
-    public void uploadReturnImage(Long rentalId, Long renterId, MultipartFile returnImage) {
+    public void uploadReturnImage(Long rentalId, Long renterId, String returnImageKey) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
         assertReturnState(r);
 
-        assertReturnImage(returnImage);
-        String objectKey = fileStorageService.store(returnImage);
-        r.uploadReturnImageUrl(objectKey);
+        assertReturnImage(returnImageKey);
+        r.uploadReturnImageUrl(returnImageKey);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
@@ -224,8 +225,8 @@ public class RentalService {
         }
     }
 
-    private void assertReturnImage(MultipartFile img) {
-        if (img == null || img.isEmpty()) {
+    private void assertReturnImage(String returnImageKey) {
+        if (returnImageKey == null || returnImageKey.isEmpty()) {
             throw new ReturnImageMissingException("물품 반납 사진이 없습니다.");
         }
     }

@@ -37,7 +37,7 @@ public class StudentCouncilMember extends Member {
         if (!(form instanceof StudentCouncilMemberUpdateForm f)) {
             throw new MemberTypeMismatchException("학생회 정보 수정 폼이 아닙니다.");
         }
-        super.updateEntity(f.getName());
+        super.updateEntity(form.getName(), form.getNickname(), form.getImageKey());
         if(f.getDescription() != null)
             this.description = f.getDescription();
     }

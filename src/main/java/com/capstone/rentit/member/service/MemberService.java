@@ -65,16 +65,9 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
-    public void updateMember(Long id, MemberUpdateForm form, MultipartFile image) {
+    public void updateMember(Long id, MemberUpdateForm form) {
         Member member = findMemberById(id);
         member.update(form);
-        uploadProfileImage(member, image);
-    }
-    private void uploadProfileImage(Member member, MultipartFile image) {
-        if(image != null && !image.isEmpty()) {
-            String objectKey = fileStorageService.store(image);
-            member.updateProfile(objectKey);
-        }
     }
 
     @Transactional(readOnly = true)

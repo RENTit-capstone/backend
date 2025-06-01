@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class ItemUpdateForm {
     private String returnPolicy;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private List<String> imageKeys;
 }

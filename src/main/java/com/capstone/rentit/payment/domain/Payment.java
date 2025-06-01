@@ -34,18 +34,20 @@ public class Payment {
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
 
+    private Long paymentRentalId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id")
     private Rental rental;
 
-    public static Payment create(PaymentType type, Long fromId, Long toId, long amount, Rental rental) {
+    public static Payment create(PaymentType type, Long fromId, Long toId, long amount, Long rentalId) {
         return Payment.builder()
                 .type(type)
                 .status(PaymentStatus.REQUESTED)
                 .fromMemberId(fromId)
                 .toMemberId(toId)
                 .amount(amount)
-                .rental(rental)
+                .paymentRentalId(rentalId)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -54,5 +56,9 @@ public class Payment {
         this.status = PaymentStatus.APPROVED;
         this.istuno = istuno;
         this.approvedAt = LocalDateTime.now();
+    }
+
+    public void cancel(){
+        this.status = PaymentStatus.CANCELED;
     }
 }

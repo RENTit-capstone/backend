@@ -50,12 +50,10 @@ public class MemberController {
 
     // 업데이트: MemberUpdateForm을 받아 업데이트 수행
     @PreAuthorize("hasRole('USER')")
-    @PutMapping(path = "/members",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(path = "/members", consumes = "application/json")
     public CommonResponse<?> updateMember(@Login MemberDto loginMember,
-                                          @RequestPart(value = "form", required = false) MemberUpdateForm form,
-                                          @RequestPart(value = "image", required = false) MultipartFile image) {
-        memberService.updateMember(loginMember.getMemberId(), form, image);
+                                          @RequestBody MemberUpdateForm form) {
+        memberService.updateMember(loginMember.getMemberId(), form);
         return CommonResponse.success(null);
     }
 

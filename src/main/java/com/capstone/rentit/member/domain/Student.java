@@ -57,7 +57,7 @@ public class Student extends Member {
         if (!(form instanceof StudentUpdateForm f)) {
             throw new MemberTypeMismatchException("학생 정보 수정 폼이 아닙니다.");
         }
-        updateEntity(form.getName());
+        super.updateEntity(form.getName(), form.getNickname(), form.getImageKey());
         if (phone != null) {
             this.phone = phone;
         }

@@ -28,12 +28,11 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final FileStorageService fileStorageService;
 
-    public Long createItem(Long memberId, ItemCreateForm form, List<MultipartFile> images) {
-        Item item = Item.createItem(memberId, form);
-        Item savedItem = itemRepository.save(item);
+    public Long createItem(Long memberId, ItemCreateForm form) {
+        assertItemImage(form.getImageKeys());
 
-        assertItemImage(images);
-        uploadItemImages(item, images);
+        Item savedItem = itemRepository.save(Item.createItem(memberId, form));
+
         return savedItem.getItemId();
     }
 
@@ -41,25 +40,30 @@ public class ItemService {
     public Page<ItemSearchResponse> getAllItems(ItemSearchForm searchForm, Pageable pageable) {
         Page<Item> page = itemRepository.search(searchForm, pageable);
         return page.map(item ->
-                ItemSearchResponse.fromEntity(item,
-                        item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
-                        fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
+                ItemSearchResponse.fromEntity(
+                item,
+                item.getImageKeys().stream()
+                        .map(fileStorageService::generatePresignedUrl)
+                        .toList(),
+                fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg())));
     }
 
     @Transactional(readOnly = true)
     public ItemSearchResponse getItem(Long itemId) {
         Item item = findItem(itemId);
-        return ItemSearchResponse.fromEntity(item,
-                item.getImageKeys().stream().map(fileStorageService::generatePresignedUrl).toList(),
+        return ItemSearchResponse.fromEntity(
+                item,
+                item.getImageKeys().stream()
+                        .map(fileStorageService::generatePresignedUrl)
+                        .toList(),
                 fileStorageService.generatePresignedUrl(item.getOwner().getProfileImg()));
     }
 
-    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form, List<MultipartFile> images) {
+    public void updateItem(MemberDto loginMember, Long itemId, ItemUpdateForm form) {
         Item item = findItem(itemId);
         assertOwner(item, loginMember.getMemberId());
 
         item.updateItem(form);
-        updateItemImages(item, images);
     }
 
     public void deleteItem(MemberDto loginMember, Long itemId) {
@@ -82,28 +86,9 @@ public class ItemService {
         }
     }
 
-    private void assertItemImage(List<MultipartFile> images) {
+    private void assertItemImage(List<String> images) {
         if (images == null || images.isEmpty()) {
             throw new ItemImageMissingException("물품 이미지가 없습니다.");
-        }
-    }
-
-    private void uploadItemImages(Item item, List<MultipartFile> images){
-        if(images != null && !images.isEmpty()) {
-            images.forEach(file -> {
-                String key = fileStorageService.store(file);
-                item.addImageKey(key);
-            });
-        }
-    }
-
-    private void updateItemImages(Item item, List<MultipartFile> images){
-        if(images != null && !images.isEmpty()) {
-            item.clearImageKeys();
-            images.forEach(file -> {
-                String key = fileStorageService.store(file);
-                item.addImageKey(key);
-            });
         }
     }
 }

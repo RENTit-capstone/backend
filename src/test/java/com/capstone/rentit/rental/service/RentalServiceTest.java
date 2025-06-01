@@ -1,8 +1,8 @@
 package com.capstone.rentit.rental.service;
 
+import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.exception.ItemNotFoundException;
 import com.capstone.rentit.item.status.ItemStatusEnum;
-import com.capstone.rentit.file.service.FileStorageService;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.event.RentalLockerAction;
@@ -26,8 +26,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -44,8 +42,8 @@ class RentalServiceTest {
     @Mock RentalRepository     rentalRepository;
     @Mock ItemRepository       itemRepository;
     @Mock FileStorageService   fileStorageService;
-    @Mock PaymentService paymentService;
-    @Mock NotificationService notificationService;
+    @Mock PaymentService       paymentService;
+    @Mock NotificationService  notificationService;
 
     @InjectMocks RentalService rentalService;
 
@@ -249,8 +247,8 @@ class RentalServiceTest {
                 .satisfies(dto -> {
                     assertThat(dto.getRentalId()).isEqualTo(123L);
                     assertThat(dto.getItemId()).isEqualTo(555L);
-                    assertThat(dto.getBalance()).isEqualTo(walletBalance); // DTO 필드명에 맞게 조정
-                    assertThat(dto.getFee()).isEqualTo(lockerFee);        // DTO 필드명에 맞게 조정
+                    assertThat(dto.getBalance()).isEqualTo(walletBalance);
+                    assertThat(dto.getFee()).isEqualTo(lockerFee);
                 });
     }
 
@@ -440,8 +438,6 @@ class RentalServiceTest {
     @DisplayName("returnToLocker: 대여 없으면 RentalNotFoundException")
     void return_notFound() {
         given(rentalRepository.findById(13L)).willReturn(Optional.empty());
-        MockMultipartFile file = new MockMultipartFile(
-                "f","f.jpg",MediaType.IMAGE_JPEG_VALUE,"x".getBytes());
         assertThatThrownBy(() -> rentalService.returnToLocker(13L,20L,1L, 5L))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
@@ -491,21 +487,22 @@ class RentalServiceTest {
                 .hasMessageContaining("물품 소유자가 아닙니다.");
     }
 
+    // ---- uploadReturnImage ----
+
     @Test
-    @DisplayName("대여 정보가 없으면 RentalNotFoundException")
+    @DisplayName("uploadReturnImage: 대여 정보가 없으면 RentalNotFoundException")
     void uploadReturnImage_notFound() {
         // given
         given(rentalRepository.findById(1L)).willReturn(Optional.empty());
-        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
 
         // when & then
-        assertThatThrownBy(() -> rentalService.uploadReturnImage(1L, 10L, file))
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(1L, 10L, "someKey"))
                 .isInstanceOf(RentalNotFoundException.class)
                 .hasMessageContaining("존재하지 않는 대여 정보입니다.");
     }
 
     @Test
-    @DisplayName("renterId 가 일치하지 않으면 RentalUnauthorizedException")
+    @DisplayName("uploadReturnImage: renterId 가 일치하지 않으면 RentalUnauthorizedException")
     void uploadReturnImage_unauthorized() {
         // given
         Rental rental = Rental.builder()
@@ -514,16 +511,15 @@ class RentalServiceTest {
                 .status(RentalStatusEnum.RETURNED_TO_LOCKER)
                 .build();
         given(rentalRepository.findById(2L)).willReturn(Optional.of(rental));
-        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
 
         // when & then
-        assertThatThrownBy(() -> rentalService.uploadReturnImage(2L, 99L, file))
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(2L, 99L, "someKey"))
                 .isInstanceOf(RentalUnauthorizedException.class)
                 .hasMessageContaining("대여자가 아닙니다.");
     }
 
     @Test
-    @DisplayName("상태가 RETURNED_TO_LOCKER 가 아니면 ItemNotReturnedException")
+    @DisplayName("uploadReturnImage: 상태가 RETURNED_TO_LOCKER 가 아니면 ItemNotReturnedException")
     void uploadReturnImage_wrongState() {
         // given
         Rental rental = Rental.builder()
@@ -532,16 +528,32 @@ class RentalServiceTest {
                 .status(RentalStatusEnum.PICKED_UP)  // 아직 RETURNED_TO_LOCKER 아님
                 .build();
         given(rentalRepository.findById(3L)).willReturn(Optional.of(rental));
-        MockMultipartFile file = new MockMultipartFile("returnImage", new byte[]{1,2,3});
 
         // when & then
-        assertThatThrownBy(() -> rentalService.uploadReturnImage(3L, 7L, file))
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(3L, 7L, "someKey"))
                 .isInstanceOf(ItemNotReturnedException.class)
                 .hasMessageContaining("반납된 물품이 아닙니다.");
     }
 
     @Test
-    @DisplayName("정상 흐름: 파일 저장 후 Rental.uploadReturnImageUrl 호출")
+    @DisplayName("uploadReturnImage: 사진 키가 없으면 ReturnImageMissingException")
+    void uploadReturnImage_missingKey() {
+        // given
+        Rental rental = Rental.builder()
+                .rentalId(5L)
+                .renterId(10L)
+                .status(RentalStatusEnum.RETURNED_TO_LOCKER)
+                .build();
+        given(rentalRepository.findById(5L)).willReturn(Optional.of(rental));
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.uploadReturnImage(5L, 10L, ""))
+                .isInstanceOf(ReturnImageMissingException.class)
+                .hasMessageContaining("물품 반납 사진이 없습니다.");
+    }
+
+    @Test
+    @DisplayName("uploadReturnImage: 정상 흐름시 Rental.uploadReturnImageUrl 호출")
     void uploadReturnImage_success() {
         // given
         Rental rental = Mockito.spy(Rental.builder()
@@ -551,19 +563,12 @@ class RentalServiceTest {
                 .build());
         given(rentalRepository.findById(4L)).willReturn(Optional.of(rental));
 
-        MockMultipartFile file = new MockMultipartFile(
-                "returnImage",
-                "receipt.jpg",
-                "image/jpeg",
-                "dummy".getBytes()
-        );
-        given(fileStorageService.store(file)).willReturn("stored/object/key.jpg");
+        String returnKey = "stored/object/key.jpg";
 
         // when
-        rentalService.uploadReturnImage(4L, 8L, file);
+        rentalService.uploadReturnImage(4L, 8L, returnKey);
 
         // then
-        then(fileStorageService).should().store(file);
-        then(rental).should().uploadReturnImageUrl("stored/object/key.jpg");
+        then(rental).should().uploadReturnImageUrl(returnKey);
     }
 }

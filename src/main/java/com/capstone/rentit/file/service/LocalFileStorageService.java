@@ -1,6 +1,7 @@
 package com.capstone.rentit.file.service;
 
 import com.capstone.rentit.file.FileStorageException;
+import com.capstone.rentit.file.dto.UploadPresignedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -50,5 +51,10 @@ public class LocalFileStorageService implements FileStorageService {
     public String generatePresignedUrl(String objectKey) {
         // 로컬 서비스이므로 presigned URL 개념이 없으면 그냥 파일 경로를 리턴하거나 빈 문자열
         return "";
+    }
+
+    @Override
+    public UploadPresignedResponse generateUploadPresignedUrl(String originalFilename, String contentType) {
+        return null;
     }
 }

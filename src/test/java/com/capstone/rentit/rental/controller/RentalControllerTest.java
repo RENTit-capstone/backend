@@ -406,7 +406,7 @@ class RentalControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("POST /api/v1/rentals/{rentalId}/return-image — 반납 이미지 업로드 성공")
+    @DisplayName("POST /api/v1/rentals/{rentalId}/return-image — 반납 이미지 키 업로드 성공")
     void uploadReturnImage_success() throws Exception {
         // given
         long rentalId = 42L;
@@ -414,20 +414,14 @@ class RentalControllerTest {
         MemberDetails md = new MemberDetails(student);
         Authentication auth = new UsernamePasswordAuthenticationToken(md, null, md.getAuthorities());
 
-        //when, then
-        MockMultipartFile returnImage = new MockMultipartFile(
-                "returnImage",
-                "photo.png",
-                MediaType.IMAGE_PNG_VALUE,
-                "dummy-bytes".getBytes()
-        );
+        String returnImageKey = "stored/object/key.jpg";
 
         willDoNothing().given(rentalService)
-                .uploadReturnImage(eq(rentalId), anyLong(), any());
+                .uploadReturnImage(eq(rentalId), eq(student.getMemberId()), eq(returnImageKey));
 
         // when & then
         mockMvc.perform(multipart("/api/v1/rentals/{rentalId}/return-image", rentalId)
-                        .file(returnImage)
+                        .queryParam("returnImageKey", returnImageKey)
                         .with(csrf())
                         .with(authentication(auth))
                 )
@@ -441,16 +435,16 @@ class RentalControllerTest {
                         pathParameters(
                                 parameterWithName("rentalId").description("대여 정보 ID")
                         ),
-                        requestParts(
-                                partWithName("returnImage").description("업로드할 반납 이미지 파일")
+                        queryParameters(
+                                parameterWithName("returnImageKey").description("반납 이미지 object key")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("요청 성공 여부"),
                                 fieldWithPath("data").type(JsonFieldType.NULL).description("응답 데이터 (항상 null)"),
-                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공시 빈 문자열 실패시 에러 메시지")
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열, 실패 시 에러 메시지")
                         )
                 ));
 
-        verify(rentalService).uploadReturnImage(eq(rentalId), anyLong(), any());
+        verify(rentalService).uploadReturnImage(eq(rentalId), eq(student.getMemberId()), eq(returnImageKey));
     }
 }

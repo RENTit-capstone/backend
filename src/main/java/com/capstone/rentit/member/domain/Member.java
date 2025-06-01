@@ -76,17 +76,13 @@ public abstract class Member {
 
     public abstract void update(MemberUpdateForm form);
 
-    public void updateEntity(String nickname) {
-        if (nickname != null) {
+    public void updateEntity(String name, String nickname, String imageKey) {
+        if (name != null)
             this.name = nickname;
-        }
-
-    }
-
-    public void updateProfile(String profileImg){
-        if (profileImg != null && !profileImg.isEmpty()) {
-            this.profileImg = profileImg;
-        }
+        if (nickname != null)
+            this.name = nickname;
+        if (imageKey != null) 
+            this.profileImg = imageKey;
     }
 
     public static Member createEntity(MemberCreateForm form, String encodedPassword) {

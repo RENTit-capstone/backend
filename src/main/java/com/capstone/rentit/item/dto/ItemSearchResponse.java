@@ -18,6 +18,7 @@ public class ItemSearchResponse {
     private Long itemId;
     private MemberSearchResponse owner;
     private String name;
+    private List<String> imageKeys;
     private List<String> imageUrls;
     private String description;
     private String damagedDescription;
@@ -35,6 +36,7 @@ public class ItemSearchResponse {
                 .itemId(item.getItemId())
                 .owner(MemberSearchResponse.fromEntity(item.getOwner(), ownerProfileImg))
                 .name(item.getName())
+                .imageKeys(item.getImageKeys())
                 .imageUrls(imageUrls)
                 .description(item.getDescription())
                 .damagedDescription(item.getDamagedDescription())
