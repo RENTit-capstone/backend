@@ -1,9 +1,9 @@
 package com.capstone.rentit.item.repository;
 
-import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.config.QuerydslConfig;
 import com.capstone.rentit.item.domain.Item;
 import com.capstone.rentit.item.dto.ItemSearchForm;
+import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.domain.Company;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
@@ -153,7 +153,7 @@ class CustomItemRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("여러 역할(STUDENT, COMPANY, STUDENT_COUNCIL)로 검색 시 해당 역할 소유 아이템만 조회")
+    @DisplayName("4. 여러 역할(STUDENT, COMPANY, STUDENT_COUNCIL)로 검색 시 해당 역할 소유 아이템만 조회")
     void search_ByStudentCompanyAndCouncilRoles_ReturnsAllTwo() {
         // given: STUDENT, COMPANY, STUDENT_COUNCIL 멤버 저장
         Student student = Student.builder()
@@ -181,15 +181,15 @@ class CustomItemRepositoryImplTest {
         Item itemByStudent = saveItem("STUDENT_ITEM", "", ItemStatusEnum.AVAILABLE,
                 now.minusDays(3), now.plusDays(1),
                 200, now.minusDays(3), student.getMemberId());
-        Item itemByCompany = saveItem("COUNCIL_ITEM", "", ItemStatusEnum.AVAILABLE,
+        Item itemByCompany = saveItem("COMPANY_ITEM", "", ItemStatusEnum.AVAILABLE,
                 now.minusDays(3), now.plusDays(1),
                 200, now.minusDays(3), company.getMemberId());
-        Item itemByCouncil = saveItem("COMPANY_ITEM", "", ItemStatusEnum.AVAILABLE,
+        Item itemByCouncil = saveItem("COUNCIL_ITEM", "", ItemStatusEnum.AVAILABLE,
                 now.minusDays(3), now.plusDays(1),
                 200, now.minusDays(3), council.getMemberId());
         em.flush();
 
-        // when: STUDENT, COMPANY, STUDENT_COUNCIL 세 역할로 검색
+        // when: STUDENT, COMPANY 역할로 검색 (STUDENT_COUNCIL 제외)
         ItemSearchForm form = new ItemSearchForm();
         form.setOwnerRoles(Arrays.asList(
                 MemberRoleEnum.STUDENT,
@@ -206,6 +206,47 @@ class CustomItemRepositoryImplTest {
                         student.getMemberId(),
                         company.getMemberId()
                 );
+    }
+
+    @Test
+    @DisplayName("5. university 필터 적용 시 해당 학교 학생 소유 아이템만 조회")
+    void whenUniversityFilter_thenReturnOnlyMatchingStudents() {
+        // given: 두 명의 학생, 각각 다른 university
+        Student s1 = Student.builder()
+                .email("stuA@example.com").password("pwd").name("studentA")
+                .role(MemberRoleEnum.STUDENT).locked(false).createdAt(LocalDate.now())
+                .studentId("SAAA").university("UnivA").nickname("nickA").phone("010-1111-0000")
+                .build();
+        s1 = (Student) memberRepository.save(s1);
+
+        Student s2 = Student.builder()
+                .email("stuB@example.com").password("pwd").name("studentB")
+                .role(MemberRoleEnum.STUDENT).locked(false).createdAt(LocalDate.now())
+                .studentId("SBBB").university("UnivB").nickname("nickB").phone("010-2222-0000")
+                .build();
+        s2 = (Student) memberRepository.save(s2);
+
+        // 각 학생 소유 아이템 생성
+        LocalDateTime now = LocalDateTime.now();
+        Item itemA1 = saveItem("ItemA1", "descA1", ItemStatusEnum.AVAILABLE,
+                now.minusDays(5), now.plusDays(5),
+                150, now.minusDays(4), s1.getMemberId());
+        Item itemB1 = saveItem("ItemB1", "descB1", ItemStatusEnum.AVAILABLE,
+                now.minusDays(5), now.plusDays(5),
+                150, now.minusDays(3), s2.getMemberId());
+        em.flush();
+
+        // when: university = "UnivA" 로 필터링
+        ItemSearchForm form = new ItemSearchForm();
+        form.setUniversity("UnivA");
+
+        Page<Item> result = itemRepository.search(form, Pageable.unpaged());
+
+        // then: s1(“UnivA”) 소유 아이템만 조회
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent())
+                .extracting(Item::getOwnerId)
+                .containsExactly(s1.getMemberId());
     }
 
     // — 헬퍼 메서드: Item 생성 & persist —

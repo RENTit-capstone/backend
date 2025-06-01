@@ -12,6 +12,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(DeviceLockerId.class)          // 복합키 (deviceId, lockerId)
+@Table(
+        name = "locker",
+        indexes = {
+                @Index(name = "idx_locker_device_available", columnList = "device_id, available")
+        }
+)
 public class Locker {
 
     @Id

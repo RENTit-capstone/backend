@@ -26,4 +26,6 @@ public class ItemSearchForm {
 
     private ItemStatusEnum status;
     private List<MemberRoleEnum> ownerRoles;
+
+    private String university;
 }

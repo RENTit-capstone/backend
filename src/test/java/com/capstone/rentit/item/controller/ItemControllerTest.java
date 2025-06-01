@@ -179,7 +179,8 @@ class ItemControllerTest {
                         .queryParam("page", "0")
                         .queryParam("size", "20")
                         .queryParam("sort", "createdAt,desc")
-                        .queryParam("ownerRoles", "COMPANY", "COUNCIL"))
+                        .queryParam("ownerRoles", "COMPANY", "COUNCIL")
+                        .queryParam("university", "아주대학교"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.content.length()").value(2))
@@ -193,6 +194,7 @@ class ItemControllerTest {
                                 parameterWithName("maxPrice").optional().description("최대 대여 가격"),
                                 parameterWithName("status").optional().description("물품 상태 필터 (예: AVAILABLE, OUT)"),
                                 parameterWithName("ownerRoles").optional().description("소유자 역할 필터 (예: STUDENT, COMPANY, COUNCIL)"),
+                                parameterWithName("university").optional().description("대학교 필터"),
                                 parameterWithName("page").description("페이지 번호 (0부터 시작)"),
                                 parameterWithName("size").description("페이지 크기"),
                                 parameterWithName("sort").description("정렬 기준 (예: createdAt,desc)")
@@ -278,6 +280,7 @@ class ItemControllerTest {
                                 fieldWithPath("data.returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
                                 fieldWithPath("data.startDate").type(JsonFieldType.STRING).description("시작일"),
                                 fieldWithPath("data.endDate").type(JsonFieldType.STRING).description("종료일"),
+                                fieldWithPath("data.rentalEndAt").type(JsonFieldType.NULL).description("status가 OUT인 경우 대여 마감일 표시"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("등록일"),
                                 fieldWithPath("data.updatedAt").type(JsonFieldType.STRING).description("수정일"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")

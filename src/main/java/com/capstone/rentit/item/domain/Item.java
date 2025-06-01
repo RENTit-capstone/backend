@@ -16,6 +16,16 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "item",
+        indexes = {
+                @Index(name = "idx_item_owner", columnList = "owner_id"),
+                @Index(name = "idx_item_status", columnList = "status"),
+                @Index(name = "idx_item_status_price", columnList = "status, price"),
+                @Index(name = "idx_item_start_date", columnList = "start_date"),
+                @Index(name = "idx_item_end_date", columnList = "end_date")
+        }
+)
 public class Item {
 
     @Id

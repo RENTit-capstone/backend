@@ -16,10 +16,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(indexes = {
-        @Index(name = "idx_inquiry_type_processed_created",
-                columnList = "type, processed, createdAt DESC")
-})
+@Table(
+        name = "inquiry",
+        indexes = {
+                @Index(name = "idx_inquiry_type_processed_createdAt", columnList = "type, processed, createdAt"),
+                @Index(name = "idx_inquiry_createdAt", columnList = "createdAt"),
+                @Index(name = "idx_inquiry_memberId", columnList = "memberId"),
+                @Index(name = "idx_inquiry_targetMemberId", columnList = "targetMemberId")
+        }
+)
 public class Inquiry {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

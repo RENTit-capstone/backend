@@ -15,6 +15,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table(
+        name = "rental",
+        indexes = {
+                @Index(name = "idx_rental_item", columnList = "item_id"),
+                @Index(name = "idx_rental_status", columnList = "status"),
+                @Index(name = "idx_rental_item_status", columnList = "item_id, status")
+        }
+)
 public class Rental {
 
     @Id

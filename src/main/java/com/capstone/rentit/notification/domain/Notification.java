@@ -15,6 +15,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "notification",
+        indexes = {
+                @Index(name = "idx_notification_target", columnList = "target_id"),
+                @Index(name = "idx_notification_target_createdAt", columnList = "target_id, createdAt")
+        }
+)
 public class Notification {
 
     @Id
