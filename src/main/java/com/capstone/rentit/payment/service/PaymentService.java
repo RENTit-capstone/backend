@@ -173,7 +173,7 @@ public class PaymentService {
     }
 
     public Payment findPaymentByRentalId(Long rentalId){
-        return paymentRepository.findByRentalId(rentalId)
+        return paymentRepository.findByPaymentRentalId(rentalId)
                 .orElseThrow(() ->
                         new PaymentNotFoundException("해당 결제 내역을 찾을 수 없습니다."));
     }
