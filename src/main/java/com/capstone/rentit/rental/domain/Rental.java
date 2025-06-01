@@ -144,8 +144,8 @@ public class Rental {
     }
 
     /** 반납 사진 URL 설정 */
-    public void uploadReturnImageUrl(String url) {
-        this.returnImageUrl = url;
+    public void uploadReturnImageUrl(String returnImageKey) {
+        this.returnImageUrl = returnImageKey;
     }
 
     static public Rental create(RentalRequestForm form){

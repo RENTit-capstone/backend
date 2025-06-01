@@ -167,14 +167,13 @@ public class RentalService {
 //        notificationService.notifyItemReturned(r);
     }
 
-    public void uploadReturnImage(Long rentalId, Long renterId, MultipartFile returnImage) {
+    public void uploadReturnImage(Long rentalId, Long renterId, String returnImageKey) {
         Rental r = findRental(rentalId);
         assertRenter(r, renterId);
         assertReturnState(r);
 
-        assertReturnImage(returnImage);
-        String objectKey = fileStorageService.store(returnImage);
-        r.uploadReturnImageUrl(objectKey);
+        assertReturnImage(returnImageKey);
+        r.uploadReturnImageUrl(returnImageKey);
     }
 
     /** 10) 소유자가 사물함에서 물건을 회수할 때 (대여 완료) */
@@ -226,8 +225,8 @@ public class RentalService {
         }
     }
 
-    private void assertReturnImage(MultipartFile img) {
-        if (img == null || img.isEmpty()) {
+    private void assertReturnImage(String returnImageKey) {
+        if (returnImageKey == null || returnImageKey.isEmpty()) {
             throw new ReturnImageMissingException("물품 반납 사진이 없습니다.");
         }
     }

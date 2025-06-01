@@ -92,8 +92,8 @@ public class RentalController {
     public CommonResponse<Void> uploadReturnImage(
             @Login MemberDto memberDto,
             @PathVariable Long rentalId,
-            @RequestPart("returnImage") MultipartFile returnImage) {
-        rentalService.uploadReturnImage(rentalId, memberDto.getMemberId(), returnImage);
+            @RequestParam("returnImageKey") String returnImageKey) {
+        rentalService.uploadReturnImage(rentalId, memberDto.getMemberId(), returnImageKey);
         return CommonResponse.success(null);
     }
 
