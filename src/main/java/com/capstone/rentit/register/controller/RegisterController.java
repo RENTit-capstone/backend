@@ -20,6 +20,12 @@ public class RegisterController {
     private final MemberService memberService;
     private final UnivCertService univCertService;
 
+    @PostMapping("/auth/signup/group")
+    public CommonResponse<Long> registerGroupMember(@RequestBody MemberCreateForm form) {
+        Long memberId = memberService.createMember(form);
+        return CommonResponse.success(memberId);
+    }
+
     @PostMapping("/auth/signup")
     public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
         memberService.ensureEmailNotRegistered(form.getEmail());
