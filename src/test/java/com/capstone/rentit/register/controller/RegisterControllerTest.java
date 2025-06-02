@@ -6,9 +6,7 @@ import com.capstone.rentit.login.filter.JwtAuthenticationFilter;
 import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.domain.Student;
-import com.capstone.rentit.member.dto.MemberCreateForm;
-import com.capstone.rentit.member.dto.MemberDto;
-import com.capstone.rentit.member.dto.StudentCreateForm;
+import com.capstone.rentit.member.dto.*;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
 import com.capstone.rentit.member.service.MemberService;
 import com.capstone.rentit.member.status.GenderEnum;
@@ -132,81 +130,97 @@ class RegisterControllerTest {
                 ));
     }
 
-//    @DisplayName("이미 등록된 이메일로 가입 실패")
-//    @Test
-//    void register_member_email_already_exists() throws Exception {
-//        // given
-//        StudentCreateForm form = new StudentCreateForm();
-//        form.setName("Test User");
-//        form.setEmail("test@example.com");
-//        form.setPassword("password");
-//        form.setNickname("tester");
-//        form.setUniversity("Test University");
-//        form.setStudentId("12345678");
-//        form.setGender(GenderEnum.MEN);
-//        form.setPhone("010-1234-5678");
-//
-//        Student existing = Student.builder()
-//                .email("test@example.com")
-//                .name("Test User")
-//                .password("encoded")
-//                .nickname("tester")
-//                .studentId("12345678")
-//                .university("Test University")
-//                .gender(GenderEnum.MEN)
-//                .phone("010-1234-5678")
-//                .createdAt(LocalDate.now())
-//                .locked(false)
-//                .build();
-//
-//        when(memberService.getMemberByEmail("test@example.com")).thenReturn(MemberDto.fromEntity(existing));
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup")
-//                .with(csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").value(nullValue()))
-//                .andExpect(jsonPath("$.message").value("이미 등록된 이메일입니다."));
-//    }
+    @DisplayName("회사 가입 성공")
+    @Test
+    void register_company_member_success() throws Exception {
+        // given
+        CompanyCreateForm form = new CompanyCreateForm();
+        form.setEmail("new_company@example.com");
+        form.setPassword("password");
+        form.setName("test company");
+        form.setDescription("company description");
+        form.setCompanyName("company name");
+        form.setIndustry("IT");
+        form.setContactEmail("new_company@contact.com");
+        form.setRegistrationNumber("000010100");
+        form.setProfileImg("img");
 
-//    @DisplayName("미인증 이메일로 가입 실패")
-//    @Test
-//    void register_member_email_not_certified() throws Exception {
-//        // given
-//        StudentCreateForm form = new StudentCreateForm();
-//        form.setName("Test User");
-//        form.setEmail("test@ajou.ac.kr");
-//        form.setPassword("password");
-//        form.setNickname("tester");
-//        form.setUniversity("Test University");
-//        form.setStudentId("12345678");
-//        form.setGender(GenderEnum.MEN);
-//        form.setPhone("010-1234-5678");
-//
-//        when(memberService.getMemberByEmail("test@ajou.ac.kr"))
-//                .thenThrow(new MemberNotFoundException("존재하지 않는 사용자 이메일 입니다."));
-//        when(univCertService.isCertified("test@ajou.ac.kr")).thenReturn(false);
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").value(nullValue()))
-//                .andExpect(jsonPath("$.message").value("미인증 이메일입니다."));
-//    }
+        when(memberService.createMember(any())).thenReturn(62L);
+
+        // when
+        var result = mockMvc.perform(post("/api/v1/auth/signup/group")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(form)));
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").value(62L))
+                .andExpect(jsonPath("$.message").value(""))
+                .andDo(document("register-company-success",
+                        requestFields(
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("회사 이메일"),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("회사 비밀번호"),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("타인에게 보일 회사 이름"),
+                                fieldWithPath("memberType").optional().type(JsonFieldType.STRING).description("사용자 타입(COMPANY)"),
+                                fieldWithPath("description").type(JsonFieldType.STRING).description("회사 설명"),
+                                fieldWithPath("companyName").type(JsonFieldType.STRING).description("회사 이름"),
+                                fieldWithPath("industry").type(JsonFieldType.STRING).description("회사 분야"),
+                                fieldWithPath("contactEmail").type(JsonFieldType.STRING).description("회사 연락처"),
+                                fieldWithPath("registrationNumber").type(JsonFieldType.STRING).description("회사 사업자 번호"),
+                                fieldWithPath("profileImg").optional().type(JsonFieldType.STRING).description("프로필 이미지 (선택)")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 회원의 ID, 실패 시 null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                        )
+                ));
+    }
+
+    @DisplayName("학생회 가입 성공")
+    @Test
+    void register_council_success() throws Exception {
+        // given
+        StudentCouncilMemberCreateForm form = new StudentCouncilMemberCreateForm();
+        form.setEmail("new_council@example.com");
+        form.setPassword("password");
+        form.setName("council name");
+        form.setUniversity("university_name");
+        form.setDescription("council description");
+        form.setProfileImg("img");
+
+        when(memberService.createMember(any())).thenReturn(72L);
+
+        // when
+        var result = mockMvc.perform(post("/api/v1/auth/signup/group")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(form)));
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").value(72L))
+                .andExpect(jsonPath("$.message").value(""))
+                .andDo(document("register-council-success",
+                        requestFields(
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("학생회 이메일"),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("학생회 비밀번호"),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("학생회 이름"),
+                                fieldWithPath("memberType").optional().type(JsonFieldType.STRING).description("사용자 타입(COUNCIL)"),
+                                fieldWithPath("university").type(JsonFieldType.STRING).description("학생회 소속 대학"),
+                                fieldWithPath("description").type(JsonFieldType.STRING).description("학생회 설명"),
+                                fieldWithPath("profileImg").optional().type(JsonFieldType.STRING).description("프로필 이미지 (선택)")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 회원의 ID, 실패 시 null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("빈 문자열")
+                        )
+                ));
+    }
 
     @DisplayName("verify-email 성공")
     @Test
@@ -243,58 +257,6 @@ class RegisterControllerTest {
                         )
                 ));
     }
-
-//    @DisplayName("verify-email 실패: 유효하지 않은 대학명")
-//    @Test
-//    void verify_email_invalid_university() throws Exception {
-//        // given
-//        RegisterVerifyRequestForm form = new RegisterVerifyRequestForm();
-//        form.setEmail("user@example.com");
-//        form.setUniversity("Invalid University");
-//
-//        when(univCertService.checkUniversity("Invalid University")).thenReturn(false);
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup/verify-email")
-//                .with(csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").isEmpty())
-//                .andExpect(jsonPath("$.message")
-//                        .value("유효하지 않은 대학명 또는 상위 150개 대학에 포함되지 않습니다."));
-//    }
-
-//    @DisplayName("verify-email 실패: 코드 발송 실패")
-//    @Test
-//    void verify_email_certify_fails() throws Exception {
-//        // given
-//        RegisterVerifyRequestForm form = new RegisterVerifyRequestForm();
-//        form.setEmail("user@example.com");
-//        form.setUniversity("Test University");
-//
-//        when(univCertService.checkUniversity("Test University")).thenReturn(true);
-//        when(univCertService.certify("user@example.com", "Test University", false)).thenReturn(false);
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup/verify-email")
-//                .with(csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").isEmpty())
-//                .andExpect(jsonPath("$.message").value("인증 코드 발송에 실패했습니다."));
-//    }
 
     @DisplayName("verify-code 성공")
     @Test
@@ -333,58 +295,4 @@ class RegisterControllerTest {
                 ));
     }
 
-//    @DisplayName("verify-code 실패: 유효하지 않은 대학명")
-//    @Test
-//    void verify_code_invalid_university() throws Exception {
-//        // given
-//        RegisterVerifyCodeForm form = new RegisterVerifyCodeForm();
-//        form.setEmail("user@example.com");
-//        form.setUniversity("Invalid University");
-//        form.setCode(123456);
-//
-//        when(univCertService.checkUniversity("Invalid University")).thenReturn(false);
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup/verify-code")
-//                .with(csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").isEmpty())
-//                .andExpect(jsonPath("$.message")
-//                        .value("유효하지 않은 대학명 또는 상위 150개 대학에 포함되지 않습니다."));
-//    }
-
-//    @DisplayName("verify-code 실패: 코드 검증 실패")
-//    @Test
-//    void verifyCode_certifyCodeFails() throws Exception {
-//        // given
-//        RegisterVerifyCodeForm form = new RegisterVerifyCodeForm();
-//        form.setEmail("user@example.com");
-//        form.setUniversity("Test University");
-//        form.setCode(123456);
-//
-//        when(univCertService.checkUniversity("Test University")).thenReturn(true);
-//        when(univCertService.certifyCode("user@example.com", "Test University", 123456))
-//                .thenReturn(false);
-//
-//        String payload = objectMapper.writeValueAsString(form);
-//
-//        // when
-//        var result = mockMvc.perform(post("/api/v1/auth/signup/verify-code")
-//                .with(csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(payload));
-//
-//        // then
-//        result.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(false))
-//                .andExpect(jsonPath("$.data").isEmpty())
-//                .andExpect(jsonPath("$.message").value("잘못된 인증 코드입니다."));
-//    }
 }
