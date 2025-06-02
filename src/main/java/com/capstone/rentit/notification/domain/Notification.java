@@ -29,6 +29,7 @@ public class Notification {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_id")
     private Member target;                // 알림 대상 회원
 
     @Enumerated(EnumType.STRING)
