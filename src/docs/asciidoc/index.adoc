@@ -45,6 +45,36 @@ include::{snippets}/register-member-success/response-fields.adoc[]
 ==== HTTP 응답
 include::{snippets}/register-member-success/http-response.adoc[]
 
+=== 기업 가입
+POST /api/v1/auth/signup/group
+
+==== 요청 필드
+include::{snippets}/register-company-success/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/register-company-success/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/register-company-success/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/register-company-success/http-response.adoc[]
+
+=== 학생회 가입
+POST /api/v1/auth/signup/group
+
+==== 요청 필드
+include::{snippets}/register-council-success/request-fields.adoc[]
+
+==== HTTP 요청
+include::{snippets}/register-council-success/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/register-council-success/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/register-council-success/http-response.adoc[]
+
 === 이메일 인증 요청
 POST /api/v1/auth/signup/verify-email
 

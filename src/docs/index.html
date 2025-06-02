@@ -458,6 +458,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_인증_api">인증 API</a>
 <ul class="sectlevel2">
 <li><a href="#_회원_가입">회원 가입</a></li>
+<li><a href="#_기업_가입">기업 가입</a></li>
+<li><a href="#_학생회_가입">학생회 가입</a></li>
 <li><a href="#_이메일_인증_요청">이메일 인증 요청</a></li>
 <li><a href="#_인증_코드_검증">인증 코드 검증</a></li>
 <li><a href="#_로그인">로그인</a></li>
@@ -721,7 +723,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=JW-3chpVZZMyMPlZ1SLvBoRh95GQ2wuY0K7UjmxE5yD1QnhOE1_TQXxhAfEfUspgsA_bNudZ2qn0vT214Zu2vg130UPEd014 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=v4EtzxpyMjdMCav4i1fpJOcmGiX9K749gGtUNVtO628rvmvj2-UerHgWUVVhap3Lv3rdHYEWNxycG4gQ5FxjDGJ331lIigjT HTTP/1.1
 Content-Type: application/json
 Content-Length: 190
 Host: localhost:8080
@@ -781,12 +783,271 @@ Content-Length: 39
 </div>
 </div>
 <div class="sect2">
+<h3 id="_기업_가입"><a class="link" href="#_기업_가입">기업 가입</a></h3>
+<div class="paragraph">
+<p>POST /api/v1/auth/signup/group</p>
+</div>
+<div class="sect3">
+<h4 id="_요청_필드_3"><a class="link" href="#_요청_필드_3">요청 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 이메일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 비밀번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타인에게 보일 회사 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>memberType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용자 타입(COMPANY)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>companyName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>industry</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 분야</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>contactEmail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 연락처</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>registrationNumber</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">회사 사업자 번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>profileImg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">프로필 이미지 (선택)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=zwV1u6tGc0IhFw0IO89Qh00UeIx1PKx5ocOpnfZ6zKv7eUx5_zxDgpJ1ESMMc2hqC-Jk43wiVbVFWJ9UwKCeqZdL9JnPT3kf HTTP/1.1
+Content-Type: application/json
+Content-Length: 276
+Host: localhost:8080
+
+{"memberType":"COMPANY","email":"new_company@example.com","password":"password","name":"test company","profileImg":"img","companyName":"company name","registrationNumber":"000010100","industry":"IT","contactEmail":"new_company@contact.com","description":"company description"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_3"><a class="link" href="#_응답_필드_3">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">생성된 회원의 ID, 실패 시 null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_2"><a class="link" href="#_http_응답_2">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Content-Length: 39
+
+{"success":true,"data":62,"message":""}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_학생회_가입"><a class="link" href="#_학생회_가입">학생회 가입</a></h3>
+<div class="paragraph">
+<p>POST /api/v1/auth/signup/group</p>
+</div>
+<div class="sect3">
+<h4 id="_요청_필드_4"><a class="link" href="#_요청_필드_4">요청 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학생회 이메일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학생회 비밀번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학생회 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>memberType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용자 타입(COUNCIL)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학생회 소속 대학</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">학생회 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>profileImg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">프로필 이미지 (선택)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=xoEdiIqO6Qgse1uf8fXkf-5u1m0LuGtGfd7AeL7rwh1zRnQZouR4ubi32GoBS2mpk9jQHdkI-wxpiV5rRLvwHIrYpnlHdhIo HTTP/1.1
+Content-Type: application/json
+Content-Length: 188
+Host: localhost:8080
+
+{"memberType":"COUNCIL","email":"new_council@example.com","password":"password","name":"council name","profileImg":"img","university":"university_name","description":"council description"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_4"><a class="link" href="#_응답_필드_4">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API 호출 성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">생성된 회원의 ID, 실패 시 null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">빈 문자열</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_3"><a class="link" href="#_http_응답_3">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Content-Length: 39
+
+{"success":true,"data":72,"message":""}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_이메일_인증_요청"><a class="link" href="#_이메일_인증_요청">이메일 인증 요청</a></h3>
 <div class="paragraph">
 <p>POST /api/v1/auth/signup/verify-email</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_3"><a class="link" href="#_요청_필드_3">요청 필드</a></h4>
+<h4 id="_요청_필드_5"><a class="link" href="#_요청_필드_5">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -815,10 +1076,10 @@ Content-Length: 39
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
+<h4 id="_http_요청_4"><a class="link" href="#_http_요청_4">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=rWWozdUTH8b07AqbJXdm5GmT6my1P9AzjoBFeog5RkS4O-eOzlCc-7RxKfbZ2TqtRFpS0l2hxw2BDOgeuLchTLAKdHyJCNW_ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=UjGKqdxO12u_K5lbvXy-cLD9ri7OC83AkKCDATkvqNyouOFtZwK_mOl441OSGKk_2VGKEYmegxf9afztp5i2Yl1Ly7qaj4NY HTTP/1.1
 Content-Type: application/json
 Content-Length: 38
 Host: localhost:8080
@@ -828,7 +1089,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_3"><a class="link" href="#_응답_필드_3">응답 필드</a></h4>
+<h4 id="_응답_필드_5"><a class="link" href="#_응답_필드_5">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -862,7 +1123,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_2"><a class="link" href="#_http_응답_2">HTTP 응답</a></h4>
+<h4 id="_http_응답_4"><a class="link" href="#_http_응답_4">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -883,7 +1144,7 @@ Content-Length: 95
 <p>POST /api/v1/auth/signup/verify-code</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_4"><a class="link" href="#_요청_필드_4">요청 필드</a></h4>
+<h4 id="_요청_필드_6"><a class="link" href="#_요청_필드_6">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -917,10 +1178,10 @@ Content-Length: 95
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
+<h4 id="_http_요청_5"><a class="link" href="#_http_요청_5">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=oa1iZ33Ke3N5Gggxf2lB2POAHhdmGQyC_BSf-lHs3qFMdgukmZ0GVB-uGUpULToGSER17JC0M3ZQfG2vzneoyDLf65R1QmrG HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=yjsHgKRf2pxrqdGMAhEwJBzlwPh1qjd8wTqGUvoRrZeXtsw-_gw-5Z097_5GmObpNzwERn_U7ZlAn1ZR8VzkZcMmm_X0hKoN HTTP/1.1
 Content-Type: application/json
 Content-Length: 49
 Host: localhost:8080
@@ -930,7 +1191,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_4"><a class="link" href="#_응답_필드_4">응답 필드</a></h4>
+<h4 id="_응답_필드_6"><a class="link" href="#_응답_필드_6">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -964,7 +1225,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_3"><a class="link" href="#_http_응답_3">HTTP 응답</a></h4>
+<h4 id="_http_응답_5"><a class="link" href="#_http_응답_5">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -985,7 +1246,7 @@ Content-Length: 41
 <p>POST /api/v1/auth/login</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_5"><a class="link" href="#_요청_필드_5">요청 필드</a></h4>
+<h4 id="_요청_필드_7"><a class="link" href="#_요청_필드_7">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1014,7 +1275,7 @@ Content-Length: 41
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_4"><a class="link" href="#_http_요청_4">HTTP 요청</a></h4>
+<h4 id="_http_요청_6"><a class="link" href="#_http_요청_6">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/login HTTP/1.1
@@ -1027,7 +1288,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_5"><a class="link" href="#_응답_필드_5">응답 필드</a></h4>
+<h4 id="_응답_필드_7"><a class="link" href="#_응답_필드_7">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1071,7 +1332,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_4"><a class="link" href="#_http_응답_4">HTTP 응답</a></h4>
+<h4 id="_http_응답_6"><a class="link" href="#_http_응답_6">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1092,7 +1353,7 @@ Content-Length: 111
 <p>POST /api/v1/auth/login/refresh</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_6"><a class="link" href="#_요청_필드_6">요청 필드</a></h4>
+<h4 id="_요청_필드_8"><a class="link" href="#_요청_필드_8">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1121,7 +1382,7 @@ Content-Length: 111
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_5"><a class="link" href="#_http_요청_5">HTTP 요청</a></h4>
+<h4 id="_http_요청_7"><a class="link" href="#_http_요청_7">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/login/refresh HTTP/1.1
@@ -1134,7 +1395,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_6"><a class="link" href="#_응답_필드_6">응답 필드</a></h4>
+<h4 id="_응답_필드_8"><a class="link" href="#_응답_필드_8">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1178,7 +1439,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_5"><a class="link" href="#_http_응답_5">HTTP 응답</a></h4>
+<h4 id="_http_응답_7"><a class="link" href="#_http_응답_7">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1204,7 +1465,7 @@ Content-Length: 107
 <p>GET /api/v1/admin/members</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_6"><a class="link" href="#_http_요청_6">HTTP 요청</a></h4>
+<h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/members HTTP/1.1
@@ -1214,7 +1475,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_7"><a class="link" href="#_응답_필드_7">응답 필드</a></h4>
+<h4 id="_응답_필드_9"><a class="link" href="#_응답_필드_9">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1304,7 +1565,7 @@ Host: localhost:8080</code></pre>
 <p>GET /api/v1/members/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_7"><a class="link" href="#_http_요청_7">HTTP 요청</a></h4>
+<h4 id="_http_요청_9"><a class="link" href="#_http_요청_9">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/members/1 HTTP/1.1
@@ -1314,7 +1575,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_8"><a class="link" href="#_응답_필드_8">응답 필드</a></h4>
+<h4 id="_응답_필드_10"><a class="link" href="#_응답_필드_10">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1404,7 +1665,7 @@ Host: localhost:8080</code></pre>
 <p>POST /api/v1/admin/members</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_7"><a class="link" href="#_요청_필드_7">요청 필드</a></h4>
+<h4 id="_요청_필드_9"><a class="link" href="#_요청_필드_9">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1473,10 +1734,10 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_8"><a class="link" href="#_http_요청_8">HTTP 요청</a></h4>
+<h4 id="_http_요청_10"><a class="link" href="#_http_요청_10">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=xTKqYt9nrdPM5P_GG-FHHEMjnuxolgHqP5JudHEiQebOxobqpAKcA-5elbbh3Mfzf8xzK3obs45f8mTHDaAMFhdAdtGv9rLY HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=wY-lEYCBYnhYZkrEx-tnlS2kqHt6SG6cm_jpt02GhsDcJ_k8oOrBILm5UUB1Uy_98sZT90udhUJMeVixqpuLjny14_fvEclZ HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
@@ -1486,7 +1747,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_9"><a class="link" href="#_응답_필드_9">응답 필드</a></h4>
+<h4 id="_응답_필드_11"><a class="link" href="#_응답_필드_11">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1520,7 +1781,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_6"><a class="link" href="#_http_응답_6">HTTP 응답</a></h4>
+<h4 id="_http_응답_8"><a class="link" href="#_http_응답_8">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1591,10 +1852,10 @@ Content-Length: 38
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_9"><a class="link" href="#_http_요청_9">HTTP 요청</a></h4>
+<h4 id="_http_요청_11"><a class="link" href="#_http_요청_11">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=QS9r29_s1FWFAr8oR3rqXvXamV3_2Ry_dU0eKh7sZ5UqODuvdRoIvemK4GSoYI9MdFfea8DotGSd732SECksSC-IVqwTAQ6c HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=aBiWsLPxBR28ETppXEuN653aXxBUb4dDJT_cFuRwqhcI8pwKXyikhovGPH-RJVgLOGa50qi5cnI1WLFuRw--cNZHyyVtl_g- HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 158
 Host: localhost:8080
@@ -1610,7 +1871,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_10"><a class="link" href="#_응답_필드_10">응답 필드</a></h4>
+<h4 id="_응답_필드_12"><a class="link" href="#_응답_필드_12">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1644,7 +1905,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_7"><a class="link" href="#_http_응답_7">HTTP 응답</a></h4>
+<h4 id="_http_응답_9"><a class="link" href="#_http_응답_9">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1675,7 +1936,7 @@ Content-Length: 61
 <p>DELETE /api/v1/admin/members/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_10"><a class="link" href="#_http_요청_10">HTTP 요청</a></h4>
+<h4 id="_http_요청_12"><a class="link" href="#_http_요청_12">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/v1/admin/members/1 HTTP/1.1
@@ -1685,7 +1946,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_11"><a class="link" href="#_응답_필드_11">응답 필드</a></h4>
+<h4 id="_응답_필드_13"><a class="link" href="#_응답_필드_13">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1725,7 +1986,7 @@ Host: localhost:8080</code></pre>
 <p>GET /api/v1/members/me</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_11"><a class="link" href="#_http_요청_11">HTTP 요청</a></h4>
+<h4 id="_http_요청_13"><a class="link" href="#_http_요청_13">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/members/me HTTP/1.1
@@ -1735,7 +1996,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_12"><a class="link" href="#_응답_필드_12">응답 필드</a></h4>
+<h4 id="_응답_필드_14"><a class="link" href="#_응답_필드_14">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1769,6 +2030,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.role</code></p></td>
@@ -2099,16 +2365,16 @@ Host: localhost:8080</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageKeys</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">교체할 object key 리스트</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">등록할 object key 리스트</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_12"><a class="link" href="#_http_요청_12">HTTP 요청</a></h4>
+<h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=rCIVW-KVgdZip6aRaetUH5BHAm-v8PsIGzUUCSVSaKTqfm-_yRMhYtOstuNPw5_wDMZgL6N-L1aax50lIwUlPh1rW5SOHFiP HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=TyPb-44meKjGiVwdn5QRSlqVmFoHnBIt9TBzPBfZX0NbPWlXLhvvn75HQZ7rv2R8_rklfm_wtTtlrHAAkQNACCO9ZydtC140 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 286
 Host: localhost:8080
@@ -2118,7 +2384,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_13"><a class="link" href="#_응답_필드_13">응답 필드</a></h4>
+<h4 id="_응답_필드_15"><a class="link" href="#_응답_필드_15">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2152,7 +2418,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_8"><a class="link" href="#_http_응답_8">HTTP 응답</a></h4>
+<h4 id="_http_응답_10"><a class="link" href="#_http_응답_10">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -2221,6 +2487,10 @@ Content-Length: 39
 <td class="tableblock halign-left valign-top"><p class="tableblock">소유자 역할 필터 (예: STUDENT, COMPANY, COUNCIL)</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대학교 필터</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">페이지 번호 (0부터 시작)</p></td>
 </tr>
@@ -2236,16 +2506,16 @@ Content-Length: 39
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_13"><a class="link" href="#_http_요청_13">HTTP 요청</a></h4>
+<h4 id="_http_요청_15"><a class="link" href="#_http_요청_15">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=%EA%B0%80%EB%82%98%EB%8B%A4&amp;startDate=2025-04-01T08:00:00&amp;endDate=2025-05-01T20:00:00&amp;minPrice=1000&amp;maxPrice=3000&amp;status=AVAILABLE&amp;page=0&amp;size=20&amp;sort=createdAt,desc&amp;ownerRoles=COMPANY&amp;ownerRoles=COUNCIL HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items?keyword=%EA%B0%80%EB%82%98%EB%8B%A4&amp;startDate=2025-04-01T08:00:00&amp;endDate=2025-05-01T20:00:00&amp;minPrice=1000&amp;maxPrice=3000&amp;status=AVAILABLE&amp;page=0&amp;size=20&amp;sort=createdAt,desc&amp;ownerRoles=COMPANY&amp;ownerRoles=COUNCIL&amp;university=%EC%95%84%EC%A3%BC%EB%8C%80%ED%95%99%EA%B5%90 HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_14"><a class="link" href="#_응답_필드_14">응답 필드</a></h4>
+<h4 id="_응답_필드_16"><a class="link" href="#_응답_필드_16">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2375,16 +2645,16 @@ Host: localhost:8080</code></pre>
 <p>GET /api/v1/items/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_14"><a class="link" href="#_http_요청_14">HTTP 요청</a></h4>
+<h4 id="_http_요청_16"><a class="link" href="#_http_요청_16">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=__Bnn2QX9XPEczIGaPed_EIylSQOUQ6iZCXFuYPYTTAFeRJJysNW-1Qlx0HpRANkCtqpnyMFuEU7aDiPVUamirC8fgk8T3F7 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=pXokuyyYt2bl2w61fEJThanPsUY9jJzqQzv_kxeSd4zjjP0BkkgQ3Uqt0QDIujnURG9ns53-nH8Mu6_HIQ_KqySnR7TU6M1g HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_15"><a class="link" href="#_응답_필드_15">응답 필드</a></h4>
+<h4 id="_응답_필드_17"><a class="link" href="#_응답_필드_17">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2485,6 +2755,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">종료일</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentalEndAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">status가 OUT인 경우 대여 마감일 표시</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.createdAt</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
@@ -2509,7 +2784,7 @@ Host: localhost:8080</code></pre>
 <p>PUT /api/v1/items/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_8"><a class="link" href="#_요청_필드_8">요청 필드</a></h4>
+<h4 id="_요청_필드_10"><a class="link" href="#_요청_필드_10">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2573,20 +2848,20 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_15"><a class="link" href="#_http_요청_15">HTTP 요청</a></h4>
+<h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=dJvfJCSKKjYIQ9rhGSnOuVUxm5ye4XHpcCI-bS28hOTq-_i-TaK7RUG4SQElcuODKQT6iWEJtv2p10PEQRUPXh2Ps4CMypuO HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=tTYPLw9LX-pbNAfDf02Tv3GJwPwh8O95aBZg7pnMDU_Y-4vz1A46TWl6O492ADTwHGCniki-7Z0UwI5UWi5Z3fj8byy9mLLA HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
 
-{"name":"Updated","description":"newDesc","damagedDescription":"newDamagedDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-06-01T17:05:18.7583256","endDate":"2025-06-03T17:05:18.7583256","imageKeys":null}</code></pre>
+{"name":"Updated","description":"newDesc","damagedDescription":"newDamagedDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-06-02T20:23:01.7004486","endDate":"2025-06-04T20:23:01.7004486","imageKeys":null}</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_16"><a class="link" href="#_응답_필드_16">응답 필드</a></h4>
+<h4 id="_응답_필드_18"><a class="link" href="#_응답_필드_18">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2620,7 +2895,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_9"><a class="link" href="#_http_응답_9">HTTP 응답</a></h4>
+<h4 id="_http_응답_11"><a class="link" href="#_http_응답_11">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -2647,7 +2922,7 @@ Content-Length: 41
 <p>DELETE /api/v1/items/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_16"><a class="link" href="#_http_요청_16">HTTP 요청</a></h4>
+<h4 id="_http_요청_18"><a class="link" href="#_http_요청_18">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/v1/items/9 HTTP/1.1
@@ -2655,12 +2930,12 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=jsS7qfO-8fNYVMy4WRJUd381THMuhyZjqMLEepkYz8j9-fr5vqbZm8GHksd1Y_uBbT9gFE1QYRId40BOyvf3GP96_fDKnM2f</code></pre>
+_csrf=SjdfcHWtb2OZz8XsiqXp84LVSFkQnMJ6Ek3rI1_a6BFs29ptcg5mFEOdCgW0qvKN6Ijdkre2ZWAp-vBXdi7eEmvrjSYK4-xa</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_17"><a class="link" href="#_응답_필드_17">응답 필드</a></h4>
+<h4 id="_응답_필드_19"><a class="link" href="#_응답_필드_19">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2722,7 +2997,7 @@ _csrf=jsS7qfO-8fNYVMy4WRJUd381THMuhyZjqMLEepkYz8j9-fr5vqbZm8GHksd1Y_uBbT9gFE1QYR
 <p>POST /api/v1/rentals</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_9"><a class="link" href="#_요청_필드_9">요청 필드</a></h4>
+<h4 id="_요청_필드_11"><a class="link" href="#_요청_필드_11">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2766,20 +3041,20 @@ _csrf=jsS7qfO-8fNYVMy4WRJUd381THMuhyZjqMLEepkYz8j9-fr5vqbZm8GHksd1Y_uBbT9gFE1QYR
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
+<h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=Iztu3rrhYdqfJgIDiRrKuUP772MINfFSYOp0F83enGlbx2z8FAxY6orSAuKyE2cyvTf-jHrJwgI_A5B_AdNHcqvo_Vtoog3E HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=awa6hCJjUGgh5jLvYAkYzGwhFNI8GxMUMFPPJbWKR5GdISR_CDfb5RECZFgMglCLVSQs_18ROeoMKyY5VWf6RtCyJqj4RUYe HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 123
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-06-02T17:05:31.7819871","dueDate":"2025-06-08T17:05:31.7819871"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-06-03T20:23:11.9994451","dueDate":"2025-06-09T20:23:11.9994451"}</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_18"><a class="link" href="#_응답_필드_18">응답 필드</a></h4>
+<h4 id="_응답_필드_20"><a class="link" href="#_응답_필드_20">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2813,7 +3088,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_10"><a class="link" href="#_http_응답_10">HTTP 응답</a></h4>
+<h4 id="_http_응답_12"><a class="link" href="#_http_응답_12">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -2873,7 +3148,7 @@ Content-Length: 38
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_18"><a class="link" href="#_http_요청_18">HTTP 요청</a></h4>
+<h4 id="_http_요청_20"><a class="link" href="#_http_요청_20">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals?statuses=REQUESTED&amp;page=0&amp;size=20&amp;sort=requestDate,desc HTTP/1.1
@@ -2882,7 +3157,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_19"><a class="link" href="#_응답_필드_19">응답 필드</a></h4>
+<h4 id="_응답_필드_21"><a class="link" href="#_응답_필드_21">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3102,16 +3377,16 @@ Host: localhost:8080</code></pre>
 <p>GET /api/v1/rentals/{id}</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_19"><a class="link" href="#_http_요청_19">HTTP 요청</a></h4>
+<h4 id="_http_요청_21"><a class="link" href="#_http_요청_21">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=hyJFNNRKEH_4B_9KNkyr7f2veG5GVrkZQIRRJAGEtF6EpUd05kZ0UuR_cUbVMJ5-UGGf3J6ZVVd1ZNo0ceJiEji0hWu1wSQV HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=u7QsW_7wdXt9wbxSLCim2Nj835la99BZLyhLjnQ6BuhRTfFY3odNYsbHE0hQpIVgTwWS7L3N8vttz-l0Shl6701YZN0wdMlv HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_20"><a class="link" href="#_응답_필드_20">응답 필드</a></h4>
+<h4 id="_응답_필드_22"><a class="link" href="#_응답_필드_22">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3226,7 +3501,7 @@ Host: localhost:8080</code></pre>
 <p>POST /api/v1/rentals/{id}/approve</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_20"><a class="link" href="#_http_요청_20">HTTP 요청</a></h4>
+<h4 id="_http_요청_22"><a class="link" href="#_http_요청_22">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/7/approve HTTP/1.1
@@ -3234,113 +3509,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=1aop-U2ylM-N2E0_N0u_pwpNxtpMM_Agq23VXXVLYp-2atJz5JoemnyCrfaguX0OAGaLnmwo6-N1B8INygzmPEF8A6aCWLBC</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_응답_필드_21"><a class="link" href="#_응답_필드_21">응답 필드</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_대여_거절"><a class="link" href="#_대여_거절">대여 거절</a></h3>
-<div class="paragraph">
-<p>POST /api/v1/rentals/{id}/reject</p>
-</div>
-<div class="sect3">
-<h4 id="_http_요청_21"><a class="link" href="#_http_요청_21">HTTP 요청</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/8/reject HTTP/1.1
-Content-Type: application/x-www-form-urlencoded
-Host: localhost:8080
-Content-Length: 102
-
-_csrf=QDttRuXQAHFcZ9tV1mk_skPsmdbRCXDPRmgkeuJVAIEJ_eBuJFpcd4ToMhNxAus240QL0HSJtLe3ORbiJFoQHNBtY7dtytRW</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_응답_필드_22"><a class="link" href="#_응답_필드_22">응답 필드</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_대여_취소"><a class="link" href="#_대여_취소">대여 취소</a></h3>
-<div class="paragraph">
-<p>POST /api/v1/rentals/{id}/cancel</p>
-</div>
-<div class="sect3">
-<h4 id="_http_요청_22"><a class="link" href="#_http_요청_22">HTTP 요청</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/7/cancel HTTP/1.1
-Content-Type: application/x-www-form-urlencoded
-Host: localhost:8080
-Content-Length: 102
-
-_csrf=2qvXfS1O8tNBju3DsvNcLycnhuatbHnLGOixunJa-4YQLXr3uZyzRBV9y-tstoj7195oHRNFq4fPXUDmeovQ3kZjzLBxSUmW</code></pre>
+_csrf=TL_BOFOQ_riC2rvUqeCbUXRJSRvG4zLDb-oR_iGioj71trA9Ktr2CTClzIyvvozsys2vNxZ5ZHr_0APuX9MnyUCVkQ3DjoFe</code></pre>
 </div>
 </div>
 </div>
@@ -3380,21 +3549,127 @@ _csrf=2qvXfS1O8tNBju3DsvNcLycnhuatbHnLGOixunJa-4YQLXr3uZyzRBV9y-tstoj7195oHRNFq4
 </div>
 </div>
 <div class="sect2">
-<h3 id="_사용자별_대여_목록_조회"><a class="link" href="#_사용자별_대여_목록_조회">사용자별 대여 목록 조회</a></h3>
+<h3 id="_대여_거절"><a class="link" href="#_대여_거절">대여 거절</a></h3>
 <div class="paragraph">
-<p>GET /api/v1/admin/rentals/{userId}</p>
+<p>POST /api/v1/rentals/{id}/reject</p>
 </div>
 <div class="sect3">
 <h4 id="_http_요청_23"><a class="link" href="#_http_요청_23">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=lHNkD0wGyieNSltIYvRqsfoiTme6Ii53FWteXSRjBXubydYipEJRPHs_-xKgfWx6A9leh54VYwaOEkhaLQ8_bB1RYU34r-AS HTTP/1.1
-Host: localhost:8080</code></pre>
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/8/reject HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=9UKlxclhbipSPRDSaNIWvXIK4pnDnUVf4HizyFvAizKXiDMmkHPAp6hRWE5_D3TiWv8iikQ7z_vz_ydy0kuK-2PxugfxsQVC</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_응답_필드_24"><a class="link" href="#_응답_필드_24">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_대여_취소"><a class="link" href="#_대여_취소">대여 취소</a></h3>
+<div class="paragraph">
+<p>POST /api/v1/rentals/{id}/cancel</p>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_24"><a class="link" href="#_http_요청_24">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/7/cancel HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=zMhx4ThKZD1Bn6Zm34GpbX3iHAlDkBnu4faBGU_j1NQDXE4sratE1g4vVF9sr5VW7aydXE-DMTBz8i3D0s_kK3_U7ONhOHgb</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_25"><a class="link" href="#_응답_필드_25">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_사용자별_대여_목록_조회"><a class="link" href="#_사용자별_대여_목록_조회">사용자별 대여 목록 조회</a></h3>
+<div class="paragraph">
+<p>GET /api/v1/admin/rentals/{userId}</p>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_25"><a class="link" href="#_http_요청_25">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=Lpx-XHN8Uqjof7WJVFJdXYHclXTSvQPy3l5hc5-1TbQBSyXRGv0fZEoaMZzFGtC5Nn9pZbO4uE22iWDf7WcAFanRK9Y3KhPi HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_26"><a class="link" href="#_응답_필드_26">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3509,7 +3784,7 @@ Host: localhost:8080</code></pre>
 <p>POST /api/v1//rentals/{rentalId}/return-image</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_10"><a class="link" href="#_요청_필드_10">요청 필드</a></h4>
+<h4 id="_요청_필드_12"><a class="link" href="#_요청_필드_12">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. /api/v1/rentals/{rentalId}/return-image</caption>
 <colgroup>
@@ -3552,7 +3827,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_24"><a class="link" href="#_http_요청_24">HTTP 요청</a></h4>
+<h4 id="_http_요청_26"><a class="link" href="#_http_요청_26">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals/42/return-image?returnImageKey=stored/object/key.jpg HTTP/1.1
@@ -3562,7 +3837,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_25"><a class="link" href="#_응답_필드_25">응답 필드</a></h4>
+<h4 id="_응답_필드_27"><a class="link" href="#_응답_필드_27">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3596,7 +3871,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_11"><a class="link" href="#_http_응답_11">HTTP 응답</a></h4>
+<h4 id="_http_응답_13"><a class="link" href="#_http_응답_13">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -3632,7 +3907,7 @@ Content-Length: 61
 <p>POST /api/v1/auth/otp</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_25"><a class="link" href="#_http_요청_25">HTTP 요청</a></h4>
+<h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/otp HTTP/1.1
@@ -3640,12 +3915,12 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=OY4ezW43AQByjcqqel-Z4lPuRa_allUi6-pP9wjsgTfUPcAtWLworF5SZDhfuv6TSHKthGqNaJbr8m0P094pwmmJuQTlDKYc</code></pre>
+_csrf=GJ1hohuHtMDQ81_1N4dsHSdNEaducMTelxMwryTkZl9o6igLLPxVlX60hqP9wWzAD6pYJRYoPJ9ZFvXz8iNRyRPcXmwL3Rtt</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_26"><a class="link" href="#_응답_필드_26">응답 필드</a></h4>
+<h4 id="_응답_필드_28"><a class="link" href="#_응답_필드_28">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3679,7 +3954,7 @@ _csrf=OY4ezW43AQByjcqqel-Z4lPuRa_allUi6-pP9wjsgTfUPcAtWLworF5SZDhfuv6TSHKthGqNaJ
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_12"><a class="link" href="#_http_응답_12">HTTP 응답</a></h4>
+<h4 id="_http_응답_14"><a class="link" href="#_http_응답_14">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -3711,7 +3986,7 @@ Content-Length: 44
 <p>POST /api/v1/admin/devices</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_11"><a class="link" href="#_요청_필드_11">요청 필드</a></h4>
+<h4 id="_요청_필드_13"><a class="link" href="#_요청_필드_13">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3745,10 +4020,10 @@ Content-Length: 44
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_26"><a class="link" href="#_http_요청_26">HTTP 요청</a></h4>
+<h4 id="_http_요청_28"><a class="link" href="#_http_요청_28">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/devices?_csrf=O1oHes_zJVwYzgOGCGpQWenaurNtKXrjqBeyWCy5CwV5iHS5WWg-TK3DFm81qGG3aUdkPd7pl4sLHEjOy3SLYB2JbzNOvUXa HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/devices?_csrf=GIhJfJGA9K9KYh6-3PzEt475evspZpMWOdJKbfkF3BdSqroTL-stTvK2zM5nVi2M7NHwhu3IV5oZAPA7Ded6CZthvnIzy4Nx HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 91
 Host: localhost:8080
@@ -3762,7 +4037,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_27"><a class="link" href="#_응답_필드_27">응답 필드</a></h4>
+<h4 id="_응답_필드_29"><a class="link" href="#_응답_필드_29">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3796,7 +4071,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_13"><a class="link" href="#_http_응답_13">HTTP 응답</a></h4>
+<h4 id="_http_응답_15"><a class="link" href="#_http_응답_15">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -3848,7 +4123,7 @@ Content-Length: 60
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_27"><a class="link" href="#_http_요청_27">HTTP 요청</a></h4>
+<h4 id="_http_요청_29"><a class="link" href="#_http_요청_29">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/devices?university=U1 HTTP/1.1
@@ -3857,7 +4132,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_28"><a class="link" href="#_응답_필드_28">응답 필드</a></h4>
+<h4 id="_응답_필드_30"><a class="link" href="#_응답_필드_30">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3901,7 +4176,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_14"><a class="link" href="#_http_응답_14">HTTP 응답</a></h4>
+<h4 id="_http_응답_16"><a class="link" href="#_http_응답_16">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -3940,7 +4215,7 @@ Content-Length: 241
 <p>POST /api/v1/admin/lockers</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_12"><a class="link" href="#_요청_필드_12">요청 필드</a></h4>
+<h4 id="_요청_필드_14"><a class="link" href="#_요청_필드_14">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -3964,10 +4239,10 @@ Content-Length: 241
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_28"><a class="link" href="#_http_요청_28">HTTP 요청</a></h4>
+<h4 id="_http_요청_30"><a class="link" href="#_http_요청_30">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/lockers?_csrf=uqSpfSGYOqqbeyGZK7c8dlgewFZvdHElOssikEwzDwiKr6qaisKRTxCvW8-2SxH7SZoIRmwt7W5WQkMICqgQpyoEbD-4zJqs HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/lockers?_csrf=wbwIuB2pXTQVAMJAauoYCd6xXULT3TxVCBCYMUlifxEUCvT-p4k5jCXPbFE4ZftxW8csO-_ScCPr6gt4PnSrAnoGTyYsPcDG HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 22
 Host: localhost:8080
@@ -3979,7 +4254,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_29"><a class="link" href="#_응답_필드_29">응답 필드</a></h4>
+<h4 id="_응답_필드_31"><a class="link" href="#_응답_필드_31">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4013,7 +4288,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_15"><a class="link" href="#_http_응답_15">HTTP 응답</a></h4>
+<h4 id="_http_응답_17"><a class="link" href="#_http_응답_17">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -4069,7 +4344,7 @@ Content-Length: 60
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_29"><a class="link" href="#_http_요청_29">HTTP 요청</a></h4>
+<h4 id="_http_요청_31"><a class="link" href="#_http_요청_31">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/lockers?deviceId=10&amp;available=true HTTP/1.1
@@ -4078,7 +4353,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_30"><a class="link" href="#_응답_필드_30">응답 필드</a></h4>
+<h4 id="_응답_필드_32"><a class="link" href="#_응답_필드_32">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4147,7 +4422,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_16"><a class="link" href="#_http_응답_16">HTTP 응답</a></h4>
+<h4 id="_http_응답_18"><a class="link" href="#_http_응답_18">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -4161,7 +4436,7 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 548
+Content-Length: 547
 
 {
   "success" : true,
@@ -4169,7 +4444,7 @@ Content-Length: 548
     "deviceId" : 10,
     "lockerId" : 1,
     "available" : true,
-    "activatedAt" : "2025-06-01T17:05:20.3991521",
+    "activatedAt" : "2025-06-02T20:23:03.2870867",
     "device" : {
       "deviceId" : 10,
       "university" : "U2",
@@ -4179,7 +4454,7 @@ Content-Length: 548
     "deviceId" : 10,
     "lockerId" : 2,
     "available" : false,
-    "activatedAt" : "2025-06-01T17:05:20.3991521",
+    "activatedAt" : "2025-06-02T20:23:03.288085",
     "device" : {
       "deviceId" : 10,
       "university" : "U2",
@@ -4211,7 +4486,7 @@ DAMAGE    // 파손 신고</code></pre>
 <p>POST /api/v1/inquiries</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_13"><a class="link" href="#_요청_필드_13">요청 필드</a></h4>
+<h4 id="_요청_필드_15"><a class="link" href="#_요청_필드_15">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4245,10 +4520,10 @@ DAMAGE    // 파손 신고</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_30"><a class="link" href="#_http_요청_30">HTTP 요청</a></h4>
+<h4 id="_http_요청_32"><a class="link" href="#_http_요청_32">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries?_csrf=JoYbSzblAhSL_0_Q_6pcM1mrWIuYWNCwdn8BMRv_p6htsToyQ7Z_LgTSOiKmyyzoxodoBGnKdempOrWdEE84ACydwclcglsG HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries?_csrf=CCOFXTITbngu9wrh2joqlFtsaoH3heEjfyx_IwH-w0hFwdT8MBCyOQImDxsDxD2Hvhce8jldR7mTtocORhQdFjTN8S0npLed HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 74
 Host: localhost:8080
@@ -4262,7 +4537,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_31"><a class="link" href="#_응답_필드_31">응답 필드</a></h4>
+<h4 id="_응답_필드_33"><a class="link" href="#_응답_필드_33">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4296,7 +4571,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_17"><a class="link" href="#_http_응답_17">HTTP 응답</a></h4>
+<h4 id="_http_응답_19"><a class="link" href="#_http_응답_19">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -4327,7 +4602,7 @@ Content-Length: 58
 <p>POST /api/v1/inquiries/damage</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_14"><a class="link" href="#_요청_필드_14">요청 필드</a></h4>
+<h4 id="_요청_필드_16"><a class="link" href="#_요청_필드_16">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4366,10 +4641,10 @@ Content-Length: 58
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_31"><a class="link" href="#_http_요청_31">HTTP 요청</a></h4>
+<h4 id="_http_요청_33"><a class="link" href="#_http_요청_33">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries/damage?_csrf=VfzFCNYxNXMlLvKHdZiV307VppEXuAveUSdNaT1BwMpxfwDZYJ7xaeYAA0IITMS_E7Wh7Xzgi6l03DnzZxQuUF509_hDTWbt HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries/damage?_csrf=tUHVd1CFjARzWalE3sZI_mnBE1Pe6eKYrc65Edj35wPFvxhzjXDmTmTktTNeOpl26Ot8ygigPmvn3de1y_eBd7mWhDPz2yhG HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 142
 Host: localhost:8080
@@ -4384,7 +4659,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_32"><a class="link" href="#_응답_필드_32">응답 필드</a></h4>
+<h4 id="_응답_필드_34"><a class="link" href="#_응답_필드_34">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4418,7 +4693,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_18"><a class="link" href="#_http_응답_18">HTTP 응답</a></h4>
+<h4 id="_http_응답_20"><a class="link" href="#_http_응답_20">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -4471,7 +4746,7 @@ Content-Length: 59
 </table>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_15"><a class="link" href="#_요청_필드_15">요청 필드</a></h4>
+<h4 id="_요청_필드_17"><a class="link" href="#_요청_필드_17">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4495,10 +4770,10 @@ Content-Length: 59
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_32"><a class="link" href="#_http_요청_32">HTTP 요청</a></h4>
+<h4 id="_http_요청_34"><a class="link" href="#_http_요청_34">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/inquiries/77/answer?_csrf=KX-uLqgnh5j2vaXt6pB-s4OYyFH3VGEnGt2UmdAHpcHCHMjxHRuZHZ8WsarbhZWO2L1KiuGu5WnBZlkKK-igruVjwaLzeP3G HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/inquiries/77/answer?_csrf=8LbzPiF62mZ7hp9k35sS-opuz_a-ZTLTMJ34AJo6nQy603j0wtLLCEIe7AdWta4B6LYmzulW4s7cBlD-BaTKMqxe-22C4knD HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 37
 Host: localhost:8080
@@ -4510,7 +4785,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_33"><a class="link" href="#_응답_필드_33">응답 필드</a></h4>
+<h4 id="_응답_필드_35"><a class="link" href="#_응답_필드_35">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -4544,7 +4819,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_19"><a class="link" href="#_http_응답_19">HTTP 응답</a></h4>
+<h4 id="_http_응답_21"><a class="link" href="#_http_응답_21">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -4597,262 +4872,10 @@ Content-Length: 61
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_33"><a class="link" href="#_http_요청_33">HTTP 요청</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/inquiries/10 HTTP/1.1
-Host: localhost:8080</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_응답_필드_34"><a class="link" href="#_응답_필드_34">응답 필드</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.inquiryId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">문의 ID</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.memberId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 ID</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.type</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">문의 타입</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.title</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">제목</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">내용</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.answer</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">답변 내용</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.images</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">파손 신고 이미지 URL 리스트</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.processed</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">처리 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.createdAt</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">작성 시각 (ISO-8601)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">에러 메시지 또는 빈 문자열</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_http_응답_20"><a class="link" href="#_http_응답_20">HTTP 응답</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Vary: Origin
-Vary: Access-Control-Request-Method
-Vary: Access-Control-Request-Headers
-Content-Type: application/json
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 0
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-Expires: 0
-X-Frame-Options: DENY
-Content-Length: 273
-
-{
-  "success" : true,
-  "data" : {
-    "inquiryId" : 11,
-    "memberId" : 100,
-    "type" : "SERVICE",
-    "title" : "t",
-    "content" : "c",
-    "images" : null,
-    "processed" : false,
-    "createdAt" : "2025-06-01T17:05:15.4828223"
-  },
-  "message" : ""
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_사용자용_문의_조회"><a class="link" href="#_사용자용_문의_조회">사용자용 문의 조회</a></h3>
-<div class="paragraph">
-<p>GET /api/v1/inquiries</p>
-</div>
-<div class="sect3">
-<h4 id="_쿼리_파라미터_4"><a class="link" href="#_쿼리_파라미터_4">쿼리 파라미터</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">문의 타입</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>processed</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">처리 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 번호</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_http_요청_34"><a class="link" href="#_http_요청_34">HTTP 요청</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/inquiries?type=REPORT&amp;processed=true&amp;page=0&amp;size=5 HTTP/1.1
-Host: localhost:8080</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_응답_필드_35"><a class="link" href="#_응답_필드_35">응답 필드</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 정보 및 문의 리스트 (content, pageable 등)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">에러 메시지 또는 빈 문자열</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_http_응답_21"><a class="link" href="#_http_응답_21">HTTP 응답</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Vary: Origin
-Vary: Access-Control-Request-Method
-Vary: Access-Control-Request-Headers
-Content-Type: application/json
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 0
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-Expires: 0
-X-Frame-Options: DENY
-Content-Length: 61
-
-{
-  "success" : true,
-  "data" : null,
-  "message" : ""
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_관리자용_단일_문의_조회"><a class="link" href="#_관리자용_단일_문의_조회">관리자용 단일 문의 조회</a></h3>
-<div class="paragraph">
-<p>GET /api/v1/admin/inquiries/{id}</p>
-</div>
-<div class="sect3">
-<h4 id="_패스_파라미터_3"><a class="link" href="#_패스_파라미터_3">패스 파라미터</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. /api/v1/admin/inquiries/{id}</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">문의 ID</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
 <h4 id="_http_요청_35"><a class="link" href="#_http_요청_35">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/inquiries/10 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/inquiries/10 HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -4951,6 +4974,258 @@ Content-Length: 273
 {
   "success" : true,
   "data" : {
+    "inquiryId" : 11,
+    "memberId" : 100,
+    "type" : "SERVICE",
+    "title" : "t",
+    "content" : "c",
+    "images" : null,
+    "processed" : false,
+    "createdAt" : "2025-06-02T20:22:58.8317391"
+  },
+  "message" : ""
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_사용자용_문의_조회"><a class="link" href="#_사용자용_문의_조회">사용자용 문의 조회</a></h3>
+<div class="paragraph">
+<p>GET /api/v1/inquiries</p>
+</div>
+<div class="sect3">
+<h4 id="_쿼리_파라미터_4"><a class="link" href="#_쿼리_파라미터_4">쿼리 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">문의 타입</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>processed</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">처리 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_36"><a class="link" href="#_http_요청_36">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/inquiries?type=REPORT&amp;processed=true&amp;page=0&amp;size=5 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_37"><a class="link" href="#_응답_필드_37">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 정보 및 문의 리스트 (content, pageable 등)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">에러 메시지 또는 빈 문자열</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_23"><a class="link" href="#_http_응답_23">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 61
+
+{
+  "success" : true,
+  "data" : null,
+  "message" : ""
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_관리자용_단일_문의_조회"><a class="link" href="#_관리자용_단일_문의_조회">관리자용 단일 문의 조회</a></h3>
+<div class="paragraph">
+<p>GET /api/v1/admin/inquiries/{id}</p>
+</div>
+<div class="sect3">
+<h4 id="_패스_파라미터_3"><a class="link" href="#_패스_파라미터_3">패스 파라미터</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. /api/v1/admin/inquiries/{id}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">문의 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_요청_37"><a class="link" href="#_http_요청_37">HTTP 요청</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/inquiries/10 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_응답_필드_38"><a class="link" href="#_응답_필드_38">응답 필드</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>success</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.inquiryId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">문의 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">문의 타입</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.title</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">제목</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">내용</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.answer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">답변 내용</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.images</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파손 신고 이미지 URL 리스트</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.processed</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">처리 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성 시각 (ISO-8601)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">에러 메시지 또는 빈 문자열</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_응답_24"><a class="link" href="#_http_응답_24">HTTP 응답</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 273
+
+{
+  "success" : true,
+  "data" : {
     "inquiryId" : 10,
     "memberId" : 100,
     "type" : "SERVICE",
@@ -4958,7 +5233,7 @@ Content-Length: 273
     "content" : "c",
     "images" : null,
     "processed" : false,
-    "createdAt" : "2025-06-01T17:05:14.9774768"
+    "createdAt" : "2025-06-02T20:22:58.4695962"
   },
   "message" : ""
 }</code></pre>
@@ -5005,7 +5280,7 @@ Content-Length: 273
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_36"><a class="link" href="#_http_요청_36">HTTP 요청</a></h4>
+<h4 id="_http_요청_38"><a class="link" href="#_http_요청_38">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/inquiries?type=REPORT&amp;processed=true&amp;page=0&amp;size=5 HTTP/1.1
@@ -5014,7 +5289,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_37"><a class="link" href="#_응답_필드_37">응답 필드</a></h4>
+<h4 id="_응답_필드_39"><a class="link" href="#_응답_필드_39">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5048,7 +5323,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_23"><a class="link" href="#_http_응답_23">HTTP 응답</a></h4>
+<h4 id="_http_응답_25"><a class="link" href="#_http_응답_25">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5075,32 +5350,32 @@ Content-Length: 853
       "content" : "CONTENT",
       "images" : null,
       "processed" : true,
-      "createdAt" : "2025-06-01T17:05:15.3514563"
+      "createdAt" : "2025-06-02T20:22:58.7468909"
     } ],
     "pageable" : {
       "pageNumber" : 0,
       "pageSize" : 5,
       "sort" : {
-        "unsorted" : false,
         "empty" : false,
-        "sorted" : true
+        "sorted" : true,
+        "unsorted" : false
       },
       "offset" : 0,
-      "unpaged" : false,
-      "paged" : true
+      "paged" : true,
+      "unpaged" : false
     },
-    "last" : true,
     "totalElements" : 1,
+    "last" : true,
     "totalPages" : 1,
-    "numberOfElements" : 1,
     "size" : 5,
     "number" : 0,
     "sort" : {
-      "unsorted" : false,
       "empty" : false,
-      "sorted" : true
+      "sorted" : true,
+      "unsorted" : false
     },
     "first" : true,
+    "numberOfElements" : 1,
     "empty" : false
   },
   "message" : ""
@@ -5137,7 +5412,7 @@ Content-Length: 853
 </table>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_16"><a class="link" href="#_요청_필드_16">요청 필드</a></h4>
+<h4 id="_요청_필드_18"><a class="link" href="#_요청_필드_18">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5161,10 +5436,10 @@ Content-Length: 853
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_37"><a class="link" href="#_http_요청_37">HTTP 요청</a></h4>
+<h4 id="_http_요청_39"><a class="link" href="#_http_요청_39">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/admin/inquiries/70/answer?_csrf=FhvYUSEN8LbKcB-mirWFSmHNGUWp7r4FOaQfzj6vnWuGL6iNcy67YhA1yYbnQi7EuZixewT1NCef19ooDZF7-QmYqV61Fsy1 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/admin/inquiries/70/answer?_csrf=IC7SEZDBQnOk7kIBFMa2D_lRXa2nwt8lJ9XvxIwan2-jG-ZKF0_jIqOnIECJ2yQ5IeuCOZg1cJWQpu0IQ7DfoOp7-g6bLNR5 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 37
 Host: localhost:8080
@@ -5176,7 +5451,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_38"><a class="link" href="#_응답_필드_38">응답 필드</a></h4>
+<h4 id="_응답_필드_40"><a class="link" href="#_응답_필드_40">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5210,7 +5485,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_24"><a class="link" href="#_http_응답_24">HTTP 응답</a></h4>
+<h4 id="_http_응답_26"><a class="link" href="#_http_응답_26">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5263,7 +5538,7 @@ Content-Length: 61
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_38"><a class="link" href="#_http_요청_38">HTTP 요청</a></h4>
+<h4 id="_http_요청_40"><a class="link" href="#_http_요청_40">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/admin/inquiries/55/processed HTTP/1.1
@@ -5271,12 +5546,12 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=vSDZbpA1klgR5mCBy4vgAr9qkBR6LLCXIxJbqwL_FHvzd2cijka9X6cG9Ds81QG2qqbUMYYPvXYfH4W6R3FunzXMdU2WEVYT</code></pre>
+_csrf=BWh6U2RkDUdJ22FG6CH1rbkYMwIhqKo5ZLy6sRcAPnn5LwskYwsYZgcGNXVkvwIi3wzBlIh9HjtAzZ8UBorYhydjWE2cGzIS</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_39"><a class="link" href="#_응답_필드_39">응답 필드</a></h4>
+<h4 id="_응답_필드_41"><a class="link" href="#_응답_필드_41">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5310,7 +5585,7 @@ _csrf=vSDZbpA1klgR5mCBy4vgAr9qkBR6LLCXIxJbqwL_FHvzd2cijka9X6cG9Ds81QG2qqbUMYYPvX
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_25"><a class="link" href="#_http_응답_25">HTTP 응답</a></h4>
+<h4 id="_http_응답_27"><a class="link" href="#_http_응답_27">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5368,7 +5643,7 @@ Content-Length: 61
 <p>POST /api/v1/wallet</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_17"><a class="link" href="#_요청_필드_17">요청 필드</a></h4>
+<h4 id="_요청_필드_19"><a class="link" href="#_요청_필드_19">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5402,10 +5677,10 @@ Content-Length: 61
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_39"><a class="link" href="#_http_요청_39">HTTP 요청</a></h4>
+<h4 id="_http_요청_41"><a class="link" href="#_http_요청_41">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet?_csrf=5pzMElbv8ugPrET_kNua4N5C3Urewegq8yqDv2CpC_TISHIigv_9dzCJkd8imSLHovauhuck8CjooN0HkRmzjwWbapL9KUMR HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet?_csrf=m5A3-jQv43Z-mSWw8tE5fdG53VoW0Yum64vq_LAsEY4NXfh1r6FTzVZN2xdTrBGGkPwNGbDc8GIgsOmLiL-MmNIbdLw1PMxC HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 90
 Host: localhost:8080
@@ -5419,7 +5694,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_40"><a class="link" href="#_응답_필드_40">응답 필드</a></h4>
+<h4 id="_응답_필드_42"><a class="link" href="#_응답_필드_42">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5453,7 +5728,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_26"><a class="link" href="#_http_응답_26">HTTP 응답</a></h4>
+<h4 id="_http_응답_28"><a class="link" href="#_http_응답_28">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5484,16 +5759,16 @@ Content-Length: 60
 <p>GET /api/v1/wallet</p>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_40"><a class="link" href="#_http_요청_40">HTTP 요청</a></h4>
+<h4 id="_http_요청_42"><a class="link" href="#_http_요청_42">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/wallet?_csrf=4YPbrJfZ0QqCSyhz4HQzfGlkiXlbDZ5tS2ybCdVegchoSbSVgLO4mKC_6WmvKR8V1FkHTVxUpEE-O_1Aewn6OuU85_hfKoT3 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/wallet?_csrf=dXide13QNZJrvKMJHYa-X24mH0Am3jpZHUPqVgGe2cut8QXSFEmtSmzgVPZGhJRve6uKbFcSMiFA6V90KSfaZTb97a-Vl2Hr HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_41"><a class="link" href="#_응답_필드_41">응답 필드</a></h4>
+<h4 id="_응답_필드_43"><a class="link" href="#_응답_필드_43">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5552,7 +5827,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_27"><a class="link" href="#_http_응답_27">HTTP 응답</a></h4>
+<h4 id="_http_응답_29"><a class="link" href="#_http_응답_29">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5590,7 +5865,7 @@ Content-Length: 218
 <p>POST /api/v1/wallet/top-up</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_18"><a class="link" href="#_요청_필드_18">요청 필드</a></h4>
+<h4 id="_요청_필드_20"><a class="link" href="#_요청_필드_20">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5619,10 +5894,10 @@ Content-Length: 218
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_41"><a class="link" href="#_http_요청_41">HTTP 요청</a></h4>
+<h4 id="_http_요청_43"><a class="link" href="#_http_요청_43">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/top-up?_csrf=zfkY7OPzu4AB-cA27XfxeO-2XW7-rUqn8iV8ZLktiGnmYd6P-pogjtaR37YsyqZX2FrFSdjVcAyblCuKwRxNBdoYulqDVrjt HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/top-up?_csrf=Sl8kslsLW7zMO69795SMKdGTeRfLL3Q3yFtQN51QSvVjkuYrezoR0G0zaIXhWJxCwbm4H-eiVC7yHUEaqW8xA_5geMdVpIQT HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 45
 Host: localhost:8080
@@ -5635,7 +5910,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_42"><a class="link" href="#_응답_필드_42">응답 필드</a></h4>
+<h4 id="_응답_필드_44"><a class="link" href="#_응답_필드_44">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5669,7 +5944,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_28"><a class="link" href="#_http_응답_28">HTTP 응답</a></h4>
+<h4 id="_http_응답_30"><a class="link" href="#_http_응답_30">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5700,7 +5975,7 @@ Content-Length: 58
 <p>POST /api/v1/wallet/withdraw</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_19"><a class="link" href="#_요청_필드_19">요청 필드</a></h4>
+<h4 id="_요청_필드_21"><a class="link" href="#_요청_필드_21">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5729,10 +6004,10 @@ Content-Length: 58
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_42"><a class="link" href="#_http_요청_42">HTTP 요청</a></h4>
+<h4 id="_http_요청_44"><a class="link" href="#_http_요청_44">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/withdraw?_csrf=59TpFNIOhYSrcYslhPOYoQJwDiKgxgbOWlrxCQn9PWJ1HEd-0uHRdeVqsOKGQ7MRst6swjtCI0DEojDjaGvIPz-bWFJMeXMd HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/withdraw?_csrf=-VP131eySnszb3fE23kecR3XxK7YLerW8zWzr8Gw6VZ9i-URnTCT6WaLck0eCkL26VQqSC7v6cy-SIv7xVGCyqKB0GBE6tN0 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 45
 Host: localhost:8080
@@ -5745,7 +6020,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_43"><a class="link" href="#_응답_필드_43">응답 필드</a></h4>
+<h4 id="_응답_필드_45"><a class="link" href="#_응답_필드_45">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5779,7 +6054,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_29"><a class="link" href="#_http_응답_29">HTTP 응답</a></h4>
+<h4 id="_http_응답_31"><a class="link" href="#_http_응답_31">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5810,7 +6085,7 @@ Content-Length: 58
 <p>GET /api/v1/payments</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_20"><a class="link" href="#_요청_필드_20">요청 필드</a></h4>
+<h4 id="_요청_필드_22"><a class="link" href="#_요청_필드_22">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -5835,7 +6110,7 @@ Content-Length: 58
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_43"><a class="link" href="#_http_요청_43">HTTP 요청</a></h4>
+<h4 id="_http_요청_45"><a class="link" href="#_http_요청_45">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/payments?memberId=100&amp;type=TOP_UP HTTP/1.1
@@ -5844,7 +6119,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_44"><a class="link" href="#_응답_필드_44">응답 필드</a></h4>
+<h4 id="_응답_필드_46"><a class="link" href="#_응답_필드_46">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5913,7 +6188,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_30"><a class="link" href="#_http_응답_30">HTTP 응답</a></h4>
+<h4 id="_http_응답_32"><a class="link" href="#_http_응답_32">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -5927,7 +6202,7 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 325
+Content-Length: 324
 
 {
   "success" : true,
@@ -5936,7 +6211,7 @@ Content-Length: 325
     "type" : "RENTAL_FEE",
     "status" : "APPROVED",
     "amount" : 5000,
-    "createdAt" : "2025-06-01T17:05:29.2737741",
+    "createdAt" : "2025-06-02T20:23:09.709303",
     "itemName" : "item_name",
     "ownerName" : "소유자이름",
     "renterName" : "대여자 이름"
@@ -5953,7 +6228,7 @@ Content-Length: 325
 <p>GET /api/v1/admin/payments</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_21"><a class="link" href="#_요청_필드_21">요청 필드</a></h4>
+<h4 id="_요청_필드_23"><a class="link" href="#_요청_필드_23">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -5978,7 +6253,7 @@ Content-Length: 325
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_44"><a class="link" href="#_http_요청_44">HTTP 요청</a></h4>
+<h4 id="_http_요청_46"><a class="link" href="#_http_요청_46">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/payments?type=WITHDRAWAL HTTP/1.1
@@ -5987,7 +6262,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_45"><a class="link" href="#_응답_필드_45">응답 필드</a></h4>
+<h4 id="_응답_필드_47"><a class="link" href="#_응답_필드_47">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -6056,7 +6331,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_31"><a class="link" href="#_http_응답_31">HTTP 응답</a></h4>
+<h4 id="_http_응답_33"><a class="link" href="#_http_응답_33">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -6079,7 +6354,7 @@ Content-Length: 325
     "type" : "RENTAL_FEE",
     "status" : "APPROVED",
     "amount" : 5000,
-    "createdAt" : "2025-06-01T17:05:29.0837885",
+    "createdAt" : "2025-06-02T20:23:09.5826163",
     "itemName" : "item_name",
     "ownerName" : "소유자이름",
     "renterName" : "대여자 이름"
@@ -6121,7 +6396,7 @@ INQUIRY_RESPONSE</code></pre>
 <p>POST /api/v1/device-token</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_22"><a class="link" href="#_요청_필드_22">요청 필드</a></h4>
+<h4 id="_요청_필드_24"><a class="link" href="#_요청_필드_24">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -6145,10 +6420,10 @@ INQUIRY_RESPONSE</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_45"><a class="link" href="#_http_요청_45">HTTP 요청</a></h4>
+<h4 id="_http_요청_47"><a class="link" href="#_http_요청_47">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/device-token?_csrf=uQNrSwRmONu2-pz22LEaXKaXtV5Ql2TR4iba2FVy4ozjLQSg3GdSfT1XCr2byvjOvpwuZcKnmDxg8QL80ULqvjdDhr-AS2eZ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/device-token?_csrf=xG6JBB5eNzMUCd-BREcl7sDkhvaX0qllGdqjR6aTrsZt7pE-pli-MixrBlI5bbzkfWoRj_jVq5eg5J1IeOqSd5Orz_BViKAM HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 29
 Host: localhost:8080
@@ -6160,7 +6435,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_46"><a class="link" href="#_응답_필드_46">응답 필드</a></h4>
+<h4 id="_응답_필드_48"><a class="link" href="#_응답_필드_48">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -6194,7 +6469,7 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_32"><a class="link" href="#_http_응답_32">HTTP 응답</a></h4>
+<h4 id="_http_응답_34"><a class="link" href="#_http_응답_34">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -6225,7 +6500,7 @@ Content-Length: 61
 <p>GET /api/v1/notifications</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_23"><a class="link" href="#_요청_필드_23">요청 필드</a></h4>
+<h4 id="_요청_필드_25"><a class="link" href="#_요청_필드_25">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -6254,16 +6529,16 @@ Content-Length: 61
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_46"><a class="link" href="#_http_요청_46">HTTP 요청</a></h4>
+<h4 id="_http_요청_48"><a class="link" href="#_http_요청_48">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/notifications?page=0&amp;size=20&amp;sort=createdAt%2Cdesc&amp;_csrf=7mhQR-Mi9DYaELro8sPlTzsdh1jbldNcmE_-eFUbVgssEwdXilFkJdVEwwE3KdjcxO7RewIoqmHjrOtxqS3PS2YqNG9KcmI2 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/notifications?page=0&amp;size=20&amp;sort=createdAt%2Cdesc&amp;_csrf=1sOvApXeT-rKFXgGojbB5o368FOooXHgcwQJvallmYC1Z2_B7veXYfe6e4jndkg1mhv1377O3TLJkkbNSjJt351VqeWCAgry HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_47"><a class="link" href="#_응답_필드_47">응답 필드</a></h4>
+<h4 id="_응답_필드_49"><a class="link" href="#_응답_필드_49">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -6342,7 +6617,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_33"><a class="link" href="#_http_응답_33">HTTP 응답</a></h4>
+<h4 id="_http_응답_35"><a class="link" href="#_http_응답_35">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -6367,32 +6642,32 @@ Content-Length: 816
       "title" : "알림 제목",
       "body" : "알림 내용",
       "read" : false,
-      "createdAt" : "2025-06-01T17:05:26.4017226"
+      "createdAt" : "2025-06-02T20:23:07.4014981"
     } ],
     "pageable" : {
       "pageNumber" : 0,
       "pageSize" : 20,
       "sort" : {
-        "unsorted" : false,
         "empty" : false,
-        "sorted" : true
+        "sorted" : true,
+        "unsorted" : false
       },
       "offset" : 0,
-      "unpaged" : false,
-      "paged" : true
+      "paged" : true,
+      "unpaged" : false
     },
-    "last" : true,
     "totalElements" : 1,
+    "last" : true,
     "totalPages" : 1,
-    "numberOfElements" : 1,
     "size" : 20,
     "number" : 0,
     "sort" : {
-      "unsorted" : false,
       "empty" : false,
-      "sorted" : true
+      "sorted" : true,
+      "unsorted" : false
     },
     "first" : true,
+    "numberOfElements" : 1,
     "empty" : false
   },
   "message" : ""
@@ -6407,7 +6682,7 @@ Content-Length: 816
 <p>PUT /api/v1/notifications/{id}/read</p>
 </div>
 <div class="sect3">
-<h4 id="_요청_필드_24"><a class="link" href="#_요청_필드_24">요청 필드</a></h4>
+<h4 id="_요청_필드_26"><a class="link" href="#_요청_필드_26">요청 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 7. /api/v1/notifications/{id}/read</caption>
 <colgroup>
@@ -6429,7 +6704,7 @@ Content-Length: 816
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_요청_47"><a class="link" href="#_http_요청_47">HTTP 요청</a></h4>
+<h4 id="_http_요청_49"><a class="link" href="#_http_요청_49">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/notifications/42/read HTTP/1.1
@@ -6437,12 +6712,12 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=xHBq8nhd1E_bAHfhw4ReiU2L7WeRG2ttxO9Dmevbkbp_KQID9UYMxkA5sCz2MEXVoqlqvCi-wAajLFpAptdzrtvipYsdHTpl</code></pre>
+_csrf=k-tF6LcFMytX4_U8vjiy1MmZIWtAKqcJu7KCju-zPzxskrW88opw2tM2UU160cJZ2BWG4vH_DFJ2E58kide7uN_WWVhZo9Hf</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_응답_필드_48"><a class="link" href="#_응답_필드_48">응답 필드</a></h4>
+<h4 id="_응답_필드_50"><a class="link" href="#_응답_필드_50">응답 필드</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -6476,7 +6751,7 @@ _csrf=xHBq8nhd1E_bAHfhw4ReiU2L7WeRG2ttxO9Dmevbkbp_KQID9UYMxkA5sCz2MEXVoqlqvCi-wA
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_응답_34"><a class="link" href="#_http_응답_34">HTTP 응답</a></h4>
+<h4 id="_http_응답_36"><a class="link" href="#_http_응답_36">HTTP 응답</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -6507,7 +6782,7 @@ Content-Length: 61
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2025-06-01 17:01:55 +0900
+Last updated 2025-06-02 20:17:50 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

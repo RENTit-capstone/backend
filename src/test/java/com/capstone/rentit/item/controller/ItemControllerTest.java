@@ -113,7 +113,7 @@ class ItemControllerTest {
                                 fieldWithPath("returnPolicy").type(JsonFieldType.STRING).description("반납 정책"),
                                 fieldWithPath("startDate").type(JsonFieldType.STRING).description("대여 가능 시작일 (ISO-8601)"),
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description("대여 가능 종료일 (ISO-8601)"),
-                                fieldWithPath("imageKeys").optional().type(JsonFieldType.ARRAY).description("교체할 object key 리스트")
+                                fieldWithPath("imageKeys").optional().type(JsonFieldType.ARRAY).description("등록할 object key 리스트")
                         ),
                         responseFields(
                                 fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("API 호출 성공 여부"),

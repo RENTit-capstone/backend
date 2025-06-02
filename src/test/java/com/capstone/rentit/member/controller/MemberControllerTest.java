@@ -365,6 +365,7 @@ class MemberControllerTest {
                 .memberId(memberId)
                 .email("login@student.com")
                 .name("Login Student")
+                .nickname("loginNick")
                 .profileImg("profile_img_url")
                 .items(List.of(
                         ItemBriefResponse.builder()
@@ -405,6 +406,7 @@ class MemberControllerTest {
                                 fieldWithPath("data.memberId").type(JsonFieldType.NUMBER).description("회원 ID"),
                                 fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
                                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
+                                fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("닉네임"),
                                 fieldWithPath("data.role").type(JsonFieldType.NULL).description("역할 (현재 null)"),
                                 fieldWithPath("data.profileImg").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.NULL).description("가입일자 (현재 null)"),

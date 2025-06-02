@@ -23,6 +23,7 @@ public class MyProfileResponse {
     private Long   memberId;
     private String email;
     private String name;
+    private String nickname;
     private String role;
     private String profileImg;
 
@@ -47,6 +48,7 @@ public class MyProfileResponse {
                 .memberId(m.getMemberId())
                 .email(m.getEmail())
                 .name(m.getName())
+                .nickname(m.getNickname())
                 .role(m.getRole().name())
                 .profileImg(m.getProfileImg())
                 .createdAt(m.getCreatedAt())
