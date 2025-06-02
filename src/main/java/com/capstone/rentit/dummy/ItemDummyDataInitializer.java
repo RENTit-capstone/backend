@@ -35,9 +35,9 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
 
         /* 15 개의 고정 샘플 (5명 × 3개) */
         String[] names = {
-                "Samsung Galaxy S21", "Dell XPS 13", "Sony WH-1000XM4",
-                "Canon EOS M50", "TI-84 Plus CE", "Anker PowerCore 10000",
-                "Logitech MX Anywhere 3", "Kindle Paperwhite 11th", "GoPro HERO9",
+                "접이식 우산", "접이식 우산", "접이식 우산",
+                "접이식 우산", "접이식 우산", "접이식 우산",
+                "접이식 우산", "접이식 우산", "접이식 우산",
                 "Apple iPad 10.2", "JBL Flip 6", "Nintendo Switch Lite",
                 "Seagate 2TB SSD", "Wacom Intuos S", "DJI Osmo Mobile 6"
         };
