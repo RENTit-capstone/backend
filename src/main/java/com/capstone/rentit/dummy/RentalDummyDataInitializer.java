@@ -52,47 +52,69 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
         };
         LocalDateTime now = LocalDateTime.now();
 
-        for (Member renter : members) {
-            /* 자신의 OUT-아이템은 제외 */
-            List<Item> candidates = outItems.stream()
+        Member renter = members.get(0);
+        List<Item> candidates = outItems.stream()
                     .filter(it -> !it.getOwnerId().equals(renter.getMemberId()))
                     .collect(Collectors.toList());
-            if (candidates.isEmpty()) continue;
+        if (!candidates.isEmpty()){
+            LocalDateTime req = now.minusDays(1);
+            LocalDateTime start = req.plusDays(1);
+            LocalDateTime due = start.plusDays(7);
 
-            for (int k = 0; k < states.length; k++) {
-                Item item = candidates.get(k % candidates.size());
-                RentalStatusEnum st = states[k];
-
-                LocalDateTime req = now.minusDays(k + 1);
-                LocalDateTime start = req.plusDays(1);
-                LocalDateTime due = start.plusDays(7);
-
-                Rental.RentalBuilder b = Rental.builder()
+            Item item = candidates.get(0);
+            Rental.RentalBuilder b = Rental.builder()
                         .itemId(item.getItemId())
                         .ownerId(item.getOwnerId())
                         .renterId(renter.getMemberId())
                         .requestDate(req)
                         .startDate(start)
                         .dueDate(due)
-                        .status(st);
-
-                switch (st) {
-                    case APPROVED -> b.approvedDate(req.plusHours(2));
-                    case PICKED_UP -> b.approvedDate(req.plusHours(2))
-                            .leftAt(start)
-                            .pickedUpAt(start.plusHours(1));
-                    case COMPLETED -> b.approvedDate(req.plusHours(2))
-                            .leftAt(start)
-                            .pickedUpAt(start.plusHours(1))
-                            .returnedAt(due.minusDays(1))
-                            .retrievedAt(due.minusDays(1).plusHours(3))
-                            .returnImageUrl("dummy/return.jpg");
-                    case REJECTED -> b.rejectedDate(req.plusHours(1));
-                    default -> {}
-                }
-                rentalRepository.save(b.build());
-            }
+                        .status(RentalStatusEnum.APPROVED);
+            b.approvedDate(req.plusHours(2));
+            rentalRepository.save(b.build());
         }
+
+//        for (Member renter : members) {
+//            /* 자신의 OUT-아이템은 제외 */
+//            List<Item> candidates = outItems.stream()
+//                    .filter(it -> !it.getOwnerId().equals(renter.getMemberId()))
+//                    .collect(Collectors.toList());
+//            if (candidates.isEmpty()) continue;
+//
+//            for (int k = 0; k < states.length; k++) {
+//                Item item = candidates.get(k % candidates.size());
+//                RentalStatusEnum st = states[k];
+//
+//                LocalDateTime req = now.minusDays(k + 1);
+//                LocalDateTime start = req.plusDays(1);
+//                LocalDateTime due = start.plusDays(7);
+//
+//                Rental.RentalBuilder b = Rental.builder()
+//                        .itemId(item.getItemId())
+//                        .ownerId(item.getOwnerId())
+//                        .renterId(renter.getMemberId())
+//                        .requestDate(req)
+//                        .startDate(start)
+//                        .dueDate(due)
+//                        .status(st);
+//
+//                switch (st) {
+//                    case APPROVED -> b.approvedDate(req.plusHours(2));
+//                    case PICKED_UP -> b.approvedDate(req.plusHours(2))
+//                            .leftAt(start)
+//                            .pickedUpAt(start.plusHours(1));
+//                    case COMPLETED -> b.approvedDate(req.plusHours(2))
+//                            .leftAt(start)
+//                            .pickedUpAt(start.plusHours(1))
+//                            .returnedAt(due.minusDays(1))
+//                            .retrievedAt(due.minusDays(1).plusHours(3))
+//                            .returnImageUrl("dummy/return.jpg");
+//                    case REJECTED -> b.rejectedDate(req.plusHours(1));
+//                    default -> {}
+//                }
+//                rentalRepository.save(b.build());
+//            }
+//        }
         System.out.printf("[RentalDummy] %d members × 4 rentals seeded (OUT items only).%n",
                 members.size());
     }
