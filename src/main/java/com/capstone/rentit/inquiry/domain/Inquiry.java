@@ -50,6 +50,7 @@ public class Inquiry {
     @Column(name = "url")
     private List<String> damageImageKeys;
 
+    @Builder.Default
     private boolean processed = false;
 
     private LocalDateTime createdAt;

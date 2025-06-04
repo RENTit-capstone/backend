@@ -14,25 +14,13 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(
-            @Value("${redis.host}") String host,
-            @Value("${redis.port}") int port,
-            @Value("${redis.password:}") String password
+            @Value("${spring.data.redis.host}") String host,
+            @Value("${spring.data.redis.port}") int port,
+            @Value("${spring.data.redis.password}") String password
     ) {
         RedisStandaloneConfiguration conf = new RedisStandaloneConfiguration(host, port);
         if (!password.isBlank()) conf.setPassword(password);
         return new LettuceConnectionFactory(conf);
     }
 
-    @Bean
-    public RedisTemplate<String, String> stringRedisTemplate(
-            RedisConnectionFactory connectionFactory) {
-
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-
-        return template;
-    }
 }

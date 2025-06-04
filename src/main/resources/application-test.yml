@@ -40,6 +40,7 @@ univcert:
 jwt:
   secret: abcdefghijklmnopqrstuvwxyzABCDEF
   expiration: 3600000
+  refresh-ttl-min: 43200
 
 storage:
   local:

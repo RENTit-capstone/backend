@@ -3,6 +3,7 @@ package com.capstone.rentit.login.provider;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,21 +23,23 @@ public class JwtTokenProvider {
 
     private final StringRedisTemplate redis;
 
-    private final Key key;
-    private final long jwtExpirationInMs;
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final Duration refreshTtl;
+    @Value("${jwt.expiration}")
+    private long jwtExpirationInMs;
 
-    public JwtTokenProvider(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expiration,
-            @Value("${jwt.refresh-ttl-min}") long refreshTtlMin,
-            StringRedisTemplate redis) {
+    @Value("${jwt.refresh-ttl-min}")
+    private long refreshTtlMin;
 
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.jwtExpirationInMs = expiration;
+    private Key key;
+
+    private Duration refreshTtl;
+
+    @PostConstruct
+    void init() {
+        this.key        = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.refreshTtl = Duration.ofMinutes(refreshTtlMin);
-        this.redis = redis;
     }
 
     public String generateToken(Authentication authentication) {
