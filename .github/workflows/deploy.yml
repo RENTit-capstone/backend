@@ -82,15 +82,23 @@ jobs:
             
             docker network inspect monitoring_monitoring >/dev/null 2>&1 || docker network create --driver bridge monitoring_monitoring
             
+            docker ps --format '{{.Names}}' | grep -q '^rentit-redis$' \
+              && docker network connect monitoring_monitoring rentit-redis || echo "rentit-redis가 없습니다."
+
             echo "▶ 1) Backend 업데이트"
-            docker pull "${{ secrets.DOCKER_REPO }}:latest"
             docker stop rentit         || true
             docker rm   rentit         || true
+            
+            docker pull "${{ secrets.DOCKER_REPO }}:latest"
+            
             docker run -d \
               --name rentit \
               --network monitoring_monitoring \
               --add-host host.docker.internal:host-gateway \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/rentit \
+              -e SPRING_DATA_REDIS_HOST=rentit-redis \
+              -e SPRING_DATA_REDIS_PORT=6379 \
+              -e SPRING_DATA_REDIS_PASSWORD= \
               -e FCM_JSON="${{ secrets.FCM_JSON }}" \
               -v spring_logs:/tmp/spring_logs \
               -p 8080:8080 \
