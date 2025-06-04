@@ -256,28 +256,139 @@ class CustomRentalRepositoryImplTest {
                 .isEqualTo(matching.getRentalId());
     }
 
-    // — 헬퍼 메서드: 중복 코드 방지 —
-    private Rental saveRental(Long ownerId,
-                              Long renterId,
-                              RentalStatusEnum status,
-                              LocalDateTime requestDate) {
-        Rental r = Rental.builder()
-                .ownerId(ownerId)
-                .renterId(renterId)
-                .itemId(100L)
-                .status(status)
-                .requestDate(requestDate)
-                .dueDate(requestDate.plusDays(7))
-                .startDate(requestDate.plusDays(1))
-                .build();
-        em.persist(r);
-        return r;
+    @Test
+    @DisplayName("4. (findAllByStatuses) unpaged + 빈 status → 모든 Rental을 requestDate DESC 순으로 반환")
+    void whenUnpagedAndEmptyStatuses_findAllByStatuses_returnsAllSortedByRequestDateDesc() {
+        // given: 서로 다른 requestDate를 가진 3개의 Rental을 저장
+        LocalDateTime now = LocalDateTime.now();
+        Member m1 = saveMember("user1");
+        Member m2 = saveMember("user2");
+
+        Rental r1 = saveRental(m1, m2, RentalStatusEnum.REQUESTED, now.minusDays(2));
+        Rental r2 = saveRental(m2, m1, RentalStatusEnum.APPROVED, now.minusDays(1));
+        Rental r3 = saveRental(m1, m2, RentalStatusEnum.COMPLETED, now);
+        em.flush();
+
+        // when
+        Page<Rental> page = rentalRepository.findAllByStatuses(
+                Collections.emptyList(),
+                Pageable.unpaged()
+        );
+
+        // then: 총 3개, requestDate 최신순 (r3, r2, r1)
+        assertThat(page.getTotalElements()).isEqualTo(3);
+        assertThat(page.getContent()).containsExactly(r3, r2, r1);
     }
 
+    @Test
+    @DisplayName("5. (findAllByStatuses) paged + 특정 statuses → 상태 필터 후 requestDate DESC 페이징 반환")
+    void whenPagedAndSpecificStatuses_findAllByStatuses_filtersByStatusAndPages() {
+        // given
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("ownerA");
+        Member renter = saveMember("renterA");
+
+        // REQUESTED, APPROVED, COMPLETED 상태의 Rental을 각각 하나씩 생성
+        saveRental(owner, renter, RentalStatusEnum.REQUESTED, now.minusDays(3));
+        Rental r2 = saveRental(owner, renter, RentalStatusEnum.APPROVED, now.minusDays(2));
+        Rental r3 = saveRental(owner, renter, RentalStatusEnum.COMPLETED, now.minusDays(1));
+        Rental r4 = saveRental(owner, renter, RentalStatusEnum.APPROVED, now);
+
+        em.flush();
+
+        // "APPROVED" 또는 "COMPLETED"만 필터링, requestDate 내림차순 정렬
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("requestDate").descending());
+
+        // when
+        Page<Rental> page = rentalRepository.findAllByStatuses(
+                Arrays.asList(RentalStatusEnum.APPROVED, RentalStatusEnum.COMPLETED),
+                pageable
+        );
+
+        // then
+        assertThat(page.getTotalElements()).isEqualTo(3);
+
+        // 실제 content 순서: r4 (APPROVED@now), r3 (COMPLETED@now.minusDays(1)), r2 (APPROVED@now.minusDays(2))
+        List<Rental> content = page.getContent();
+        assertThat(content)
+                .extracting(Rental::getStatus)
+                .containsExactly(
+                        RentalStatusEnum.APPROVED,
+                        RentalStatusEnum.COMPLETED,
+                        RentalStatusEnum.APPROVED
+                );
+
+        // 추가로 requestDate가 내림차순인지 확인
+        assertThat(content)
+                .extracting(Rental::getRequestDate)
+                .isSortedAccordingTo((d1, d2) -> d2.compareTo(d1));
+    }
+
+    @Test
+    @DisplayName("6. (findAllByStatuses) paged + asc 정렬 by dueDate → dueDate ASC 순으로 반환")
+    void whenPagedAndSortByDueDateAsc_findAllByStatuses_ordersByDueDateAsc() {
+        // given: 세 개의 Rental을 서로 다른 requestDate → dueDate도 서로 달라짐
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("ownerB");
+        Member renter = saveMember("renterB");
+
+        // r1.dueDate = now.minusDays(2) + 7일 = now.plusDays(5)
+        Rental r1 = saveRental(owner, renter, RentalStatusEnum.APPROVED, now.minusDays(2));
+        // r2.dueDate = now.minusDays(1) + 7일 = now.plusDays(6)
+        Rental r2 = saveRental(owner, renter, RentalStatusEnum.APPROVED, now.minusDays(1));
+        // r3.dueDate = now + 7일 = now.plusDays(7)
+        Rental r3 = saveRental(owner, renter, RentalStatusEnum.APPROVED, now);
+
+        em.flush();
+
+        // dueDate 기준 오름차순 정렬
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("dueDate").ascending());
+
+        // when
+        Page<Rental> page = rentalRepository.findAllByStatuses(
+                Collections.singletonList(RentalStatusEnum.APPROVED),
+                pageable
+        );
+
+        // then: 모두 APPROVED 상태 → 총 3개, dueDate ASC (r1, r2, r3)
+        assertThat(page.getTotalElements()).isEqualTo(3);
+        assertThat(page.getContent())
+                .containsExactly(r1, r2, r3);
+    }
+
+    @Test
+    @DisplayName("7. (findAllByStatuses) paged + sort by startDate DESC → startDate DESC 순으로 반환")
+    void whenPagedAndSortByStartDateDesc_findAllByStatuses_ordersByStartDateDesc() {
+        // given
+        LocalDateTime now = LocalDateTime.now();
+        Member owner = saveMember("ownerC");
+        Member renter = saveMember("renterC");
+
+        // saveRental 설정에 따라 startDate = requestDate + 1일
+        Rental r1 = saveRental(owner, renter, RentalStatusEnum.REQUESTED, now.minusDays(3)); // startDate = now.minusDays(2)
+        Rental r2 = saveRental(owner, renter, RentalStatusEnum.REQUESTED, now.minusDays(2)); // startDate = now.minusDays(1)
+        Rental r3 = saveRental(owner, renter, RentalStatusEnum.REQUESTED, now.minusDays(1)); // startDate = now
+
+        em.flush();
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("startDate").descending());
+
+        // when
+        Page<Rental> page = rentalRepository.findAllByStatuses(
+                Collections.singletonList(RentalStatusEnum.REQUESTED),
+                pageable
+        );
+
+        // then: 총 3개, startDate DESC (r3, r2, r1)
+        assertThat(page.getTotalElements()).isEqualTo(3);
+        assertThat(page.getContent()).containsExactly(r3, r2, r1);
+    }
+
+    // — 헬퍼 메서드: 중복 코드 방지 —
     private Member saveMember(String name) {
         Member m = Student.builder()                 // STUDENT 서브클래스 예시
                 .email(name + "@test.com")
-                .password("pwd")                    // 필수 컬럼 최소값
+                .password("pwd")
                 .name(name)
                 .nickname("Nick" + name)
                 .role(MemberRoleEnum.STUDENT)
