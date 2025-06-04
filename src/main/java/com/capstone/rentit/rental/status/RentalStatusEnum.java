@@ -8,5 +8,6 @@ public enum RentalStatusEnum {
     LEFT_IN_LOCKER,
     PICKED_UP,
     RETURNED_TO_LOCKER,
-    COMPLETED
+    COMPLETED,
+    DELAYED
 }
