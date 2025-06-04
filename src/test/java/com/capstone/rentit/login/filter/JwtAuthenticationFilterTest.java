@@ -60,7 +60,7 @@ class JwtAuthenticationFilterTest {
         request.addHeader("Authorization", "Bearer " + token);
 
         when(tokenProvider.validateToken(token)).thenReturn(true);
-        when(tokenProvider.getUsernameFromJWT(token)).thenReturn("user@test.com");
+        when(tokenProvider.getUsername(token)).thenReturn("user@test.com");
         UserDetails userDetails = new User(
                 "user@test.com",
                 "pwd",
