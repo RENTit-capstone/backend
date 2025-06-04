@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -113,20 +111,19 @@ public class MemberService {
     }
 
     private ItemBriefResponse toItemBrief(Item item) {
-        return ItemBriefResponse.fromEntity(item, firstImageUrl(item));
+        return ItemBriefResponse.fromEntity(item, getFirstImageUrl(item));
     }
 
-    private List<RentalBriefResponse> mapRentals(Set<Rental> rentals,
-                                                 boolean asOwner) {
+    private List<RentalBriefResponse> mapRentals(Set<Rental> rentals, boolean asOwner) {
         return rentals.stream()
                 .map(r -> RentalBriefResponse.fromEntity(
                         r,
-                        getReturnImageUrl(r),
+                        getFirstImageUrl(r.getItem()),
                         asOwner))
                 .toList();
     }
 
-    private String firstImageUrl(Item item) {
+    private String getFirstImageUrl(Item item) {
         if (item == null || item.getImageKeys() == null || item.getImageKeys().isEmpty()) {
             return "";
         }
