@@ -3,6 +3,7 @@ package com.capstone.rentit.rental.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
+import com.capstone.rentit.rental.dto.RentalBriefResponse;
 import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
 import com.capstone.rentit.rental.dto.RentalSearchForm;
@@ -85,10 +86,7 @@ public class RentalController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping(
-            path = "/rentals/{rentalId}/return-image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(path = "/rentals/{rentalId}/return-image")
     public CommonResponse<Void> uploadReturnImage(
             @Login MemberDto memberDto,
             @PathVariable Long rentalId,
@@ -97,11 +95,21 @@ public class RentalController {
         return CommonResponse.success(null);
     }
 
-    /** 관리자용: 특정 사용자 대여 목록 조회 */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/rentals/{userId}")
-    public CommonResponse<List<RentalDto>> getRentalsByUser(@PathVariable("userId") Long userId) {
-        List<RentalDto> list = rentalService.getRentalsByUser(userId);
+    public CommonResponse<List<RentalBriefResponse>> getRentalsByUser(@PathVariable("userId") Long userId) {
+        List<RentalBriefResponse> list = rentalService.getRentalsByUser(userId);
         return CommonResponse.success(list);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/rentals")
+    public CommonResponse<Page<RentalBriefResponse>> getAllRentals(
+            @ModelAttribute RentalSearchForm searchForm,
+            @PageableDefault(size = 20, sort = "requestDate", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+
+        Page<RentalBriefResponse> page = rentalService.getAllRentals(searchForm, pageable);
+        return CommonResponse.success(page);
     }
 }

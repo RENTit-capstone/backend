@@ -117,12 +117,27 @@ public class RentalService {
 
     /** 관리자: 특정 사용자 대여 목록 조회 */
     @Transactional(readOnly = true)
-    public List<RentalDto> getRentalsByUser(Long userId) {
+    public List<RentalBriefResponse> getRentalsByUser(Long userId) {
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
-        return list.stream().map(r -> RentalDto.fromEntity(
-                        r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
+        return list.stream().map(r ->
+                        RentalBriefResponse.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()), false)
                 )
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RentalBriefResponse> getAllRentals(RentalSearchForm searchForm, Pageable pageable) {
+        List<RentalStatusEnum> statuses = searchForm.getStatuses();
+        Page<Rental> rentalsPage;
+
+        if (statuses == null || statuses.isEmpty()) {
+            rentalsPage = rentalRepository.findAll(pageable);
+        } else {
+            rentalsPage = rentalRepository.findAllByStatuses(statuses, pageable);
+        }
+
+        return rentalsPage.map(r ->
+            RentalBriefResponse.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()), false));
     }
 
     public List<RentalBriefResponseForLocker> findEligibleRentals(Long memberId, RentalLockerAction action) {
