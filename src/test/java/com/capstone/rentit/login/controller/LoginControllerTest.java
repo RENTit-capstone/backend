@@ -136,7 +136,7 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.data").isEmpty())
-                .andExpect(jsonPath("$.message").value("존재하지 않는 사용자 이메일 입니다."));
+                .andExpect(jsonPath("$.message").value("accessToken validation error."));
     }
 
     @DisplayName("로그인 실패 - 잘못된 비밀번호")
@@ -179,7 +179,7 @@ class LoginControllerTest {
 
         when(tokenProvider.validateRefreshToken(oldRefresh))
                 .thenReturn(true);
-        when(tokenProvider.getUsernameFromRefreshToken(oldRefresh))
+        when(tokenProvider.getUsername(oldRefresh))
                 .thenReturn(email);
 
         MemberDetails user = mock(MemberDetails.class);
@@ -240,5 +240,41 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.message").value("refreshToken validation error."));
+    }
+
+    @DisplayName("로그아웃 성공")
+    @Test
+    void logout_success() throws Exception {
+        // given
+        String refresh = "GOOD_REFRESH_TOKEN";
+
+        when(tokenProvider.validateRefreshToken(refresh))
+                .thenReturn(true);
+        // revokeRefreshToken() → void 메서드이므로 doNothing() 생략 가능
+        // Mockito.doNothing().when(tokenProvider).revokeRefreshToken(refresh);
+
+        JwtTokens req = new JwtTokens();
+        req.setAccessToken("ignored");
+        req.setRefreshToken(refresh);
+
+        // when / then
+        mockMvc.perform(post("/api/v1/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isEmpty())   // data == null
+                .andExpect(jsonPath("$.message").value(""))
+                .andDo(document("logout-success",
+                        requestFields(
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("(사용 안함) 아무 값 가능"),
+                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("로그아웃할 Refresh Token")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+                                fieldWithPath("data").type(JsonFieldType.NULL).description("항상 null"),
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("성공 시 빈 문자열")
+                        )
+                ));
     }
 }

@@ -3,85 +3,89 @@ package com.capstone.rentit.login.provider;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenProvider {
+
+    private final StringRedisTemplate redis;
 
     private final Key key;
     private final long jwtExpirationInMs;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long expiration) {
-//        byte[] keyBytes = Decoders.BASE64.decode(secret);
+    private final Duration refreshTtl;
+
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration}") long expiration,
+            @Value("${jwt.refresh-ttl-min}") long refreshTtlMin,
+            StringRedisTemplate redis) {
+
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.jwtExpirationInMs = expiration;
+        this.refreshTtl = Duration.ofMinutes(refreshTtlMin);
+        this.redis = redis;
     }
 
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
-        // signWith 메서드는 이제 Key 객체와 SignatureAlgorithm을 함께 넘겨줍니다.
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
+        return buildToken(authentication.getName(), jwtExpirationInMs);
     }
 
     public String generateRefreshToken(Authentication authentication) {
-        String username = authentication.getName();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs * 3);
+        String token = buildToken(authentication.getName(), refreshTtl.toMillis());
 
+        // key = "refresh:{token}", value = username, TTL = refreshTtl
+        redis.opsForValue().set(refreshKey(token), authentication.getName(), refreshTtl);
+        return token;
+    }
+
+    private String buildToken(String subject, long ttlMs) {
+        Date now = new Date();
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(subject)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setExpiration(new Date(now.getTime() + ttlMs))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
-    }
-
-    public String getUsernameFromRefreshToken(String refreshToken) {
-        return getUsernameFromJWT(refreshToken);
-    }
-
-    public boolean validateToken(String authToken) {
+    public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException ex) {
-            log.error("Invalid JWT signature or token", ex);
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token", ex);
-        } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token", ex);
-        } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.", ex);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.debug("JWT 검증 실패: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 
-    public boolean validateRefreshToken(String refreshToken) {
-        return validateToken(refreshToken);
+    /** ── 리프레시 토큰 검증 (Redis 존재 여부 + JWT 구조 검증) ─── */
+    public boolean validateRefreshToken(String token) {
+        if (!validateToken(token)) return false;
+        return redis.hasKey(refreshKey(token));
     }
+
+    public String getUsername(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public void revokeRefreshToken(String token) {
+        redis.delete(refreshKey(token));
+    }
+
+    private String refreshKey(String token) { return "refresh:" + token; }
 }

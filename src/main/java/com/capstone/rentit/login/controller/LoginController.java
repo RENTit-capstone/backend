@@ -29,7 +29,6 @@ public class LoginController {
 
     @PostMapping("/auth/login")
     public CommonResponse<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        MemberDto memberDto = memberService.getMemberByEmail(loginRequest.getEmail());
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -38,12 +37,14 @@ public class LoginController {
                             loginRequest.getPassword()
                     )
             );
+            MemberDto memberDto = memberService.getMemberByEmail(loginRequest.getEmail());
+
             String accessToken = tokenProvider.generateToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            return new CommonResponse<>(true, new LoginResponse(memberDto.getMemberId(), accessToken, refreshToken), "");
+            return CommonResponse.success(new LoginResponse(memberDto.getMemberId(), accessToken, refreshToken));
         } catch (Exception ex) {
-            return new CommonResponse<>(false, null, "accessToken validation error.");
+            return CommonResponse.failure("accessToken validation error.");
         }
     }
 
@@ -52,12 +53,12 @@ public class LoginController {
         String refreshToken = tokens.getRefreshToken();
 
         if (refreshToken == null || !tokenProvider.validateRefreshToken(refreshToken)) {
-            return new CommonResponse<>(false, null, "refreshToken validation error.");
+            return CommonResponse.failure("refreshToken validation error.");
 
         }
 
         // refresh 토큰에서 username 추출 후, 해당 사용자 정보를 로드
-        String username = tokenProvider.getUsernameFromRefreshToken(refreshToken);
+        String username = tokenProvider.getUsername(refreshToken);
         MemberDetails userDetails = (MemberDetails)memberDetailsService.loadUserByUsername(username);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -65,7 +66,20 @@ public class LoginController {
         String newAccessToken = tokenProvider.generateToken(authentication);
         String newRefreshToken = tokenProvider.generateRefreshToken(authentication);
 
-        return new CommonResponse<>(true, new LoginResponse(userDetails.getMemberId(), newAccessToken, newRefreshToken), "");
+        return CommonResponse.success(new LoginResponse(userDetails.getMemberId(), newAccessToken, newRefreshToken));
 
+    }
+
+    @PostMapping("/auth/logout")
+    public CommonResponse<?> logout(@RequestBody JwtTokens tokens) {
+
+        String refreshToken = tokens.getRefreshToken();
+        if (refreshToken != null && tokenProvider.validateRefreshToken(refreshToken)) {
+            tokenProvider.revokeRefreshToken(refreshToken);   // Redis에서 키 제거
+        }
+
+        SecurityContextHolder.clearContext();
+
+        return CommonResponse.success(null);
     }
 }
