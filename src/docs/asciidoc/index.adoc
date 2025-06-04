@@ -296,7 +296,8 @@ include::{snippets}/delete-item/response-fields.adoc[]
     LEFT_IN_LOCKER, //물품 소유자가 사물함에 맡김
     PICKED_UP, //물품 대여자가 사물함에서 꺼내감
     RETURNED_TO_LOCKER, //물품 대여자가 사물함에 반납함
-    COMPLETED //물품 소유자가 사물함에서 물품을 회수함
+    COMPLETED, //물품 소유자가 사물함에서 물품을 회수함
+    DELAYED //연체 됨
 }
 ----
 === 대여 요청 생성
@@ -388,6 +389,33 @@ include::{snippets}/upload-return-image/response-fields.adoc[]
 
 ==== HTTP 응답
 include::{snippets}/upload-return-image/http-response.adoc[]
+
+=== 관리자용 사용자 대여 조회
+GET /api/v1/admin/rentals/{userId}
+
+==== HTTP 요청
+include::{snippets}/get-rentals-by-user/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/get-rentals-by-user/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/get-rentals-by-user/http-response.adoc[]
+
+=== 관리자용 대여 전체 조회
+GET /api/v1/admin/rentals
+
+==== HTTP 요청
+include::{snippets}/get-all-rentals/query-parameters.adoc[]
+
+==== HTTP 요청
+include::{snippets}/get-all-rentals/http-request.adoc[]
+
+==== 응답 필드
+include::{snippets}/get-all-rentals/response-fields.adoc[]
+
+==== HTTP 응답
+include::{snippets}/get-all-rentals/http-response.adoc[]
 
 == OTP API
 === OTP 요청
