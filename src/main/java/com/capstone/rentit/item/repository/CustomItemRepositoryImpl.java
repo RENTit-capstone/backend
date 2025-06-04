@@ -160,16 +160,19 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
         return q.fetch();
     }
 
-    private OrderSpecifier<?> defaultOrder() {
-        return item.createdAt.desc();
-    }
-
     private OrderSpecifier<?> orderSpecifier(Pageable pageable) {
-        Sort.Order order = pageable.getSort().getOrderFor("createdAt");
-        if (order != null) {
-            return order.isAscending()
-                    ? item.createdAt.asc()
-                    : item.createdAt.desc();
+        if (pageable.getSort().isSorted()) {
+            for (Sort.Order order : pageable.getSort()) {
+                String property = order.getProperty();
+                boolean asc = order.isAscending();
+
+                if ("price".equals(property)) {
+                    return asc ? item.price.asc() : item.price.desc();
+                }
+                if ("createdAt".equals(property)) {
+                    return asc ? item.createdAt.asc() : item.createdAt.desc();
+                }
+            }
         }
         return item.createdAt.desc();
     }
