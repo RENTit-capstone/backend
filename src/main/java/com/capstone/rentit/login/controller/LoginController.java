@@ -10,6 +10,7 @@ import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Slf4j
 public class LoginController {
 
     private final AuthenticationManager authenticationManager;
@@ -44,6 +46,7 @@ public class LoginController {
 
             return CommonResponse.success(new LoginResponse(memberDto.getMemberId(), accessToken, refreshToken));
         } catch (Exception ex) {
+            log.info("login error: {}", ex.getMessage());
             return CommonResponse.failure("accessToken validation error.");
         }
     }
