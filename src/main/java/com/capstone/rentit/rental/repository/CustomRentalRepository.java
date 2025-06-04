@@ -11,4 +11,5 @@ import java.util.List;
 public interface CustomRentalRepository {
     Page<Rental> findAllByUserIdAndStatuses(Long userId, List<RentalStatusEnum> statuses, Pageable pageable);
     List<Rental> findEligibleRentals(Long memberId, RentalLockerAction action);
+    Page<Rental> findAllByStatuses(List<RentalStatusEnum> statuses, Pageable pageable);
 }
