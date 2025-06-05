@@ -48,10 +48,11 @@ public class RentalService {
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
-        paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rental.getRentalId());
+        Long rentalId = rentalRepository.save(rental).getRentalId();
+        paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rentalId);
 
 //        notificationService.notifyRentRequest(rental);
-        return rentalRepository.save(rental).getRentalId();
+        return rentalId;
     }
 
     /** 현재 사용자(소유자/대여자)의 대여 목록 조회 */
