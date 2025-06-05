@@ -28,11 +28,21 @@ public class RegisterController {
 
     @PostMapping("/auth/signup")
     public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
-        memberService.ensureEmailNotRegistered(form.getEmail());
-        univCertService.ensureCertified(form.getEmail());
+        boolean succeed = false;
+        try {
+            memberService.ensureEmailNotRegistered(form.getEmail());
+            univCertService.ensureCertified(form.getEmail());
 
-        Long memberId = memberService.createMember(form);
-        return CommonResponse.success(memberId);
+            Long memberId = memberService.createMember(form);
+
+            succeed = true;
+            return CommonResponse.success(memberId);
+        } finally {
+            if(!succeed){
+                univCertService.clear(form.getEmail());
+            }
+        }
+
     }
 
     @PostMapping("/auth/signup/verify-email")
