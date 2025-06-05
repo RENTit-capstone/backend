@@ -167,4 +167,8 @@ public class Rental {
                 .dueDate(form.getDueDate())
                 .build();
     }
+
+    public void markDelayed() {
+        this.status = RentalStatusEnum.DELAYED;
+    }
 }

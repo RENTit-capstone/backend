@@ -19,15 +19,4 @@ public class WebConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new LoginMemberArgumentResolver(fileStorageService));
     }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry
-                .addMapping("/api/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-//                .allowCredentials(true)
-                .maxAge(3600);
-    }
 }
