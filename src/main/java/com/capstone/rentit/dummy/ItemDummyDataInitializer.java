@@ -35,18 +35,38 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
 
         /* 15 개의 고정 샘플 (5명 × 3개) */
         String[] names = {
-                "접이식 우산", "접이식 우산", "접이식 우산",
-                "접이식 우산", "접이식 우산", "접이식 우산",
-                "접이식 우산", "접이식 우산", "접이식 우산",
-                "Apple iPad 10.2", "JBL Flip 6", "Nintendo Switch Lite",
-                "Seagate 2TB SSD", "Wacom Intuos S", "DJI Osmo Mobile 6"
+                "접이식 우산",
+                "삼성 13인치 노트북",
+                "보스 노이즈캔슬링 헤드폰",
+                "캐논 EOS M50 미러리스 카메라",
+                "TI-84 그래프 계산기",
+                "샤오미 10000mAh 보조 배터리",
+                "로지텍 휴대용 무소음 마우스",
+                "킨들 페이퍼화이트 전자책 리더",
+                "고프로 히어로9 액션 카메라",
+                "애플 아이패드 10.2",
+                "JBL Flip 6 블루투스 스피커",
+                "닌텐도 스위치 라이트",
+                "시게이트 2TB 외장 SSD",
+                "와콤 인튜어스 S 드로잉 태블릿",
+                "DJI 오즈모 모바일 6 짐벌"
         };
         String[] desc = {
-                "최신 안드로이드 스마트폰.", "초경량 13인치 노트북.", "노캔 무선 헤드폰.",
-                "입문용 미러리스 카메라.", "그래프 계산기.", "10000mAh 보조 배터리.",
-                "저소음 휴대용 마우스.", "전자잉크 e-리더기.", "액션 카메라.",
-                "가성비 태블릿.", "휴대용 블루투스 스피커.", "휴대용 게임기.",
-                "외장 SSD 2TB.", "드로잉 태블릿.", "스마트폰 짐벌."
+                "비 오는 날 간편하게 휴대 가능한 소형 접이식 우산입니다.",
+                "휴대성과 성능을 겸비한 삼성 13인치 노트북입니다.",
+                "강력한 노이즈 캔슬링 기능을 제공하는 무선 헤드폰입니다.",
+                "풀 HD 동영상 촬영이 가능한 입문용 미러리스 카메라입니다.",
+                "복잡한 수학 계산과 그래프 기능을 지원하는 그래프 계산기입니다.",
+                "휴대폰 충전을 위한 고용량 10000mAh 보조 배터리입니다.",
+                "저소음 클릭으로 도서관 등 환경에서도 사용하기 좋은 무선 마우스입니다.",
+                "야간 독서에도 적합한 전자잉크 기반의 전자책 리더기입니다.",
+                "4K 영상 촬영과 방수 기능을 제공하는 액션 카메라입니다.",
+                "교육용 및 멀티미디어 감상에 적합한 10.2인치 태블릿입니다.",
+                "강력한 베이스와 휴대성을 갖춘 방수 블루투스 스피커입니다.",
+                "휴대용으로 최적화된 게임 플레이가 가능한 닌텐도 스위치 라이트입니다.",
+                "빠른 데이터 전송 속도를 자랑하는 2TB 외장 SSD입니다.",
+                "초보자용에 적합한 라이트 스타일의 드로잉 태블릿입니다.",
+                "스마트폰 촬영 시 안정적인 영상을 위한 3축 짐벌입니다."
         };
 
         ItemStatusEnum[] statuses = ItemStatusEnum.values();
@@ -57,7 +77,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
         for (Member owner : owners) {
             for (int j = 0; j < ITEMS_PER_MEMBER; j++, global++) {
                 int i     = global % names.length;
-                int price = 1_000 * (i + 1);               // 1 000 원 단위
+                int price = 1_000 * (i + 1);               // 1,000원 단위
                 ItemStatusEnum st = statuses[global % statuses.length];
 
                 itemRepository.save(Item.builder()
