@@ -61,6 +61,13 @@ public class UnivCertService {
         }
     }
 
+    public void clear(String email) {
+        ApiResponse resp = post("/clear", Map.of(
+                "key", apiKey,
+                "email", email
+        ));
+    }
+
     public void clearAll() {
         ApiResponse resp = post("/clear", Map.of("key", apiKey));
         if (!resp.isSuccess()) {
