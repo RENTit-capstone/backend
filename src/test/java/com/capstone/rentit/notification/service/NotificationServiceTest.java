@@ -83,7 +83,7 @@ class NotificationServiceTest {
             long rid = 1, ownerId = 10;
             Rental r = stubRental(rid, ownerId, 20);
             Member owner = member(ownerId, "tokenA");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -120,7 +120,7 @@ class NotificationServiceTest {
             Rental r = stubRental(rid, ownerId, 21);
             stubLocker(r, "UniX", "Floor2", 5);
             Member owner = member(ownerId, "tokenB");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -149,7 +149,7 @@ class NotificationServiceTest {
             Rental r = stubRental(rid, 12, renterId);
             Member renterMember = member(renterId, "tokenC");
             when(r.getRenterMember()).thenReturn(renterMember);
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renterMember));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -177,7 +177,7 @@ class NotificationServiceTest {
             Rental r = stubRental(rid, 13, renterId);
             stubLocker(r, "UniY", "B1", 7);
             Member renter = member(renterId, "tokenD");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renter));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -205,7 +205,7 @@ class NotificationServiceTest {
             long rid = 5, renterId = 24;
             Rental r = stubRental(rid, 14, renterId);
             Member renter = member(renterId, "tokenE");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renter));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -232,7 +232,7 @@ class NotificationServiceTest {
             long rid = 6, ownerId = 15;
             Rental r = stubRental(rid, ownerId, 25);
             Member owner = member(ownerId, "tokenF");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -260,7 +260,7 @@ class NotificationServiceTest {
             long rid = 7, ownerId = 16;
             Rental r = stubRental(rid, ownerId, 26);
             Member owner = member(ownerId, "tokenG");
-            when(rentalRepository.findById(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
