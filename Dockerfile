@@ -22,6 +22,11 @@ RUN mkdir -p src/main/resources/firebase \
  && echo "$APPLICATION_YML" | base64 -d > src/main/resources/application.yml \
  && echo "$FCM_JSON" | base64 -d > src/main/resources/firebase/rentit-5b36b-firebase-adminsdk-fbsvc-ab4f4216ef.json
 
+ARG KEYSTORE_BASE64
+ENV KEYSTORE_BASE64=${KEYSTORE_BASE64}
+
+RUN echo "$KEYSTORE_BASE64" | base64 -d > src/main/resources/keystore.p12
+
 # 테스트 + 패키징 (테스트는 한 번만 실행)
 RUN ./gradlew --no-daemon clean test \
  && ./gradlew --no-daemon bootJar -x asciidoctor -x test
