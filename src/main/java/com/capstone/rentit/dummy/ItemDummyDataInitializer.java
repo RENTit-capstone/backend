@@ -5,6 +5,7 @@ import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.repository.MemberRepository;
+import com.capstone.rentit.member.status.MemberRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -75,6 +76,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
 
         int global = 0;
         for (Member owner : owners) {
+            if(owner.getRole() == MemberRoleEnum.ADMIN) continue;
             for (int j = 0; j < ITEMS_PER_MEMBER; j++, global++) {
                 int i     = global % names.length;
                 int price = 1_000 * (i + 1);               // 1,000원 단위
