@@ -22,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -146,6 +147,18 @@ public class CustomRentalRepositoryImpl implements CustomRentalRepository {
                 .where(builder)
                 .orderBy(r.requestDate.desc())
                 .fetch();
+    }
+
+    @Override
+    public Optional<Rental> findByIdWithItem(Long rentalId) {
+        QItem item = QItem.item;
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(rental)
+                        .leftJoin(rental.item, item).fetchJoin() // Item을 fetch join
+                        .where(rental.rentalId.eq(rentalId))
+                        .fetchOne()
+        );
     }
 
     private OrderSpecifier<?> orderSpecifier(Pageable pageable) {

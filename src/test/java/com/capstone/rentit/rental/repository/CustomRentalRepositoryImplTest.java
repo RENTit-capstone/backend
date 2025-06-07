@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -384,6 +385,46 @@ class CustomRentalRepositoryImplTest {
         assertThat(page.getContent()).containsExactly(r3, r2, r1);
     }
 
+    @Test
+    @DisplayName("8. findByIdWithItem: 유효한 rentalId로 Rental과 Item을 fetch join하여 가져온다")
+    void findByIdWithItem_returnsRentalWithItem() {
+        // Given
+        Member owner = saveMember("testOwner");
+        Member renter = saveMember("testRenter");
+        Item item = saveItem(owner, "Test Item Name");
+        Rental rental = saveRental(owner, renter, item, RentalStatusEnum.REQUESTED, LocalDateTime.now());
+        em.flush(); // 변경 사항을 DB에 반영
+        em.clear(); // 영속성 컨텍스트 초기화하여 fetch join 효과를 확실히 테스트
+
+        // When
+        Optional<Rental> foundRentalOptional = rentalRepository.findByIdWithItem(rental.getRentalId());
+
+        // Then
+        assertThat(foundRentalOptional).isPresent();
+        Rental foundRental = foundRentalOptional.get();
+
+        // Rental ID가 일치하는지 확인
+        assertThat(foundRental.getRentalId()).isEqualTo(rental.getRentalId());
+
+        // Item이 null이 아닌지, 그리고 fetch join으로 잘 가져와졌는지 확인
+        assertThat(foundRental.getItem()).isNotNull();
+        assertThat(foundRental.getItem().getItemId()).isEqualTo(item.getItemId());
+        assertThat(foundRental.getItem().getName()).isEqualTo("Test Item Name");
+    }
+
+    @Test
+    @DisplayName("9. findByIdWithItem: 존재하지 않는 rentalId로 조회 시 Optional.empty()를 반환한다")
+    void findByIdWithItem_returnsEmptyForNonExistingId() {
+        // Given
+        Long nonExistingRentalId = 999L; // 존재하지 않는 ID
+
+        // When
+        Optional<Rental> foundRentalOptional = rentalRepository.findByIdWithItem(nonExistingRentalId);
+
+        // Then
+        assertThat(foundRentalOptional).isEmpty(); // Optional이 비어있음을 확인
+    }
+
     // — 헬퍼 메서드: 중복 코드 방지 —
     private Member saveMember(String name) {
         Member m = Student.builder()                 // STUDENT 서브클래스 예시
@@ -422,6 +463,24 @@ class CustomRentalRepositoryImplTest {
                               LocalDateTime requestDate) {
 
         Item item = saveItem(owner, "item-" + requestDate.toString());
+
+        Rental r = Rental.builder()
+                .ownerId(owner.getMemberId())
+                .renterId(renter.getMemberId())
+                .itemId(item.getItemId())
+                .status(status)
+                .requestDate(requestDate)
+                .startDate(requestDate.plusDays(1))
+                .dueDate(requestDate.plusDays(7))
+                .build();
+        em.persist(r);
+        return r;
+    }
+    private Rental saveRental(Member owner,
+                              Member renter,
+                              Item item,
+                              RentalStatusEnum status,
+                              LocalDateTime requestDate) {
 
         Rental r = Rental.builder()
                 .ownerId(owner.getMemberId())
