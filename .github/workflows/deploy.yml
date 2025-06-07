@@ -103,7 +103,6 @@ jobs:
               -e FCM_JSON="${{ secrets.FCM_JSON }}" \
               -v spring_logs:/tmp/spring_logs \
               -p 8080:8080 \
-              -p 8443:8443 \
               "${{ secrets.DOCKER_REPO }}:latest"
             
             # .env 생성 (Base64 → 평문 디코딩)
