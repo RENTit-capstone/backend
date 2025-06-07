@@ -9,16 +9,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class HttpsRedirectConfig {
 
-    @Bean
-    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerFactory() {
-        return server -> {
-            Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-            connector.setScheme("http");
-            connector.setPort(8080);
-            connector.setSecure(false);
-            connector.setRedirectPort(8443);
-            server.addAdditionalTomcatConnectors(connector);
-        };
-    }
+//    @Bean
+//    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerFactory() {
+//        return server -> {
+//            Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+//            connector.setScheme("http");
+//            connector.setPort(8080);
+//            connector.setSecure(false);
+//            connector.setRedirectPort(8443);
+//            server.addAdditionalTomcatConnectors(connector);
+//        };
+//    }
 }
 
