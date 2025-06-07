@@ -51,7 +51,7 @@ public class RentalService {
         Long rentalId = rentalRepository.save(rental).getRentalId();
         paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rentalId);
 
-//        notificationService.notifyRentRequest(rental);
+        notificationService.notifyRentRequest(rentalId);
         return rentalId;
     }
 
@@ -83,7 +83,7 @@ public class RentalService {
         item.updateOut();
 
         paymentService.payRentalFee(rentalId);
-//        notificationService.notifyRequestAccepted(r);
+        notificationService.notifyRequestAccepted(rentalId);
     }
 
     /** 5) 대여 거절 (소유자/관리자) */
@@ -93,7 +93,7 @@ public class RentalService {
         r.reject(LocalDateTime.now());
 
         paymentService.cancelPayment(rentalId);
-//        notificationService.notifyRentRejected(r);
+        notificationService.notifyRentRejected(rentalId);
     }
 
     /** 6) 대여 취소 (반드시 대여자만) */
@@ -107,7 +107,7 @@ public class RentalService {
         item.updateAvailable();
 
         paymentService.cancelPayment(rentalId);
-//        notificationService.notifyRequestCancel(r);
+        notificationService.notifyRequestCancel(rentalId);
     }
 
     private void assertBeforeApproved(Rental r) {
@@ -158,7 +158,7 @@ public class RentalService {
         r.assignLocker(deviceId, lockerId);
         r.dropOffByOwner(LocalDateTime.now());
 
-//        notificationService.notifyItemPlaced(r);
+        notificationService.notifyItemPlaced(rentalId);
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
@@ -180,7 +180,7 @@ public class RentalService {
 
         r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
-//        notificationService.notifyItemReturned(r);
+        notificationService.notifyItemReturned(rentalId);
     }
 
     public void uploadReturnImage(Long rentalId, Long renterId, String returnImageKey) {
