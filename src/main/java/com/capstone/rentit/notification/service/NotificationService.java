@@ -192,6 +192,6 @@ public class NotificationService {
     }
 
     private Rental findRental(Long rentalId){
-        return rentalRepository.findById(rentalId).orElseThrow(() -> new RentalNotFoundException("존재하지 않는 대여 정보입니다."));
+        return rentalRepository.findByIdWithItem(rentalId).orElseThrow(() -> new RentalNotFoundException("존재하지 않는 대여 정보입니다."));
     }
 }
