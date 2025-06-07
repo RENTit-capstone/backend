@@ -25,7 +25,7 @@ public abstract class MemberSearchResponse {
         } else if (m.getRole() == MemberRoleEnum.COMPANY) {
             return CompanySearchResponse.fromEntity((Company) m, presignedUrl);
         } else {
-            throw new MemberTypeMismatchException("지원하지 않는 회원 타입입니다.");
+            throw new MemberTypeMismatchException("지원하지 않는 회원 타입입니다. [" + m.getRole() + "]");
         }
     }
 }
