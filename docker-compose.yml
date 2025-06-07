@@ -25,6 +25,23 @@ services:
     restart: unless-stopped
     networks:
       - monitoring
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: node-exporter
+    pid: "host"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+    volumes:
+      - /:/rootfs:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    networks:
+      - monitoring
 
   loki:
     image: grafana/loki:3.5.1
