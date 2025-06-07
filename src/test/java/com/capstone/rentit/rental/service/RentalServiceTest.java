@@ -107,7 +107,7 @@ class RentalServiceTest {
     @Test
     @DisplayName("requestRental: 정상 저장 후 ID 반환")
     void requestRental_success() {
-        Item avail = Item.builder().itemId(100L).status(ItemStatusEnum.AVAILABLE).build();
+        Item avail = Item.builder().itemId(100L).ownerId(999L).status(ItemStatusEnum.AVAILABLE).build();
         given(itemRepository.findById(100L)).willReturn(Optional.of(avail));
 
         Rental saved = Rental.builder()
