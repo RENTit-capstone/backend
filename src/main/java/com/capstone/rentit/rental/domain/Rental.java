@@ -53,6 +53,7 @@ public class Rental {
     @JoinColumn(name = "renter_id", insertable = false, updatable = false)
     private Member renterMember;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item;

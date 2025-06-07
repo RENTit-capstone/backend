@@ -48,6 +48,8 @@ public class RentalService {
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
+        rental.setItem(item);
+
         Long rentalId = rentalRepository.save(rental).getRentalId();
         paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rentalId);
 
