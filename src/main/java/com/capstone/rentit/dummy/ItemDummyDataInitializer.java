@@ -70,7 +70,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                 "스마트폰 촬영 시 안정적인 영상을 위한 3축 짐벌입니다."
         };
 
-        ItemStatusEnum[] statuses = ItemStatusEnum.values();
+        ItemStatusEnum[] statuses = {ItemStatusEnum.OUT, ItemStatusEnum.AVAILABLE};
         final int ITEMS_PER_MEMBER = 3;
         LocalDateTime now = LocalDateTime.now();
 
