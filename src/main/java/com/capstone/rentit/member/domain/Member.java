@@ -110,4 +110,8 @@ public abstract class Member {
     public void updateFcmToken(String token) {
         this.fcmToken = token;
     }
+
+    public void updateLocked(boolean value){
+        this.locked = value;
+    }
 }

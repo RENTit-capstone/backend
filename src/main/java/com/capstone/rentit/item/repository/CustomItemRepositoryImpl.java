@@ -43,7 +43,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                 .select(item)
                 .from(item)
                 .join(item.owner, member).fetchJoin()
-                .where(item.itemId.eq(itemId))
+                .where(item.itemId.eq(itemId), item.status.ne(ItemStatusEnum.DELETED))
                 .fetchOne();
 
         return Optional.ofNullable(found);
@@ -187,7 +187,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private BooleanExpression statusEq(ItemStatusEnum status) {
         return status != null
                 ? item.status.eq(status)
-                : null;
+                : item.status.ne(ItemStatusEnum.DELETED);
     }
 
     private BooleanExpression startDateGoe(LocalDateTime date) {

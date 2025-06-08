@@ -319,20 +319,32 @@ class MemberServiceTest {
                 .hasMessage("회원 유형이 일치하지 않습니다.");
     }
 
-    @Test @DisplayName("회원 삭제 성공")
+    @Test
+    @DisplayName("회원 비활성화(잠금) 성공")
     void deleteMember_success() {
-        Student mock = stubStudent();
-        when(memberRepository.findById(ID)).thenReturn(Optional.of(mock));
+        // given: 테스트용 Member(Student) mock 객체를 생성합니다.
+        Student mockMember = mock(Student.class);
 
+        // 이제 mockMember는 Mockito가 추적할 수 있는 mock 객체입니다.
+        when(memberRepository.findById(ID)).thenReturn(Optional.of(mockMember));
+
+        // when
         memberService.deleteMember(ID);
 
-        verify(memberRepository).delete(mock);
+        // then
+        // mock 객체를 대상으로 verify를 수행하므로 정상 동작합니다.
+        verify(mockMember).updateLocked(true);
+        verify(memberRepository, never()).delete(any(Member.class));
     }
 
-    @Test @DisplayName("삭제 시 ID 없으면 MemberNotFoundException")
+    @Test
+    @DisplayName("삭제 시 ID 없으면 MemberNotFoundException")
     void deleteMember_notFound() {
+        // given: repository가 ID로 조회 시 빈 Optional을 반환하도록 설정합니다.
         when(memberRepository.findById(ID)).thenReturn(Optional.empty());
 
+        // when & then: deleteMember 메서드 호출 시 MemberNotFoundException이 발생하는지 검증합니다.
+        // 이 테스트는 새로운 로직에서도 유효하므로 수정할 필요가 없습니다.
         assertThatThrownBy(() -> memberService.deleteMember(ID))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessage("존재하지 않는 사용자 ID 입니다.");
