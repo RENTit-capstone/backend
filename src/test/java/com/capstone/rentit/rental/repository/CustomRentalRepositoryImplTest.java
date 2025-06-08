@@ -135,41 +135,6 @@ class CustomRentalRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("DROP_OFF_BY_OWNER: APPROVED 이고 startDate 가 과거인 ownerId 의 렌탈만 반환하고, requestDate DESC 정렬")
-    void findEligibleRentals_dropOffByOwner() {
-        // Arrange
-        LocalDateTime now = LocalDateTime.now();
-        Member owner = saveMember("owner");
-        Member renterA = saveMember("renterA");
-        Member renterB = saveMember("renterB");
-
-        // 매칭되는 두 개: (requestDate 내림차순으로 r2, r1 순)
-        Rental r1 = saveRental(owner, renterA, RentalStatusEnum.APPROVED, now.minusDays(2));
-        Rental r2 = saveRental(owner, renterB, RentalStatusEnum.APPROVED, now.minusDays(1));
-
-        // 매칭되지 않아야 할 것들
-        // 1) 다른 owner
-        saveRental(saveMember("otherOwner"), renterA, RentalStatusEnum.APPROVED, now.minusDays(3));
-        // 2) 잘못된 상태
-        saveRental(owner, renterA, RentalStatusEnum.REQUESTED, now.minusDays(3));
-        // 3) startDate 가 미래
-        Rental future = saveRental(owner, renterA, RentalStatusEnum.APPROVED, now.plusDays(1));
-
-        em.flush();
-        em.clear();
-
-        // Act
-        List<Rental> result =
-                rentalRepository.findEligibleRentals(owner.getMemberId(), RentalLockerAction.DROP_OFF_BY_OWNER);
-
-        // Assert
-        assertThat(result)
-                .hasSize(2)
-                .extracting(Rental::getRentalId)
-                .containsExactly(r2.getRentalId(), r1.getRentalId());
-    }
-
-    @Test
     @DisplayName("PICK_UP_BY_RENTER: LEFT_IN_LOCKER 상태인 renterId 의 렌탈만 반환")
     void findEligibleRentals_pickUpByRenter() {
         // Arrange

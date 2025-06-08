@@ -130,8 +130,7 @@ public class CustomRentalRepositoryImpl implements CustomRentalRepository {
         switch (action) {
             case DROP_OFF_BY_OWNER -> builder
                     .and(r.ownerId.eq(memberId))
-                    .and(r.status.eq(RentalStatusEnum.APPROVED))
-                    .and(r.startDate.before(LocalDateTime.now()));
+                    .and(r.status.eq(RentalStatusEnum.APPROVED));
             case PICK_UP_BY_RENTER -> builder
                     .and(r.renterId.eq(memberId))
                     .and(r.status.eq(RentalStatusEnum.LEFT_IN_LOCKER));
