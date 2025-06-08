@@ -337,23 +337,38 @@ class ItemServiceTest {
     }
 
     // ------------ deleteItem ------------
-    @DisplayName("deleteItem: 소유자가 ID 존재 시 정상 삭제 처리")
+    @DisplayName("deleteItem: 소유자가 ID 존재 시 정상 삭제 처리 (소프트 삭제)")
     @Test
-    void deleteItem_existingAndOwner_thenDeleteCalled() {
-        when(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
-                .thenReturn(Optional.of(sampleItem));
+    void deleteItem_existingAndOwner_thenCallsItemDelete() {
+        // given
+        // 실제 Item 객체의 메서드 호출을 추적하기 위해 spy 객체 생성
+        Item spiedItem = spy(sampleItem);
 
-        itemService.deleteItem(ownerMember, sampleItem.getItemId());
+        // findWithOwnerByItemId 호출 시 위에서 생성한 spy 객체를 반환하도록 설정
+        when(itemRepository.findWithOwnerByItemId(spiedItem.getItemId()))
+                .thenReturn(Optional.of(spiedItem));
 
-        verify(itemRepository, times(1)).deleteById(sampleItem.getItemId());
+        // when
+        itemService.deleteItem(ownerMember, spiedItem.getItemId());
+
+        // then
+        // 1. item.deleteItem() 메서드가 1번 호출되었는지 검증 (핵심 변경사항)
+        verify(spiedItem, times(1)).deleteItem();
+
+        // 2. repository.deleteById()는 더 이상 호출되지 않으므로, 호출되지 않았음을 검증 (선택사항이지만 좋은 테스트)
+        verify(itemRepository, never()).deleteById(anyLong());
     }
 
     @DisplayName("deleteItem: 존재하지 않는 ID면 ItemNotFoundException")
     @Test
     void deleteItem_missingId_thenThrowNotFound() {
+        // given
+        // findWithOwnerByItemId 호출 시 빈 Optional을 반환하도록 설정
         when(itemRepository.findWithOwnerByItemId(anyLong()))
                 .thenReturn(Optional.empty());
 
+        // when & then
+        // itemService 내부의 findItem() 메서드가 예외를 던지는지 검증
         assertThatThrownBy(() ->
                 itemService.deleteItem(ownerMember, 999L))
                 .isInstanceOf(ItemNotFoundException.class)
@@ -363,10 +378,15 @@ class ItemServiceTest {
     @DisplayName("deleteItem: 소유자가 아니면 ItemUnauthorizedException")
     @Test
     void deleteItem_notOwner_thenThrowUnauthorized() {
+        // given
+        // findWithOwnerByItemId 호출 시 소유자가 다른 Item 객체를 반환하도록 설정
         when(itemRepository.findWithOwnerByItemId(sampleItem.getItemId()))
                 .thenReturn(Optional.of(sampleItem));
 
+        // when & then
+        // itemService 내부의 assertOwner() 메서드가 예외를 던지는지 검증
         assertThatThrownBy(() ->
+                // sampleItem의 소유자가 아닌 otherMember로 삭제 시도
                 itemService.deleteItem(otherMember, sampleItem.getItemId()))
                 .isInstanceOf(ItemUnauthorizedException.class)
                 .hasMessage("자신의 소유 물품이 아닙니다.");

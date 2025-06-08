@@ -81,7 +81,7 @@ public class ItemService {
         Item item = findItem(itemId);
         assertOwner(item, loginMember.getMemberId());
 
-        itemRepository.deleteById(itemId);
+        item.deleteItem();
     }
 
     private Item findItem(Long itemId) {

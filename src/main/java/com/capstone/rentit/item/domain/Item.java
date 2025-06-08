@@ -119,4 +119,8 @@ public class Item {
     public void updateOut(){
         status = ItemStatusEnum.OUT;
     }
+
+    public void deleteItem(){
+        status = ItemStatusEnum.DELETED;
+    }
 }
