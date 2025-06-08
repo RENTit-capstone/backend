@@ -1,6 +1,8 @@
 package com.capstone.rentit.notification.service;
 
 import com.capstone.rentit.inquiry.domain.Inquiry;
+import com.capstone.rentit.locker.domain.Device;
+import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.exception.MemberNotFoundException;
@@ -30,6 +32,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
     private final RentalRepository rentalRepository;
+    private final DeviceRepository deviceRepository;
     private final FcmService fcmService;
 
     public Page<NotificationDto> findByTarget(MemberDto memberDto, Pageable pageable) {
@@ -63,17 +66,18 @@ public class NotificationService {
         }
     }
 
-    public void notifyItemReturned(Long rentalId){
+    public void notifyItemReturned(Long rentalId, Long deviceId, Long lockerId){
         Rental rental = findRental(rentalId);
         Member owner = findMember(rental.getOwnerId());
+        Device device = findDevice(deviceId);
         notify(
                 owner,
                 NotificationType.ITEM_RETURNED,
                 "물품 반납 완료",
                 owner.getNickname() + "님, " + rental.getItem().getName() + " 물품이 반납 되었어요.\n\n"
-                        + "사물함 위치 : " + rental.getLocker().getDevice().getUniversity()
-                        + " " + rental.getLocker().getDevice().getLocationDescription()
-                        + " " + rental.getLockerId() + "번 사물함",
+                        + "사물함 위치 : " + device.getUniversity()
+                        + " " + device.getLocationDescription()
+                        + " " + lockerId + "번 사물함",
                 Map.of("rentalId", rentalId.toString())
         );
     }
@@ -90,17 +94,18 @@ public class NotificationService {
         );
     }
 
-    public void notifyItemPlaced(Long rentalId){
+    public void notifyItemPlaced(Long rentalId, Long deviceId, Long lockerId){
         Rental rental = findRental(rentalId);
         Member renter = findMember(rental.getRenterId());
+        Device device = findDevice(deviceId);
         notify(
                 renter,
                 NotificationType.ITEM_PLACED,
                 "물품 입고 완료",
                 renter.getNickname() + "님, " + rental.getItem().getName() + " 물품이 사물함으로 들어왔어요.\n\n"
-                        + "사물함 위치 : " + rental.getLocker().getDevice().getUniversity()
-                        + " " + rental.getLocker().getDevice().getLocationDescription()
-                        + " " + rental.getLockerId() + "번 사물함",
+                        + "사물함 위치 : " + device.getUniversity()
+                        + " " + device.getLocationDescription()
+                        + " " + lockerId + "번 사물함",
                 Map.of("rentalId", rentalId.toString())
         );
     }
@@ -193,5 +198,9 @@ public class NotificationService {
 
     private Rental findRental(Long rentalId){
         return rentalRepository.findByIdWithItem(rentalId).orElseThrow(() -> new RentalNotFoundException("존재하지 않는 대여 정보입니다."));
+    }
+
+    private Device findDevice(Long deviceId){
+        return deviceRepository.findById(deviceId).orElseThrow(() -> new RuntimeException("존재하지 않는 사물함 정보입니다."));
     }
 }

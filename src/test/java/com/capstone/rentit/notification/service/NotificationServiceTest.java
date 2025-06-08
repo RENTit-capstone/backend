@@ -2,7 +2,7 @@ package com.capstone.rentit.notification.service;
 
 import com.capstone.rentit.inquiry.domain.Inquiry;
 import com.capstone.rentit.locker.domain.Device;
-import com.capstone.rentit.locker.domain.Locker;
+import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.member.domain.Member;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.dto.MemberDto;
@@ -20,7 +20,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -31,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +45,7 @@ class NotificationServiceTest {
     @Mock private NotificationRepository notificationRepository;
     @Mock private MemberRepository       memberRepository;
     @Mock private RentalRepository       rentalRepository;
+    @Mock private DeviceRepository       deviceRepository;
     @Mock private FcmService             fcmService;
     @Captor private ArgumentCaptor<Notification> notificationCaptor;
 
@@ -56,7 +61,6 @@ class NotificationServiceTest {
     // 헬퍼: 기본 Rental stub (item만)
     private Rental stubRental(long rentalId, long ownerId, long renterId) {
         Rental r = mock(Rental.class);
-        when(r.getRentalId()).thenReturn(rentalId);
         when(r.getOwnerId()).thenReturn(ownerId);
         when(r.getRenterId()).thenReturn(renterId);
         var item = com.capstone.rentit.item.domain.Item.builder()
@@ -65,35 +69,37 @@ class NotificationServiceTest {
         return r;
     }
 
-    // 헬퍼: Locker 및 Device stub
-    private void stubLocker(Rental r, String uni, String desc, long lockerId) {
-        Locker locker = mock(Locker.class);
+    // 헬퍼: Device stub
+    private void stubDevice(long deviceId, String university, String locationDesc) {
         Device device = mock(Device.class);
-        when(device.getUniversity()).thenReturn(uni);
-        when(device.getLocationDescription()).thenReturn(desc);
-        when(locker.getDevice()).thenReturn(device);
-        when(r.getLocker()).thenReturn(locker);
-        when(r.getLockerId()).thenReturn(lockerId);
+        when(device.getUniversity()).thenReturn(university);
+        when(device.getLocationDescription()).thenReturn(locationDesc);
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
     }
+
 
     @Nested @DisplayName("notifyRentRequest")
     class RentRequest {
         @Test @DisplayName("정상 호출")
         void success() {
-            long rid = 1, ownerId = 10;
-            Rental r = stubRental(rid, ownerId, 20);
+            // given
+            long rentalId = 1L, ownerId = 10L;
+            Rental rental = stubRental(rentalId, ownerId, 20L);
             Member owner = member(ownerId, "tokenA");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyRentRequest(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyRentRequest(rentalId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.RENT_REQUESTED);
-            assertThat(n.getBody()).contains("nick10").contains("TestItem");
+            assertThat(n.getBody()).contains("nick10", "TestItem");
 
             verify(fcmService).sendToToken(
                     eq("tokenA"),
@@ -105,8 +111,11 @@ class NotificationServiceTest {
 
         @Test @DisplayName("없는 대여 -> 예외")
         void notFound() {
-            when(rentalRepository.findById(99L)).thenReturn(Optional.empty());
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
+            // given
+            when(rentalRepository.findByIdWithItem(99L)).thenReturn(Optional.empty());
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when & then
             assertThatThrownBy(() -> svc.notifyRentRequest(99L))
                     .isInstanceOf(RentalNotFoundException.class);
         }
@@ -116,21 +125,26 @@ class NotificationServiceTest {
     class ItemReturned {
         @Test @DisplayName("정상 호출")
         void success() {
-            long rid = 2, ownerId = 11;
-            Rental r = stubRental(rid, ownerId, 21);
-            stubLocker(r, "UniX", "Floor2", 5);
+            // given
+            long rentalId = 2L, ownerId = 11L, deviceId = 3L, lockerId = 5L;
+            Rental rental = stubRental(rentalId, ownerId, 21L);
             Member owner = member(ownerId, "tokenB");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+
+            stubDevice(deviceId, "UniX", "Floor2");
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyItemReturned(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyItemReturned(rentalId, deviceId, lockerId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.ITEM_RETURNED);
-            assertThat(n.getBody()).contains("UniX").contains("Floor2").contains("5번 사물함");
+            assertThat(n.getBody()).contains("UniX", "Floor2", "5번 사물함");
 
             verify(fcmService).sendToToken(
                     eq("tokenB"),
@@ -145,17 +159,23 @@ class NotificationServiceTest {
     class RequestAccepted {
         @Test @DisplayName("정상 호출")
         void success() {
+            // given
             long rid = 3, renterId = 22;
-            Rental r = stubRental(rid, 12, renterId);
-            Member renterMember = member(renterId, "tokenC");
+            Rental r = stubRental(rid, 12, renterId); // Rental Mock 객체 생성
+            Member renterMember = member(renterId, "tokenC"); // Member Mock 객체 생성
+
             when(r.getRenterMember()).thenReturn(renterMember);
+
             when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renterMember));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when
             svc.notifyRequestAccepted(rid);
 
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.REQUEST_ACCEPTED);
@@ -173,21 +193,26 @@ class NotificationServiceTest {
     class ItemPlaced {
         @Test @DisplayName("정상 호출")
         void success() {
-            long rid = 4, renterId = 23;
-            Rental r = stubRental(rid, 13, renterId);
-            stubLocker(r, "UniY", "B1", 7);
+            // given
+            long rentalId = 4L, renterId = 23L, deviceId = 4L, lockerId = 7L;
+            Rental rental = stubRental(rentalId, 13L, renterId);
             Member renter = member(renterId, "tokenD");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+
+            stubDevice(deviceId, "UniY", "B1");
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renter));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyItemPlaced(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyItemPlaced(rentalId, deviceId, lockerId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.ITEM_PLACED);
-            assertThat(n.getBody()).contains("UniY").contains("B1").contains("7번 사물함");
+            assertThat(n.getBody()).contains("UniY", "B1", "7번 사물함");
 
             verify(fcmService).sendToToken(
                     eq("tokenD"),
@@ -202,16 +227,20 @@ class NotificationServiceTest {
     class RentRejected {
         @Test @DisplayName("정상 호출")
         void success() {
-            long rid = 5, renterId = 24;
-            Rental r = stubRental(rid, 14, renterId);
+            // given
+            long rentalId = 5L, renterId = 24L;
+            Rental rental = stubRental(rentalId, 14L, renterId);
             Member renter = member(renterId, "tokenE");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(renterId)).thenReturn(Optional.of(renter));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyRentRejected(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyRentRejected(rentalId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.REQUEST_REJECTED);
@@ -229,16 +258,20 @@ class NotificationServiceTest {
     class RequestCancel {
         @Test @DisplayName("정상 호출")
         void success() {
-            long rid = 6, ownerId = 15;
-            Rental r = stubRental(rid, ownerId, 25);
+            // given
+            long rentalId = 6L, ownerId = 15L;
+            Rental rental = stubRental(rentalId, ownerId, 25L);
             Member owner = member(ownerId, "tokenF");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyRequestCancel(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyRequestCancel(rentalId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.RENT_CANCEL);
@@ -252,21 +285,24 @@ class NotificationServiceTest {
         }
     }
 
-    @Nested @DisplayName("notifyItemDamagedRequest / notifyItemDamagedResponse")
+    @Nested @DisplayName("ItemDamaged (Request/Response)")
     class Damaged {
-        @Test
-        @DisplayName("notifyItemDamagedRequest 정상 호출")
+        @Test @DisplayName("notifyItemDamagedRequest 정상 호출")
         void request() {
-            long rid = 7, ownerId = 16;
-            Rental r = stubRental(rid, ownerId, 26);
+            // given
+            long rentalId = 7L, ownerId = 16L;
+            Rental rental = stubRental(rentalId, ownerId, 26L);
             Member owner = member(ownerId, "tokenG");
-            when(rentalRepository.findByIdWithItem(rid)).thenReturn(Optional.of(r));
+            when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
             when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyItemDamagedRequest(rid);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyItemDamagedRequest(rentalId);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.ITEM_DAMAGED_REQUEST);
@@ -279,28 +315,24 @@ class NotificationServiceTest {
             );
         }
 
-        @Test
-        @DisplayName("notifyItemDamagedResponse 정상 호출")
+        @Test @DisplayName("notifyItemDamagedResponse 정상 호출")
         void response() {
             // given
-            long memberId = 42L;
-            long inquiryId = 7L;
+            long memberId = 42L, inquiryId = 7L;
             String title = "파손문의";
-            Inquiry inq = mock(Inquiry.class);
-            when(inq.getMemberId()).thenReturn(memberId);
-            when(inq.getInquiryId()).thenReturn(inquiryId);
-            when(inq.getTitle()).thenReturn(title);
+            Inquiry inquiry = mock(Inquiry.class);
+            when(inquiry.getMemberId()).thenReturn(memberId);
+            when(inquiry.getInquiryId()).thenReturn(inquiryId);
+            when(inquiry.getTitle()).thenReturn(title);
 
             Member renter = member(memberId, "tokenX");
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(renter));
             when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-            NotificationService svc = new NotificationService(
-                    notificationRepository, memberRepository, rentalRepository, fcmService
-            );
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
             // when
-            svc.notifyItemDamagedResponse(inq);
+            svc.notifyItemDamagedResponse(inquiry);
 
             // then – DB 저장 검증
             verify(notificationRepository).save(notificationCaptor.capture());
@@ -308,7 +340,7 @@ class NotificationServiceTest {
             assertThat(n.getTarget()).isEqualTo(renter);
             assertThat(n.getType()).isEqualTo(NotificationType.ITEM_DAMAGED_RESPONSE);
             assertThat(n.getTitle()).isEqualTo("물품 파손 신고");
-            assertThat(n.getBody()).contains("nick42").contains(title);
+            assertThat(n.getBody()).contains("nick42", title);
 
             // then – FCM 전송 검증
             verify(fcmService).sendToToken(
@@ -324,19 +356,23 @@ class NotificationServiceTest {
     class InquiryResponse {
         @Test @DisplayName("정상 호출")
         void success() {
-            long mid = 30, inqId = 99;
-            Inquiry i = mock(Inquiry.class);
-            when(i.getMemberId()).thenReturn(mid);
-            when(i.getInquiryId()).thenReturn(inqId);
-            when(i.getTitle()).thenReturn("Question");
+            // given
+            long memberId = 30L, inquiryId = 99L;
+            Inquiry inquiry = mock(Inquiry.class);
+            when(inquiry.getMemberId()).thenReturn(memberId);
+            when(inquiry.getInquiryId()).thenReturn(inquiryId);
+            when(inquiry.getTitle()).thenReturn("Question");
 
-            Member m = member(mid, "tokenI");
-            when(memberRepository.findById(mid)).thenReturn(Optional.of(m));
+            Member m = member(memberId, "tokenI");
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(m));
             when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.notifyInquiryResponse(i);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
 
+            // when
+            svc.notifyInquiryResponse(inquiry);
+
+            // then
             verify(notificationRepository).save(notificationCaptor.capture());
             Notification n = notificationCaptor.getValue();
             assertThat(n.getType()).isEqualTo(NotificationType.INQUIRY_RESPONSE);
@@ -352,12 +388,15 @@ class NotificationServiceTest {
 
         @Test @DisplayName("없는 회원 -> 예외")
         void memberNotFound() {
-            Inquiry i = mock(Inquiry.class);
-            when(i.getMemberId()).thenReturn(999L);
+            // given
+            Inquiry inquiry = mock(Inquiry.class);
+            when(inquiry.getMemberId()).thenReturn(999L);
             when(memberRepository.findById(999L)).thenReturn(Optional.empty());
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            assertThatThrownBy(() -> svc.notifyInquiryResponse(i))
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when & then
+            assertThatThrownBy(() -> svc.notifyInquiryResponse(inquiry))
                     .isInstanceOf(MemberNotFoundException.class);
         }
     }
@@ -366,7 +405,9 @@ class NotificationServiceTest {
     class Common {
         @Test @DisplayName("markAsRead: 성공")
         void markSuccess() {
+            // given
             Member me = member(40L, null);
+            MemberDto memberDto = MemberDto.fromEntity(me, "");
             Notification n = Notification.builder()
                     .id(123L).target(me)
                     .type(NotificationType.RENT_REQUESTED)
@@ -374,15 +415,22 @@ class NotificationServiceTest {
                     .isRead(false).createdAt(LocalDateTime.now()).build();
             when(notificationRepository.findById(123L)).thenReturn(Optional.of(n));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            svc.markAsRead(123L, MemberDto.fromEntity(me, ""));
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when
+            svc.markAsRead(123L, memberDto);
+
+            // then
             assertThat(n.isRead()).isTrue();
         }
 
         @Test @DisplayName("markAsRead: 타인 접근 예외")
         void markDenied() {
+            // given
             Member owner = member(41L, null);
             Member other = member(42L, null);
+            MemberDto otherDto = MemberDto.fromEntity(other, "");
+
             Notification n = Notification.builder()
                     .id(124L).target(owner)
                     .type(NotificationType.RENT_REQUESTED)
@@ -390,27 +438,35 @@ class NotificationServiceTest {
                     .isRead(false).createdAt(LocalDateTime.now()).build();
             when(notificationRepository.findById(124L)).thenReturn(Optional.of(n));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            assertThatThrownBy(() ->
-                    svc.markAsRead(124L, MemberDto.fromEntity(other, ""))
-            ).isInstanceOf(NotificationAccessDenied.class);
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when & then
+            assertThatThrownBy(() -> svc.markAsRead(124L, otherDto))
+                    .isInstanceOf(NotificationAccessDenied.class);
         }
 
         @Test @DisplayName("findByTarget: DTO 페이지 반환")
         void findByTarget() {
+            // given
             Member me = member(43L, null);
-            Pageable page = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+            MemberDto memberDto = MemberDto.fromEntity(me, "");
+            Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
             Notification n = Notification.builder()
                     .id(200L).target(me)
                     .type(NotificationType.RENT_REQUESTED)
                     .title("t").body("b")
                     .isRead(false).createdAt(LocalDateTime.now()).build();
-            when(memberRepository.findById(43L)).thenReturn(Optional.of(me));
-            when(notificationRepository.findByTarget(me, page))
-                    .thenReturn(new PageImpl<>(List.of(n), page, 1));
 
-            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, fcmService);
-            Page<NotificationDto> result = svc.findByTarget(MemberDto.fromEntity(me, ""), page);
+            when(memberRepository.findById(43L)).thenReturn(Optional.of(me));
+            when(notificationRepository.findByTarget(me, pageable))
+                    .thenReturn(new PageImpl<>(List.of(n), pageable, 1));
+
+            var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);
+
+            // when
+            Page<NotificationDto> result = svc.findByTarget(memberDto, pageable);
+
+            // then
             assertThat(result.getTotalElements()).isEqualTo(1);
             assertThat(result.getContent().get(0).id()).isEqualTo(200L);
         }
