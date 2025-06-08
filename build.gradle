@@ -58,7 +58,7 @@ dependencies {
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	//UnivCert
-	implementation 'com.github.in-seo:univcert:-8187b0aec1-1'
+	implementation 'com.github.in-seo:univcert:master-SNAPSHOT'
 
 	//JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
