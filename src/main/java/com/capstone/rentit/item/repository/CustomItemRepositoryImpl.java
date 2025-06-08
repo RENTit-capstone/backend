@@ -199,7 +199,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
         if (searchStartDate == null) {
             return null;
         }
-        LocalDateTime startOfDay = searchStartDate.toLocalDate().atStartOfDay();
+        LocalDateTime startOfDay = searchStartDate.toLocalDate().atTime(23, 59, 59);
         return item.startDate.loe(startOfDay);
     }
 
@@ -207,7 +207,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
         if (searchEndDate == null) {
             return null;
         }
-        LocalDateTime endOfDay = searchEndDate.toLocalDate().atTime(23, 59, 59);
+        LocalDateTime endOfDay = searchEndDate.toLocalDate().atStartOfDay();
         return item.endDate.goe(endOfDay);
     }
 }
