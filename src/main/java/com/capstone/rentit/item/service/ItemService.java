@@ -80,6 +80,7 @@ public class ItemService {
     public void deleteItem(MemberDto loginMember, Long itemId) {
         Item item = findItem(itemId);
         assertOwner(item, loginMember.getMemberId());
+        assertOut(item);
 
         item.deleteItem();
     }
@@ -94,6 +95,12 @@ public class ItemService {
     private void assertOwner(Item item, Long userId) {
         if (!item.getOwnerId().equals(userId)) {
             throw new ItemUnauthorizedException("자신의 소유 물품이 아닙니다.");
+        }
+    }
+
+    private void assertOut(Item item) {
+        if (item.getStatus().equals(ItemStatusEnum.OUT)) {
+            throw new ItemUnauthorizedException("대여 중인 물품은 삭제할 수 없습니다.");
         }
     }
 

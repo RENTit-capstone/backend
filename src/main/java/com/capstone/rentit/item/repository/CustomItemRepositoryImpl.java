@@ -43,7 +43,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                 .select(item)
                 .from(item)
                 .join(item.owner, member).fetchJoin()
-                .where(item.itemId.eq(itemId), item.status.ne(ItemStatusEnum.DELETED))
+                .where(item.itemId.eq(itemId))
                 .fetchOne();
 
         return Optional.ofNullable(found);
