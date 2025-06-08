@@ -31,10 +31,11 @@ public class RentalBriefResponse {
     private String lockerUniversity;
     private String lockerLocation;
     private Long lockerNumber;
+    private String returnImageUrl;
 
     private boolean isOwner;       // true: 내가 소유자, false: 내가 대여자
 
-    public static RentalBriefResponse fromEntity(Rental rental, String presignedUrl, boolean asOwner) {
+    public static RentalBriefResponse fromEntity(Rental rental, String presignedUrl, boolean asOwner, String returnImageUrl) {
         String univ = null;
         String location = null;
         Long lockerNum = null;
@@ -64,6 +65,7 @@ public class RentalBriefResponse {
                 .lockerLocation(location)
                 .lockerNumber(lockerNum)
                 .isOwner(asOwner)
+                .returnImageUrl(returnImageUrl)
                 .build();
     }
 }
