@@ -89,7 +89,7 @@ public class MemberService {
     /** 6) 회원 삭제 */
     public void deleteMember(Long id) {
         Member member = findMemberById(id);
-        memberRepository.delete(member);
+        member.updateLocked(true);
     }
 
     public void ensureEmailNotRegistered(String email) {
