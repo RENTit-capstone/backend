@@ -123,20 +123,35 @@ class CustomItemRepositoryImplTest {
     void whenPagedAndDateAndPriceAndAscSort_thenFilterAndSortAsc() {
         LocalDateTime now = LocalDateTime.now();
 
-        // given: 범위 내 2개 아이템, 1개는 범위 밖
-        Item outOfRange = saveItem("X", "", ItemStatusEnum.AVAILABLE,
-                now.minusDays(10), now.minusDays(9),
-                50, now.minusDays(4), defaultOwnerId);
+        // --- 검색 조건 ---
+        // 검색 기간: now 기준 5일 전부터 3일 후까지
+        // 가격: 150 ~ 250
+        // 리포지토리 로직상, 아이템의 대여 가능 기간이 위 '검색 기간'을 완전히 포함해야 함
+        // 즉, item.startDate <= (now-5일) AND item.endDate >= (now+3일) 이어야 통과
 
-        Item i1 = saveItem("Y", "", ItemStatusEnum.AVAILABLE,
-                now.minusDays(3), now.plusDays(1),
+        // given:
+        // [실패 케이스 1] 가격 미달
+        saveItem("OutOfRange_Price", "", ItemStatusEnum.AVAILABLE,
+                now.minusDays(10), now.plusDays(10), // 날짜는 통과
+                50, now.minusDays(5), defaultOwnerId);
+
+        // [실패 케이스 2] 시작 날짜 조건 미달
+        saveItem("OutOfRange_StartDate", "", ItemStatusEnum.AVAILABLE,
+                now.minusDays(4), now.plusDays(10), // 시작일(4일 전)이 검색 시작일(5일 전)보다 늦어서 실패
+                200, now.minusDays(4), defaultOwnerId);
+
+        // [성공 케이스 1] 모든 조건 통과
+        Item i1 = saveItem("InRange1", "", ItemStatusEnum.AVAILABLE,
+                now.minusDays(6), now.plusDays(4), // 대여 기간이 검색 기간을 완전히 포함
                 200, now.minusDays(3), defaultOwnerId);
-        Item i2 = saveItem("Z", "", ItemStatusEnum.AVAILABLE,
-                now.minusDays(2), now.plusDays(2),
+
+        // [성공 케이스 2] 모든 조건 통과
+        Item i2 = saveItem("InRange2", "", ItemStatusEnum.AVAILABLE,
+                now.minusDays(7), now.plusDays(5), // 대여 기간이 검색 기간을 완전히 포함
                 220, now.minusDays(1), defaultOwnerId);
         em.flush();
 
-        // filter: startDate ≥ now−5, endDate ≤ now+3, price 150~250
+        // when: filter: startDate = now−5, endDate = now+3, price 150-250
         ItemSearchForm form = new ItemSearchForm();
         form.setStartDate(now.minusDays(5));
         form.setEndDate(now.plusDays(3));
@@ -146,7 +161,7 @@ class CustomItemRepositoryImplTest {
         Pageable pg = PageRequest.of(0, 10, Sort.by("createdAt").ascending());
         Page<Item> page = itemRepository.search(form, pg);
 
-        // then: outOfRange는 제외, i1·i2만 포함, ASC(createdAt): i1, i2 순
+        // then: 성공 케이스 2개만 createdAt 오름차순으로 조회되어야 함
         assertThat(page.getTotalElements()).isEqualTo(2);
         List<Item> content = page.getContent();
         assertThat(content).containsExactly(i1, i2);
