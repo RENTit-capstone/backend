@@ -28,7 +28,7 @@ configurations {
 repositories {
 	mavenCentral()
 	//for UnivCert
-	maven{url 'https://jitpack.io'}
+//	maven{url 'https://jitpack.io'}
 }
 
 ext {
@@ -58,7 +58,10 @@ dependencies {
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	//UnivCert
-	implementation 'com.github.in-seo:univcert:master-SNAPSHOT'
+//	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	//Email
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	//JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

@@ -13,6 +13,7 @@ import com.capstone.rentit.member.status.GenderEnum;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.UnivCertService;
+import com.capstone.rentit.register.service.VerificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +58,7 @@ class RegisterControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockitoBean
-    private UnivCertService univCertService;
+    private VerificationService verificationService;
     @MockitoBean
     private MemberService memberService;
     @MockitoBean
@@ -95,7 +96,7 @@ class RegisterControllerTest {
         form.setProfileImg("img");
 
         doNothing().when(memberService).ensureEmailNotRegistered("new@example.com");
-        doNothing().when(univCertService).ensureCertified("new@example.com");
+        doNothing().when(verificationService).ensureEmailVerified(form.getEmail());
         when(memberService.createMember(any())).thenReturn(42L);
 
         // when
@@ -230,9 +231,7 @@ class RegisterControllerTest {
         form.setEmail("a@b.com");
         form.setUniversity("Uni");
 
-        doNothing().when(univCertService).validateUniversity("Uni");
-        doNothing().when(univCertService).sendCertification("a@b.com", "Uni", false);
-
+        doNothing().when(verificationService).generateAndSendVerificationCode(form.getEmail());
 
         // when
         var result = mockMvc.perform(post("/api/v1/auth/signup/verify-email")
@@ -267,8 +266,7 @@ class RegisterControllerTest {
         form.setUniversity("Uni");
         form.setCode(123);
 
-        doNothing().when(univCertService).validateUniversity("Uni");
-        doNothing().when(univCertService).verifyCode("x@y.com", "Uni", 123);
+        doNothing().when(verificationService).verifyCode(form.getEmail(), form.getCode());
 
         // when
         var result = mockMvc.perform(post("/api/v1/auth/signup/verify-code")
