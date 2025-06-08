@@ -9,6 +9,7 @@ import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.domain.StudentCouncilMember;
 import com.capstone.rentit.member.repository.MemberRepository;
 import com.capstone.rentit.member.status.MemberRoleEnum;
+import com.capstone.rentit.notification.repository.NotificationRepository;
 import com.capstone.rentit.payment.repository.PaymentRepository;
 import com.capstone.rentit.payment.repository.WalletRepository;
 import com.capstone.rentit.rental.repository.RentalRepository;
@@ -36,9 +37,11 @@ public class UserDummyDataInitializer implements ApplicationRunner {
     private final WalletRepository walletRepository;
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public void run(ApplicationArguments args) {
+        notificationRepository.deleteAllInBatch();
         paymentRepository.deleteAllInBatch();
         walletRepository.deleteAllInBatch();
         lockerRepository.deleteAllInBatch();
