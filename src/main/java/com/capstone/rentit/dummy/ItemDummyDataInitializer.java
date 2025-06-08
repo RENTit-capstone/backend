@@ -69,6 +69,23 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                 "초보자용에 적합한 라이트 스타일의 드로잉 태블릿입니다.",
                 "스마트폰 촬영 시 안정적인 영상을 위한 3축 짐벌입니다."
         };
+        String[] images = {
+                "86847163-3dce-4873-89ab-3eb0cd93d081.jpg",
+                "02a4b24b-b8bf-4a65-b0fe-c682c7e3b650.jpg",
+                "b5da1fb0-0c06-4869-aaa7-4fdb5124ff6c.jpg",
+                "3c498d96-aa44-4bf3-8f98-48fee07d3d20.jpg",
+                "67af3e84-1a86-428d-b019-d20db0c6778e.jpg",
+                "faafbb03-4245-4c7d-a5ba-70cb73bf707a.jpg",
+                "ffb4a375-377b-476d-b2c0-78aa3b80841c.jpg",
+                "d433147b-87fe-4d58-a46f-43ecc0c9de59.jpg",
+                "f7c77217-0e16-4ab5-b00b-aa147366a3d4.jpg",
+                "104469bf-77db-4f82-aa00-1395ac098bb2.jpg",
+                "a409666a-8da0-43db-b369-6bf02912fb4d.jpg",
+                "a555c9dc-830b-4aee-ad0e-dd6a1a00c963.jpg",
+                "577c2cde-0357-4129-a75d-95e986d103a0.jpg",
+                "90f53a65-cfab-402f-b0c7-19f9cde1f0aa.jpg",
+                "240d55d2-01c5-416b-92a2-ee05d344bc7a.jpg"
+        };
 
         ItemStatusEnum[] statuses = {ItemStatusEnum.OUT, ItemStatusEnum.AVAILABLE};
         final int ITEMS_PER_MEMBER = 3;
@@ -88,6 +105,7 @@ public class ItemDummyDataInitializer implements ApplicationRunner {
                         .description(desc[i])
                         .price(price)
                         .status(st)
+                        .imageKeys(List.of(images[i]))
                         .startDate(now.minusDays(global + 1))
                         .endDate(now.plusDays(global + 10))
                         .damagedPolicy("분실·파손 시 전액 배상.")
