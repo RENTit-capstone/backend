@@ -121,6 +121,6 @@ public class Item {
     }
 
     public void deleteItem(){
-        status = ItemStatusEnum.DELETED;
+        status = ItemStatusEnum.REMOVED;
     }
 }

@@ -6,7 +6,6 @@ import com.capstone.rentit.item.status.ItemStatusEnum;
 import com.capstone.rentit.member.domain.QMember;
 import com.capstone.rentit.member.domain.QStudent;
 import com.capstone.rentit.member.status.MemberRoleEnum;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -25,8 +24,6 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static com.capstone.rentit.member.domain.QMember.member;
 
 @Repository
 @RequiredArgsConstructor
@@ -187,7 +184,7 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private BooleanExpression statusEq(ItemStatusEnum status) {
         return status != null
                 ? item.status.eq(status)
-                : item.status.ne(ItemStatusEnum.DELETED);
+                : item.status.ne(ItemStatusEnum.REMOVED);
     }
 
     private BooleanExpression startDateGoe(LocalDateTime date) {
