@@ -61,8 +61,8 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
     private Predicate buildBasicFilters(ItemSearchForm form) {
         return ExpressionUtils.allOf(
                 keywordContains(form.getKeyword()),
-                startDateGoe(form.getStartDate()),
-                endDateLoe(form.getEndDate()),
+                itemStartDateLoe(form.getStartDate()),
+                itemEndDateGoe(form.getEndDate()),
                 priceGoe(form.getMinPrice()),
                 priceLoe(form.getMaxPrice()),
                 statusEq(form.getStatus())
@@ -187,19 +187,27 @@ public class CustomItemRepositoryImpl implements CustomItemRepository{
                 : item.status.ne(ItemStatusEnum.REMOVED);
     }
 
-    private BooleanExpression startDateGoe(LocalDateTime date) {
-        return date != null ? item.startDate.goe(date) : null;
-    }
-
-    private BooleanExpression endDateLoe(LocalDateTime date) {
-        return date != null ? item.endDate.loe(date) : null;
-    }
-
     private BooleanExpression priceGoe(Integer min) {
         return min != null ? item.price.goe(min) : null;
     }
 
     private BooleanExpression priceLoe(Integer max) {
         return max != null ? item.price.loe(max) : null;
+    }
+
+    private BooleanExpression itemStartDateLoe(LocalDateTime searchStartDate) {
+        if (searchStartDate == null) {
+            return null;
+        }
+        LocalDateTime startOfDay = searchStartDate.toLocalDate().atStartOfDay();
+        return item.startDate.loe(startOfDay);
+    }
+
+    private BooleanExpression itemEndDateGoe(LocalDateTime searchEndDate) {
+        if (searchEndDate == null) {
+            return null;
+        }
+        LocalDateTime endOfDay = searchEndDate.toLocalDate().atTime(23, 59, 59);
+        return item.endDate.goe(endOfDay);
     }
 }
