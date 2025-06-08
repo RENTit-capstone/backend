@@ -606,7 +606,7 @@ include::{snippets}/admin-search-inquiries/response-fields.adoc[]
 ==== HTTP 응답
 include::{snippets}/admin-search-inquiries/http-response.adoc[]
 
-=== 관리자용 문의 처리
+=== 관리자용 문의 응답
 PUT /api/v1/admin/inquiries/{id}/answer
 
 ==== 패스 파라미터
