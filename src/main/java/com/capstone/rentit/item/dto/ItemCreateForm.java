@@ -1,6 +1,8 @@
 package com.capstone.rentit.item.dto;
 
 import com.capstone.rentit.item.status.ItemStatusEnum;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,14 +14,14 @@ import java.util.List;
 @Setter
 @Builder
 public class ItemCreateForm {
-    private String name;
-    private String description;
+    @NotEmpty private String name;
+    @NotEmpty private String description;
     private String damagedDescription;
-    private Integer price;
-    private ItemStatusEnum status;
-    private String damagedPolicy;
+    @NotNull private Integer price;
+    @NotNull private ItemStatusEnum status;
+    @NotEmpty private String damagedPolicy;
     private String returnPolicy;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    @NotNull private LocalDateTime startDate;
+    @NotNull private LocalDateTime endDate;
     private List<String> imageKeys;
 }

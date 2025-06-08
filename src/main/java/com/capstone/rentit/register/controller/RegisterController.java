@@ -9,6 +9,7 @@ import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
 import com.capstone.rentit.register.service.EmailService;
 import com.capstone.rentit.register.service.UnivCertService;
 import com.capstone.rentit.register.service.VerificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,13 +25,13 @@ public class RegisterController {
     private final VerificationService verificationService;
 
     @PostMapping("/auth/signup/group")
-    public CommonResponse<Long> registerGroupMember(@RequestBody MemberCreateForm form) {
+    public CommonResponse<Long> registerGroupMember(@RequestBody @Valid MemberCreateForm form) {
         Long memberId = memberService.createMember(form);
         return CommonResponse.success(memberId);
     }
 
     @PostMapping("/auth/signup")
-    public CommonResponse<Long> registerMember(@RequestBody MemberCreateForm form) {
+    public CommonResponse<Long> registerMember(@RequestBody @Valid MemberCreateForm form) {
         boolean succeed = false;
         try {
             memberService.ensureEmailNotRegistered(form.getEmail());
@@ -48,14 +49,14 @@ public class RegisterController {
     }
 
     @PostMapping("/auth/signup/verify-email")
-    public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm form) {
+    public CommonResponse<String> verifyRequest(@RequestBody @Valid RegisterVerifyRequestForm form) {
 
         verificationService.generateAndSendVerificationCode(form.getEmail());
         return CommonResponse.success("이메일로 발송된 인증 코드를 확인하세요.");
     }
 
     @PostMapping("/auth/signup/verify-code")
-    public CommonResponse<Boolean> verifyCode(@RequestBody RegisterVerifyCodeForm form) {
+    public CommonResponse<Boolean> verifyCode(@RequestBody @Valid RegisterVerifyCodeForm form) {
 
         verificationService.verifyCode(form.getEmail(), form.getCode());
         return CommonResponse.success(true);

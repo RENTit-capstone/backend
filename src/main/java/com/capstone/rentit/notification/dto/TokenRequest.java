@@ -1,3 +1,5 @@
 package com.capstone.rentit.notification.dto;
 
-public record TokenRequest(String token) {}
+import jakarta.validation.constraints.NotEmpty;
+
+public record TokenRequest(@NotEmpty String token) {}

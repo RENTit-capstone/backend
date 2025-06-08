@@ -2,6 +2,7 @@ package com.capstone.rentit.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,8 +19,8 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = CompanyCreateForm.class, name = "COMPANY")
 })
 public abstract class MemberCreateForm {
-    private String email;
-    private String password;
-    private String name;
+    @NotEmpty private String email;
+    @NotEmpty private String password;
+    @NotEmpty private String name;
     private String profileImg;
 }

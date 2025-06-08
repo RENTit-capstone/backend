@@ -3,6 +3,7 @@ package com.capstone.rentit.locker.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.locker.dto.*;
 import com.capstone.rentit.locker.service.LockerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class LockerController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/devices")
-    public CommonResponse<?> registerDevice(@RequestBody DeviceCreateForm form) {
+    public CommonResponse<?> registerDevice(@RequestBody @Valid DeviceCreateForm form) {
         return CommonResponse.success(lockerService.registerDevice(form));
     }
 
@@ -30,7 +31,7 @@ public class LockerController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/lockers")
-    public CommonResponse<?> registerLocker(@RequestBody LockerCreateForm form) {
+    public CommonResponse<?> registerLocker(@RequestBody @Valid LockerCreateForm form) {
         return CommonResponse.success(lockerService.registerLocker(form));
     }
 

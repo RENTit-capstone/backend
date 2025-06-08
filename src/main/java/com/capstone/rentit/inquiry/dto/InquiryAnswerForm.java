@@ -1,5 +1,7 @@
 package com.capstone.rentit.inquiry.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public record InquiryAnswerForm(
-        String answer
+        @NotEmpty String answer
 ) { }

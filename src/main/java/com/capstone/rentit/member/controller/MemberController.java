@@ -7,6 +7,7 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.dto.MemberUpdateForm;
 import com.capstone.rentit.member.dto.MyProfileResponse;
 import com.capstone.rentit.member.service.MemberService;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ public class MemberController {
     // 관리자용 신규 회원 생성
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/members")
-    public CommonResponse<?> createMember(@RequestBody MemberCreateForm createForm) {
+    public CommonResponse<?> createMember(@RequestBody @Valid MemberCreateForm createForm) {
         Long id = memberService.createMember(createForm);
         return CommonResponse.success(id);
     }
