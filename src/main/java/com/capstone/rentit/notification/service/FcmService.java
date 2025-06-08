@@ -6,12 +6,14 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FcmService {
 
     private final FirebaseApp firebaseApp;
@@ -34,8 +36,10 @@ public class FcmService {
                 .build();
 
         try {
+            log.info("send notification");
             return FirebaseMessaging.getInstance(firebaseApp).send(message);
         } catch (FirebaseMessagingException e) {
+            log.info("send notification fail");
             throw new IllegalStateException("FCM 전송 실패", e);
         }
     }
