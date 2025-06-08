@@ -11,6 +11,7 @@ import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.member.domain.Student;
 import com.capstone.rentit.member.status.MemberRoleEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.json.Json;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -109,6 +110,7 @@ class InquiryControllerTest {
                 fieldWithPath("data.images").type(JsonFieldType.ARRAY).description("파손 신고 이미지 URL 리스트").optional(),
                 fieldWithPath("data.processed").type(JsonFieldType.BOOLEAN).description("처리 여부"),
                 fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("작성 시각 (ISO-8601)"),
+                fieldWithPath("data.answer").type(JsonFieldType.STRING).description("답변 내용"),
                 fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지 또는 빈 문자열")
         };
     }
@@ -195,7 +197,7 @@ class InquiryControllerTest {
         @Test
         @WithMockUser(roles = "USER")
         void findInquiry() throws Exception {
-            InquiryResponse dto = new InquiryResponse(11L, 100L, InquiryType.SERVICE, "t", "c", null, false, LocalDateTime.now());
+            InquiryResponse dto = new InquiryResponse(11L, 100L, InquiryType.SERVICE, "t", "c", null, false, LocalDateTime.now(), "");
             given(inquiryService.getInquiry(10L)).willReturn(dto);
 
             mockMvc.perform(get("/api/v1/inquiries/{id}", 10L)
@@ -213,7 +215,7 @@ class InquiryControllerTest {
         @WithMockUser(roles = "USER")
         void searchInquiries() throws Exception {
             Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
-            InquiryResponse sample = new InquiryResponse(21L, USER_ID, InquiryType.REPORT, "TITLE", "CONTENT", null, true, LocalDateTime.now());
+            InquiryResponse sample = new InquiryResponse(21L, USER_ID, InquiryType.REPORT, "TITLE", "CONTENT", null, true, LocalDateTime.now(), "답변 내용");
             Page<InquiryResponse> page = new PageImpl<>(List.of(sample), pageable, 1);
             given(inquiryService.search(any(), eq(MemberRoleEnum.ADMIN), anyLong(), eq(pageable))).willReturn(page);
 
@@ -251,7 +253,7 @@ class InquiryControllerTest {
         @Test
         @WithMockUser(roles = "ADMIN")
         void findInquiry() throws Exception {
-            InquiryResponse dto = new InquiryResponse(10L, 100L, InquiryType.SERVICE, "t", "c", null, false, LocalDateTime.now());
+            InquiryResponse dto = new InquiryResponse(10L, 100L, InquiryType.SERVICE, "t", "c", null, false, LocalDateTime.now(), "");
             given(inquiryService.getInquiry(10L)).willReturn(dto);
 
             mockMvc.perform(get("/api/v1/admin/inquiries/{id}", 10L)
@@ -269,7 +271,7 @@ class InquiryControllerTest {
         @WithMockUser(roles = "ADMIN")
         void searchInquiries() throws Exception {
             Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
-            InquiryResponse sample = new InquiryResponse(30L, 3L, InquiryType.REPORT, "TITLE", "CONTENT", null, true, LocalDateTime.now());
+            InquiryResponse sample = new InquiryResponse(30L, 3L, InquiryType.REPORT, "TITLE", "CONTENT", null, true, LocalDateTime.now(), "답변 내용");
             Page<InquiryResponse> page = new PageImpl<>(List.of(sample), pageable, 1);
             given(inquiryService.search(any(), eq(MemberRoleEnum.ADMIN), anyLong(), eq(pageable))).willReturn(page);
 
