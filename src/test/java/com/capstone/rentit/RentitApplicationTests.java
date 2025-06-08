@@ -7,6 +7,7 @@ import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.notification.service.FcmService;
 import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.register.service.UnivCertService;
+import com.capstone.rentit.register.service.VerificationService;
 import com.google.firebase.FirebaseApp;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +26,9 @@ class RentitApplicationTests {
 
 	@MockitoBean
 	private UnivCertService univCertService;
+
+	@MockitoBean
+	private VerificationService verificationService;
 
 	@MockitoBean
 	private LockerDeviceProducer lockerDeviceProducer;

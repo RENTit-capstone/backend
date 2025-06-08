@@ -27,6 +27,17 @@ spring:
       port: 6379
       password:
       timeout: 10s
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dummyy
+    password: aaaa aaaa aaaa aaaa
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 mqtt:
   broker: tcp://localhost:1883
