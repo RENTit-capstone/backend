@@ -3,9 +3,12 @@ package com.capstone.rentit.register.controller;
 import com.capstone.rentit.common.CommonResponse;
 import com.capstone.rentit.member.dto.MemberCreateForm;
 import com.capstone.rentit.member.service.MemberService;
+import com.capstone.rentit.otp.service.OtpService;
 import com.capstone.rentit.register.dto.RegisterVerifyCodeForm;
 import com.capstone.rentit.register.dto.RegisterVerifyRequestForm;
+import com.capstone.rentit.register.service.EmailService;
 import com.capstone.rentit.register.service.UnivCertService;
+import com.capstone.rentit.register.service.VerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class RegisterController {
 
     private final MemberService memberService;
-    private final UnivCertService univCertService;
+    private final VerificationService verificationService;
 
     @PostMapping("/auth/signup/group")
     public CommonResponse<Long> registerGroupMember(@RequestBody MemberCreateForm form) {
@@ -31,33 +34,30 @@ public class RegisterController {
         boolean succeed = false;
         try {
             memberService.ensureEmailNotRegistered(form.getEmail());
-            univCertService.ensureCertified(form.getEmail());
+            verificationService.ensureEmailVerified(form.getEmail());
 
             Long memberId = memberService.createMember(form);
 
             succeed = true;
             return CommonResponse.success(memberId);
         } finally {
-            if(!succeed){
-                univCertService.clear(form.getEmail());
-            }
+            if(!succeed)
+                verificationService.clearVerification(form.getEmail());
         }
 
     }
 
     @PostMapping("/auth/signup/verify-email")
     public CommonResponse<String> verifyRequest(@RequestBody RegisterVerifyRequestForm form) {
-        univCertService.validateUniversity(form.getUniversity());
-        univCertService.sendCertification(form.getEmail(), form.getUniversity(), false);
 
+        verificationService.generateAndSendVerificationCode(form.getEmail());
         return CommonResponse.success("이메일로 발송된 인증 코드를 확인하세요.");
     }
 
     @PostMapping("/auth/signup/verify-code")
     public CommonResponse<Boolean> verifyCode(@RequestBody RegisterVerifyCodeForm form) {
-        univCertService.validateUniversity(form.getUniversity());
-        univCertService.verifyCode(form.getEmail(), form.getUniversity(), form.getCode());
 
+        verificationService.verifyCode(form.getEmail(), form.getCode());
         return CommonResponse.success(true);
     }
 
@@ -71,14 +71,7 @@ public class RegisterController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/auth/signup/clear")
     public CommonResponse<Boolean> clearAll() {
-        univCertService.clearAll();
+        verificationService.clearAllVerifications();
         return CommonResponse.success(true);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/admin/auth/signup/show")
-    public CommonResponse<Object> showAll() {
-        Object data = univCertService.showAll();
-        return CommonResponse.success(data);
     }
 }
