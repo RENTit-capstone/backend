@@ -45,7 +45,7 @@ public class RentalService {
     public Long requestRental(RentalRequestForm form) {
         Item item = findItem(form.getItemId());
         assertItemAvailable(item);
-        assertNotOwner(item, form.getOwnerId());
+        assertNotOwner(item, form.getRenterId());
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
@@ -244,8 +244,8 @@ public class RentalService {
         }
     }
 
-    private void assertNotOwner(Item item, Long ownerId) {
-        if (item.getOwnerId().equals(ownerId)) {
+    private void assertNotOwner(Item item, Long renterId) {
+        if (item.getOwnerId().equals(renterId)) {
             throw new RentalUnauthorizedException("자신의 물품에 대여 신청을 할 수 없습니다.");
         }
     }
