@@ -367,6 +367,7 @@ class MemberControllerTest {
                 .name("Login Student")
                 .nickname("loginNick")
                 .profileImg("profile_img_url")
+                .university(student.getUniversity())
                 .items(List.of(
                         ItemBriefResponse.builder()
                                 .itemId(10L).name("item1")
@@ -410,6 +411,7 @@ class MemberControllerTest {
                                 fieldWithPath("data.role").type(JsonFieldType.NULL).description("역할 (현재 null)"),
                                 fieldWithPath("data.profileImg").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.NULL).description("가입일자 (현재 null)"),
+                                fieldWithPath("data.university").type(JsonFieldType.STRING).description("대학교 이름"),
 
                                 subsectionWithPath("data.items").type(JsonFieldType.ARRAY).description("등록한 아이템 목록"),
                                 fieldWithPath("data.items[].itemId").type(JsonFieldType.NUMBER).description("아이템 ID"),
@@ -435,6 +437,7 @@ class MemberControllerTest {
                                 fieldWithPath("data.ownedRentals[].returnedAt").type(JsonFieldType.NULL).description("반납일시 (현재 null)"),
                                 fieldWithPath("data.ownedRentals[].retrievedAt").type(JsonFieldType.NULL).description("락커 인출일시 (현재 null)"),
                                 fieldWithPath("data.ownedRentals[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.ownedRentals[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL(현재 null)"),
                                 fieldWithPath("data.ownedRentals[].lockerUniversity").type(JsonFieldType.NULL).description("사물함 학교"),
                                 fieldWithPath("data.ownedRentals[].lockerLocation").type(JsonFieldType.NULL).description("사물함 학교 상세 위치"),
                                 fieldWithPath("data.ownedRentals[].lockerNumber").type(JsonFieldType.NULL).description("사물함 번호"),
@@ -456,6 +459,7 @@ class MemberControllerTest {
                                 fieldWithPath("data.rentedRentals[].returnedAt").type(JsonFieldType.NULL).description("반납일시 (현재 null)"),
                                 fieldWithPath("data.rentedRentals[].retrievedAt").type(JsonFieldType.NULL).description("락커 인출일시 (현재 null)"),
                                 fieldWithPath("data.rentedRentals[].thumbnailUrl").type(JsonFieldType.NULL).description("썸네일 URL (현재 null)"),
+                                fieldWithPath("data.rentedRentals[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 URL(현재 null)"),
                                 fieldWithPath("data.rentedRentals[].owner").type(JsonFieldType.BOOLEAN).description("내가 소유자인지 여부"),
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("성공시 빈 문자열")
                         )

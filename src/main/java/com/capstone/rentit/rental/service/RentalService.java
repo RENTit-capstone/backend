@@ -124,7 +124,7 @@ public class RentalService {
     public List<RentalBriefResponse> getRentalsByUser(Long userId) {
         List<Rental> list = rentalRepository.findAllByOwnerIdOrRenterId(userId, userId);
         return list.stream().map(r ->
-                        RentalBriefResponse.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()), false)
+                        RentalBriefResponse.fromEntity(r, "", false, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()))
                 )
                 .collect(Collectors.toList());
     }
@@ -141,7 +141,7 @@ public class RentalService {
         }
 
         return rentalsPage.map(r ->
-            RentalBriefResponse.fromEntity(r, fileStorageService.generatePresignedUrl(r.getReturnImageUrl()), false));
+            RentalBriefResponse.fromEntity(r, "", false, fileStorageService.generatePresignedUrl(r.getReturnImageUrl())));
     }
 
     public List<RentalBriefResponseForLocker> findEligibleRentals(Long memberId, RentalLockerAction action) {
@@ -161,7 +161,7 @@ public class RentalService {
         r.assignLocker(deviceId, lockerId);
         r.dropOffByOwner(LocalDateTime.now());
 
-        notificationService.notifyItemPlaced(rentalId);
+        notificationService.notifyItemPlaced(rentalId, deviceId, lockerId);
     }
 
     /** 8) 대여자가 사물함에서 픽업할 때 */
@@ -183,7 +183,7 @@ public class RentalService {
 
         r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
-        notificationService.notifyItemReturned(rentalId);
+        notificationService.notifyItemReturned(rentalId, deviceId, lockerId);
     }
 
     public void uploadReturnImage(Long rentalId, Long renterId, String returnImageKey) {

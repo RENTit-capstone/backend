@@ -626,7 +626,7 @@ class RentalServiceTest {
                     // isOwner는 항상 false로 설정됨
                     assertThat(dto.isOwner()).isFalse();
                     // thumbnailUrl은 dummy-url
-                    assertThat(dto.getThumbnailUrl()).isEqualTo("dummy-url");
+                    assertThat(dto.getReturnImageUrl()).isEqualTo("dummy-url");
                     // 상태 및 날짜 필드도 올바르게 전달되었는지 확인
                     assertThat(dto.getStatus()).isEqualTo(RentalStatusEnum.APPROVED);
                     assertThat(dto.getRequestDate()).isEqualTo(LocalDateTime.of(2025, 5, 1, 10, 0));

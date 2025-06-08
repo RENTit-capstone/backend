@@ -83,7 +83,7 @@ public class MemberService {
         List<RentalBriefResponse>  owned   = mapRentals(member.getOwnedRentals(),  true);
         List<RentalBriefResponse>  rented  = mapRentals(member.getRentedRentals(), false);
 
-        return MyProfileResponse.fromEntity(member, items, owned, rented);
+        return MyProfileResponse.fromEntity(member, items, owned, rented, getProfileImageUrl(member.getProfileImg()));
     }
 
     /** 6) 회원 삭제 */
@@ -119,7 +119,8 @@ public class MemberService {
                 .map(r -> RentalBriefResponse.fromEntity(
                         r,
                         getFirstImageUrl(r.getItem()),
-                        asOwner))
+                        asOwner,
+                        getReturnImageUrl(r)))
                 .toList();
     }
 
@@ -135,5 +136,12 @@ public class MemberService {
             return "";
         }
         return fileStorageService.generatePresignedUrl(rental.getReturnImageUrl());
+    }
+
+    private String getProfileImageUrl(String profileKey){
+        if(profileKey == null || profileKey.isEmpty()) {
+            return "";
+        }
+        return fileStorageService.generatePresignedUrl(profileKey);
     }
 }

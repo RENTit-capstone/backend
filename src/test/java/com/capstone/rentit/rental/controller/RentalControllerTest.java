@@ -393,6 +393,7 @@ class RentalControllerTest {
                                 fieldWithPath("data[].returnedAt").type(JsonFieldType.NULL).description("반납 시각 (없으면 null)"),
                                 fieldWithPath("data[].retrievedAt").type(JsonFieldType.NULL).description("회수 시각 (없으면 null)"),
                                 fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
+                                fieldWithPath("data[].returnImageUrl").type(JsonFieldType.NULL).description("반납 이미지 (현재 NULL)"),
                                 fieldWithPath("data[].lockerUniversity").type(JsonFieldType.STRING).description("사물함 대학"),
                                 fieldWithPath("data[].lockerLocation").type(JsonFieldType.STRING).description("사물함 위치"),
                                 fieldWithPath("data[].lockerNumber").type(JsonFieldType.NUMBER).description("사물함 번호"),
