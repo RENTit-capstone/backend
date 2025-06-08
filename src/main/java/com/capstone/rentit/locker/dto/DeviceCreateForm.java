@@ -1,5 +1,7 @@
 package com.capstone.rentit.locker.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +12,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class DeviceCreateForm {
-    private Long deviceId;
-    private String university;
-    private String locationDescription;
+    @NotNull private Long deviceId;
+    @NotEmpty private String university;
+    @NotEmpty private String locationDescription;
 }

@@ -5,6 +5,7 @@ import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.notification.dto.TokenRequest;
 import com.capstone.rentit.notification.service.DeviceTokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class DeviceTokenController {
     private final DeviceTokenService tokenService;
 
     @PostMapping
-    public CommonResponse<?> registerToken(@RequestBody TokenRequest dto,
+    public CommonResponse<?> registerToken(@RequestBody @Valid TokenRequest dto,
                                         @Login MemberDto memberDto) {
         log.info("registerToken start [POST /api/v1/device-token]");
         tokenService.saveToken(memberDto.getMemberId(), dto.token());

@@ -6,6 +6,7 @@ import com.capstone.rentit.inquiry.service.InquiryService;
 import com.capstone.rentit.inquiry.type.InquiryType;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class InquiryController {
     @PostMapping("/inquiries")
     public CommonResponse<Long> create(
             @Login MemberDto memberDto,
-            @RequestBody InquiryCreateForm form) {
+            @RequestBody @Valid InquiryCreateForm form) {
         return CommonResponse.success(inquiryService.createInquiry(memberDto.getMemberId(), form));
     }
 
@@ -35,7 +36,7 @@ public class InquiryController {
     @PostMapping(value = "/inquiries/damage")
     public CommonResponse<Long> createDamageReport(
             @Login MemberDto memberDto,
-            @RequestBody DamageReportCreateForm form) {
+            @RequestBody @Valid DamageReportCreateForm form) {
         return CommonResponse.success(inquiryService.createDamageReport(memberDto.getMemberId(), form));
     }
 
@@ -44,7 +45,7 @@ public class InquiryController {
     public CommonResponse<Void> answerDamageReport(
             @Login MemberDto memberDto,
             @PathVariable("id") Long id,
-            @RequestBody InquiryAnswerForm form) {
+            @RequestBody @Valid InquiryAnswerForm form) {
 
         inquiryService.answerDamageReport(id, memberDto.getMemberId(), form);
         return CommonResponse.success(null);
@@ -87,7 +88,7 @@ public class InquiryController {
     @PutMapping(value = "/admin/inquiries/{id}/answer")
     public CommonResponse<Long> answerInquiry(
             @PathVariable("id") Long id,
-            @RequestBody InquiryAnswerForm form
+            @RequestBody @Valid InquiryAnswerForm form
     ) {
         inquiryService.answerInquiry(id, form);
         return CommonResponse.success(null);

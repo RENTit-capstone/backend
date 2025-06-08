@@ -8,6 +8,7 @@ import com.capstone.rentit.rental.dto.RentalDto;
 import com.capstone.rentit.rental.dto.RentalRequestForm;
 import com.capstone.rentit.rental.dto.RentalSearchForm;
 import com.capstone.rentit.rental.service.RentalService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ public class RentalController {
     /** 1) 대여 요청 */
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/rentals")
-    public CommonResponse<Long> requestRental(@RequestBody RentalRequestForm form) {
+    public CommonResponse<Long> requestRental(@RequestBody @Valid RentalRequestForm form) {
         Long id = rentalService.requestRental(form);
         return CommonResponse.success(id);
     }

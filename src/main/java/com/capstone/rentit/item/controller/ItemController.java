@@ -5,6 +5,7 @@ import com.capstone.rentit.item.dto.*;
 import com.capstone.rentit.item.service.ItemService;
 import com.capstone.rentit.login.annotation.Login;
 import com.capstone.rentit.member.dto.MemberDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class ItemController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "/items", consumes = "application/json")
     public CommonResponse<Long> createItem(@Login MemberDto loginMember,
-                                           @RequestBody ItemCreateForm form) {
+                                           @RequestBody @Valid ItemCreateForm form) {
 
         Long itemId = itemService.createItem(loginMember.getMemberId(), form);
         return CommonResponse.success(itemId);

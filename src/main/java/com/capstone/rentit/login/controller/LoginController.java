@@ -9,6 +9,7 @@ import com.capstone.rentit.login.provider.JwtTokenProvider;
 import com.capstone.rentit.login.service.MemberDetailsService;
 import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +31,7 @@ public class LoginController {
     private final MemberDetailsService memberDetailsService;
 
     @PostMapping("/auth/login")
-    public CommonResponse<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public CommonResponse<?> authenticateUser(@RequestBody @Valid LoginRequest loginRequest) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(

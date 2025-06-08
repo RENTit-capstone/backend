@@ -1,10 +1,13 @@
 package com.capstone.rentit.inquiry.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public record DamageReportCreateForm(
-        Long rentalId,
-        String title,
-        String content,
-        List<String> images
+        @NotNull Long rentalId,
+        @NotEmpty String title,
+        @NotEmpty String content,
+        @NotNull List<String> images
 ) {}

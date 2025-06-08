@@ -14,7 +14,8 @@ public record InquiryResponse(
         String content,
         List<String> images,
         boolean processed,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String answer
 ) {
     public static InquiryResponse fromEntity(Inquiry e, List<String> images) {
         return new InquiryResponse(
@@ -25,7 +26,8 @@ public record InquiryResponse(
                 e.getContent(),
                 images,
                 e.isProcessed(),
-                e.getCreatedAt()
+                e.getCreatedAt(),
+                e.getAnswer()
         );
     }
 }
