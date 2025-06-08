@@ -368,6 +368,7 @@ class MemberControllerTest {
                 .nickname("loginNick")
                 .profileImg("profile_img_url")
                 .university(student.getUniversity())
+                .phoneNumber(student.getPhone())
                 .items(List.of(
                         ItemBriefResponse.builder()
                                 .itemId(10L).name("item1")
@@ -412,6 +413,7 @@ class MemberControllerTest {
                                 fieldWithPath("data.profileImg").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.NULL).description("가입일자 (현재 null)"),
                                 fieldWithPath("data.university").type(JsonFieldType.STRING).description("대학교 이름"),
+                                fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING).description("연락처"),
 
                                 subsectionWithPath("data.items").type(JsonFieldType.ARRAY).description("등록한 아이템 목록"),
                                 fieldWithPath("data.items[].itemId").type(JsonFieldType.NUMBER).description("아이템 ID"),
