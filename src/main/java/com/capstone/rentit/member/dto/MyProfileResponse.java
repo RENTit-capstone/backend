@@ -29,6 +29,7 @@ public class MyProfileResponse {
     private String role;
     private String profileImg;
     private String university;
+    private String phoneNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdAt;
@@ -60,6 +61,7 @@ public class MyProfileResponse {
                     .ownedRentals(owned)
                     .rentedRentals(rented)
                     .university(((Student)m).getUniversity())
+                    .phoneNumber(((Student) m).getPhone())
                     .build();
         }
         return MyProfileResponse.builder()

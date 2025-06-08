@@ -86,9 +86,9 @@ public abstract class Member {
 
     public void updateEntity(String name, String nickname, String imageKey) {
         if (name != null)
-            this.name = nickname;
+            this.name = name;
         if (nickname != null)
-            this.name = nickname;
+            this.nickname = nickname;
         if (imageKey != null) 
             this.profileImg = imageKey;
     }
