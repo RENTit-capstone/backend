@@ -524,8 +524,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_사용자용_문의_조회">사용자용 문의 조회</a></li>
 <li><a href="#_관리자용_단일_문의_조회">관리자용 단일 문의 조회</a></li>
 <li><a href="#_관리자용_문의_조회">관리자용 문의 조회</a></li>
+<li><a href="#_관리자용_문의_응답">관리자용 문의 응답</a></li>
 <li><a href="#_관리자용_문의_처리">관리자용 문의 처리</a></li>
-<li><a href="#_관리자용_문의_처리_2">관리자용 문의 처리</a></li>
 </ul>
 </li>
 <li><a href="#_결제_지갑_관련_api">결제 &amp; 지갑 관련 API</a>
@@ -726,7 +726,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_http_요청"><a class="link" href="#_http_요청">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=IKOGLavjwmUtHupoPHm7uTxzfyYdAMOxQg2QbXz_EfLqwPvqFJC1S8jU8wMAfNwJC1SPgF5BUh4lYvecJjz1Xk3IJcHbosuJ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup?_csrf=vzbkIZO-6paDfOMg96c_9kyeBi4VCNO8t2PAZq-ZjInE33GThwfWQ6Dd06euGtERxooLznmqK0wga-eRhVf1Upz96O-h5kSj HTTP/1.1
 Content-Type: application/json
 Content-Length: 190
 Host: localhost:8080
@@ -860,7 +860,7 @@ Content-Length: 39
 <h4 id="_http_요청_2"><a class="link" href="#_http_요청_2">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=z5staQZ1RCUbXKp6PmOsuuywVaXsSQkTz3MlJTzs3ljNJRGI_PhLWGUXJxQ2bJscC06YgtjTeMfdfDE--0QTRlne6z35RCa5 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=IFQPuVq-8JTUShhGGh2ZVlkTDaeWQwUmo-3BJms0YWrt0PXNQ2xriDjbkvf5Ky13IzCtY2lyIJ6ge2cLm96nEw8EAl-P6cOr HTTP/1.1
 Content-Type: application/json
 Content-Length: 276
 Host: localhost:8080
@@ -979,7 +979,7 @@ Content-Length: 39
 <h4 id="_http_요청_3"><a class="link" href="#_http_요청_3">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=X6IJIFA5ewKD8chmYgZBeBU3efRIcPHt1UJTYJ1j6JdmNVlracc7FDJfTjSukvpeUyt1S3EGVJV7Q8DA7CdlUfhVjqADB20K HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/group?_csrf=pDw12Pzt2PmgSWHDwgp1EtfkR4eqwv_6gPSQktv299FGD97rxwtQ7srfvMGNL1Ty9ydBJeLUar_I8Z3X45ahobrOleUgOu6K HTTP/1.1
 Content-Type: application/json
 Content-Length: 188
 Host: localhost:8080
@@ -1073,7 +1073,7 @@ Content-Length: 39
 <h4 id="_http_요청_4"><a class="link" href="#_http_요청_4">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=ekZnBAWSkvStxM_7KRxBYoaGLv_ZwPHul62nVXF0KGREfZfNTCdXMzf0qsWA9PmZGjF1BLW0A57u88HD88_GY0FDSlUgT6T5 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-email?_csrf=N562LYrmu3cKQZpNQiAJAfUvWlTlkCB1g-P0PFBP6YugE9s4B6eEG7nSgkInda15cA09N8cbd23X9kZY4tDCCzN80e2ScOkA HTTP/1.1
 Content-Type: application/json
 Content-Length: 38
 Host: localhost:8080
@@ -1172,7 +1172,7 @@ Content-Length: 95
 <h4 id="_http_요청_5"><a class="link" href="#_http_요청_5">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=UzDZev86-mKdMspWTvbcSCFKtZELPRO-3YaSeVMe8b05GyfLZlLpHstZwgSwBPIzdtvoeEd8mPM-DSWT6770GDErwthfeESo HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/auth/signup/verify-code?_csrf=ejeudp4hWqCBI7wEI7URbnP8crU4nlYAyGBXwyo0GzH-r084Q1PNEvoVY5CsQIw8EJglCxCaX40NrW4trVQx-hICKgDKnS4B HTTP/1.1
 Content-Type: application/json
 Content-Length: 49
 Host: localhost:8080
@@ -1813,7 +1813,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_11"><a class="link" href="#_http_요청_11">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=9onwZSHXdilFgoi7-h3BNPgVew_9QjMoiSG92M2Q1mRIk71VlLDJURLgQxBosemPzTD1DctzVjfMdAUF6BHZ4PWnslV_pI1i HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/members?_csrf=um5mAYDzvWTH5wj-oot1XgKNbtgi1EqM4ck6OC6E5X0u7e1aiAtfM7TFi1Hq0jHLx6ZBZmC4Q7kTsiuhh6gNXUuw0U1Lidtt HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
@@ -1928,7 +1928,7 @@ Content-Length: 38
 <h4 id="_http_요청_12"><a class="link" href="#_http_요청_12">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=Fgk21zMv0lDCNmW2jDwd_sFx7coPDUi3fZbltm75kRmjJzZ1ITEH7gUd5zXvVQGEuBEpnPBDwPJqPXyaGfKGh1bM8n2aFAQQ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/members?_csrf=e34_w15NpEt8YWIpsv63kIMd289BH_jNLvyskCg9cBZtDnl9T01b8DsswX5RBQAd0NODqLok9vZwKMjgF8-ZqEsKRyEJa0tJ HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 158
 Host: localhost:8080
@@ -2122,6 +2122,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">가입일자 (현재 null)</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.university</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">대학교 이름</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.items</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">등록한 아이템 목록</p></td>
@@ -2237,6 +2242,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL (현재 null)</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].returnImageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 이미지 URL(현재 null)</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.ownedRentals[].lockerUniversity</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">사물함 학교</p></td>
@@ -2335,6 +2345,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].thumbnailUrl</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL (현재 null)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].returnImageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 이미지 URL(현재 null)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.rentedRentals[].owner</code></p></td>
@@ -2444,7 +2459,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_15"><a class="link" href="#_http_요청_15">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=dxyvibLlZ4KHDuYvU7CUriP62SLH1LKaRosIKv_csGAdeSwEESrOsdbRAbeqNtNNZZ2gyEHD9EP-soK3J7o_SMzq1lYvGhgw HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/items?_csrf=8rMSCQkzxG_F7AorzXga0qLNJznVfqJtfPd7nIzpLpczXhB6xtVxPTsK91bo2D0Z_lUutsSsCgCzSZVATZRD_biNGKEGOCZP HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 286
 Host: localhost:8080
@@ -2715,7 +2730,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_17"><a class="link" href="#_http_요청_17">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=zR-MbR8oQiZaVhfeYJzqDW16t4vRtMAQ1OMnrobiblYFmNXmqy-1XX5NckV3NS69U7HeNVwbmrKyjaU95tNEnuTSDGA9rLfV HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/items/5?_csrf=dCadqw2WSN6n2NlWgD3laujtqYK9xHMiwRegig-OOsiJ2nztQxT_zWzyfeyK6e9vthDRUtrYhLqF8kIPoyfE7zy6X_G6vEiL HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2918,12 +2933,12 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_18"><a class="link" href="#_http_요청_18">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=hxVchlTK2y1h-g2Bd4-SrPhEyMYcBzmlFr5ir6CYIgS9BaUYtSE9sTav6x9MzG_gTqKmzp1z5f4oZluIco4Am5b5FzzbZ5F- HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/items/7?_csrf=D9Hi0YNUEnWS3ZQYaEFJa_BHuKeN55L30brfxbVe3Gzm9058NrSH5LFkJxS_6KMuDGx9WclzlcW_0aLas4Pq9NNmulzewn5I HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 235
 Host: localhost:8080
 
-{"name":"Updated","description":"newDesc","damagedDescription":"newDamagedDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-06-08T23:20:32.1854633","endDate":"2025-06-10T23:20:32.1854633","imageKeys":null}</code></pre>
+{"name":"Updated","description":"newDesc","damagedDescription":"newDamagedDesc","price":2000,"damagedPolicy":"dp2","returnPolicy":"rp2","startDate":"2025-06-09T02:50:54.6666281","endDate":"2025-06-11T02:50:54.6666281","imageKeys":null}</code></pre>
 </div>
 </div>
 </div>
@@ -2994,7 +3009,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=mD86GW6QLkOIVXhGdRJ2waeweIvUBZGg3leH0a1Ua6CKmBw0-w8MfVioSnulNhwiRD9C-ZDSVeniNKON7G625J5jU5Drrn0B</code></pre>
+_csrf=KA6XTOSjWFjAwVl4HrsnB1q8Cv_jgBa-T2KrqllcaY0PCCNLSzejKYLFYDnt9z1LLpYTPjuLJ8eHti-TeQGZm2hpC-9tOEV-</code></pre>
 </div>
 </div>
 </div>
@@ -3109,12 +3124,12 @@ _csrf=mD86GW6QLkOIVXhGdRJ2waeweIvUBZGg3leH0a1Ua6CKmBw0-w8MfVioSnulNhwiRD9C-ZDSVe
 <h4 id="_http_요청_20"><a class="link" href="#_http_요청_20">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=NVnInUIY2CDOO5nsclpFBOPu8UX-De_vR0-TegH8x8XTdhMUUD-trHZ8vhXjD_zcS3dxYdLZ3H2aNd_CJSynSWTM86ewRHEk HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/rentals?_csrf=6poz-ykBiHvze-7_2hOqBMNS6zGnBg3pGcQoeMpR-CfAjyoli6MEzkpkuU3eSticvj6eM6JhxlDFN2zEf_IZSflnmxKkvUkQ HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 123
 Host: localhost:8080
 
-{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-06-09T23:20:45.8874097","dueDate":"2025-06-15T23:20:45.8874097"}</code></pre>
+{"itemId":100,"ownerId":10,"renterId":20,"startDate":"2025-06-10T02:51:09.6058986","dueDate":"2025-06-16T02:51:09.6058986"}</code></pre>
 </div>
 </div>
 </div>
@@ -3357,7 +3372,7 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_요청_22"><a class="link" href="#_http_요청_22">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=nyCxWTCdumK5-vHsX3gAZqqDVfbLR_eWF4U7Uh059uEsLyTc-RHSbgSkg1KUn8mKalU0ApvleJT_d8C7JLIDY3gNxINNGEa5 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/rentals/5?_csrf=I9yhpLPBBcgAj4zj6ou9JkW1vShFdig7YVHG2AnVy2mY0lbKFL7AlYD0Z_gt7LzbiaaJFyCBkEkkQxAWAGHwu2jt8gr642Cu HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3496,7 +3511,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=iGJNBD-wkETGdxWE3gqVUONO9MRLG6KNy8WlrP1fLDKUvdIP7QYpZV6Fp3brQ3O07SehNdd52aYueJqg-_WVmclnTQbw2OE8</code></pre>
+_csrf=R50ZFiCgZgu5B-6q4oNseIIcquvjsugk01rEy4fwZciO7y1GJKh8dBiQX2iUMIuf1a5YG-Aph9OBi9oJ4Dn3--PHVPzvjU5z</code></pre>
 </div>
 </div>
 </div>
@@ -3549,7 +3564,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=0xFkl11kdSEquF31tLnoZD9pCIVMF8wGsHe2-hQINFeiUsNq5XQC8jgGE0IHizzCgZTcAAtRJecvcv8r0RSBwiExBGbEY_Za</code></pre>
+_csrf=VU6wfrHnF0TBAnwEuyhxKsPZ1jxM0_w2d2DRkl6exCr1P9cJNniHTNOCJiLsMEk8iwVFSPvt-wQtsM4bQQHjpWqmphnDXLVt</code></pre>
 </div>
 </div>
 </div>
@@ -3602,7 +3617,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=ylT4691cHsH9_19e-ikt4pXtODQLgYbE0e8AlDjpbUrpqrkgr23M2-xpL6fQz2tnywQZ2_fVFQ065eXptNg49QvfVHiIz99D</code></pre>
+_csrf=UnRYaIzwzb8mA0fCXEqc8h1ZLzmg50PWMtRnio2NNjMXpoLEM0U8DbuW-NsLMnDxOmeoxi86AlvE33H7BucD67-8BgFzkuOi</code></pre>
 </div>
 </div>
 </div>
@@ -3650,7 +3665,7 @@ _csrf=ylT4691cHsH9_19e-ikt4pXtODQLgYbE0e8AlDjpbUrpqrkgr23M2-xpL6fQz2tnywQZ2_fVFQ
 <h4 id="_http_요청_26"><a class="link" href="#_http_요청_26">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=x9-hRr6Z4H8ivA2WhjqukveYbIOzBOWfpClyEg-_1CVk_KpXpOfCfo6q0kYP2G-nvxeaoJSqQeLSZtSywkxKcTjbshVczplh HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=3Ft8DjOqfzp71kTwe01p1ehKwUw3dFxzQDF0i66UO2cD9ISyuTpObFCeHQ9W5XXIH2Bd4tF47HVTQD9ec1VHvpekDFc3xODW HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -3757,6 +3772,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].returnImageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 이미지 (현재 NULL)</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].lockerUniversity</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">사물함 대학</p></td>
@@ -3842,7 +3862,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=Ve9_aUYgV5fqdhitXkCvJkEjfFRwyXJnRLv1ltdi4Z_5prcnZY5OWHQWMa_HQnrIbm2bEiRGUWxB_hZKfN-Up-cA2KmfwtRC</code></pre>
+_csrf=3QjvDpjCEx6u3M28N_tcz6b-fGauJVAFxXc1Yt93qDDBS2AduD3WOP2kdiaD6a7eU9Zo98fNUQTMHWYo9RJXVu8WzlbzLVR7</code></pre>
 </div>
 </div>
 </div>
@@ -3912,7 +3932,7 @@ Content-Length: 61
 <h4 id="_http_요청_28"><a class="link" href="#_http_요청_28">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=x9-hRr6Z4H8ivA2WhjqukveYbIOzBOWfpClyEg-_1CVk_KpXpOfCfo6q0kYP2G-nvxeaoJSqQeLSZtSywkxKcTjbshVczplh HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/admin/rentals/99?_csrf=3Ft8DjOqfzp71kTwe01p1ehKwUw3dFxzQDF0i66UO2cD9ISyuTpObFCeHQ9W5XXIH2Bd4tF47HVTQD9ec1VHvpekDFc3xODW HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -4019,6 +4039,11 @@ Host: localhost:8080</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 URL</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].returnImageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">반납 이미지 (현재 NULL)</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].lockerUniversity</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">사물함 대학</p></td>
@@ -4058,9 +4083,9 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 985
+Content-Length: 1029
 
-{"success":true,"data":[{"rentalId":20,"itemId":100,"itemName":"ItemA","ownerName":"OwnerA","renterName":"RenterA","status":"REQUESTED","requestDate":"2025-06-08T23:20:46.0172694","startDate":"2025-06-08T23:20:46.0172694","dueDate":"2025-06-09T23:20:46.0172694","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbA","lockerUniversity":"UnivA","lockerLocation":"LocA","lockerNumber":1,"owner":true},{"rentalId":21,"itemId":101,"itemName":"ItemB","ownerName":"OwnerB","renterName":"RenterB","status":"REQUESTED","requestDate":"2025-06-08T23:20:46.0172694","startDate":"2025-06-08T23:20:46.0172694","dueDate":"2025-06-09T23:20:46.0172694","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbB","lockerUniversity":"UnivB","lockerLocation":"LocB","lockerNumber":2,"owner":false}],"message":""}</code></pre>
+{"success":true,"data":[{"rentalId":20,"itemId":100,"itemName":"ItemA","ownerName":"OwnerA","renterName":"RenterA","status":"REQUESTED","requestDate":"2025-06-09T02:51:09.7756698","startDate":"2025-06-09T02:51:09.7756698","dueDate":"2025-06-10T02:51:09.7756698","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbA","lockerUniversity":"UnivA","lockerLocation":"LocA","lockerNumber":1,"returnImageUrl":null,"owner":true},{"rentalId":21,"itemId":101,"itemName":"ItemB","ownerName":"OwnerB","renterName":"RenterB","status":"REQUESTED","requestDate":"2025-06-09T02:51:09.7756698","startDate":"2025-06-09T02:51:09.7756698","dueDate":"2025-06-10T02:51:09.7756698","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbB","lockerUniversity":"UnivB","lockerLocation":"LocB","lockerNumber":2,"returnImageUrl":null,"owner":false}],"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -4268,9 +4293,9 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 1298
+Content-Length: 1342
 
-{"success":true,"data":{"content":[{"rentalId":30,"itemId":200,"itemName":"ItemX","ownerName":"OwnerX","renterName":"RenterX","status":"APPROVED","requestDate":"2025-06-03T23:20:45.8308232","startDate":"2025-06-05T23:20:45.8308232","dueDate":"2025-06-10T23:20:45.8308232","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbX","lockerUniversity":"UnivX","lockerLocation":"LocX","lockerNumber":5,"owner":false},{"rentalId":31,"itemId":201,"itemName":"ItemY","ownerName":"OwnerY","renterName":"RenterY","status":"REQUESTED","requestDate":"2025-06-06T23:20:45.8308232","startDate":"2025-06-08T23:20:45.8308232","dueDate":"2025-06-13T23:20:45.8308232","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbY","lockerUniversity":"UnivY","lockerLocation":"LocY","lockerNumber":6,"owner":true}],"pageable":{"pageNumber":0,"pageSize":2,"sort":{"empty":false,"sorted":true,"unsorted":false},"offset":0,"unpaged":false,"paged":true},"totalElements":2,"totalPages":1,"last":true,"size":2,"number":0,"sort":{"empty":false,"sorted":true,"unsorted":false},"numberOfElements":2,"first":true,"empty":false},"message":""}</code></pre>
+{"success":true,"data":{"content":[{"rentalId":30,"itemId":200,"itemName":"ItemX","ownerName":"OwnerX","renterName":"RenterX","status":"APPROVED","requestDate":"2025-06-04T02:51:09.4901373","startDate":"2025-06-06T02:51:09.4901373","dueDate":"2025-06-11T02:51:09.4901373","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbX","lockerUniversity":"UnivX","lockerLocation":"LocX","lockerNumber":5,"returnImageUrl":null,"owner":false},{"rentalId":31,"itemId":201,"itemName":"ItemY","ownerName":"OwnerY","renterName":"RenterY","status":"REQUESTED","requestDate":"2025-06-07T02:51:09.4901373","startDate":"2025-06-09T02:51:09.4901373","dueDate":"2025-06-14T02:51:09.4901373","approvedDate":null,"rejectedDate":null,"leftAt":null,"pickedUpAt":null,"returnedAt":null,"retrievedAt":null,"thumbnailUrl":"https://example.com/thumbY","lockerUniversity":"UnivY","lockerLocation":"LocY","lockerNumber":6,"returnImageUrl":null,"owner":true}],"pageable":{"pageNumber":0,"pageSize":2,"sort":{"empty":false,"unsorted":false,"sorted":true},"offset":0,"paged":true,"unpaged":false},"totalElements":2,"last":true,"totalPages":1,"size":2,"number":0,"sort":{"empty":false,"unsorted":false,"sorted":true},"first":true,"numberOfElements":2,"empty":false},"message":""}</code></pre>
 </div>
 </div>
 </div>
@@ -4294,7 +4319,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=ezusCSAKZZHQxIZjYVXebx4tn8n1vIOOKzDsC6EW1s0j3RQcGgibOBg5BvP9obJRWXjqXCpLsvDH2LWjElTZbcdw769BviQp</code></pre>
+_csrf=GjdlS_2BOrcjVTQuoLu2JMbhgicFZEsQFiI85JiZukR-UawaIwNRKpy1CY4OYVUXwZaCEvfUrx80UH49JEEOh_z_23VLNJ4r</code></pre>
 </div>
 </div>
 </div>
@@ -4399,7 +4424,7 @@ Content-Length: 44
 <h4 id="_http_요청_32"><a class="link" href="#_http_요청_32">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/devices?_csrf=bVKkFlWrcp8ggMhDx6o5emBPOKmMM9IMyYO2OSY0i-nck44WXGPHc2WZFKYN4613_4cNTFF7FZDoUuYh-eDTDEMD6N-5p7wl HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/devices?_csrf=sUgGI17YoYLzHgnDhH8nhO2uDWl4-v7LHYFAjcKOzWrn1iaRiHtjGmi7xbveKD_75VITtdTMIAhBypjme7AmtaTo9F_VtRKk HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 91
 Host: localhost:8080
@@ -4612,7 +4637,7 @@ Content-Length: 241
 <h4 id="_http_요청_34"><a class="link" href="#_http_요청_34">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/lockers?_csrf=Mw6w9ovehuXjhafPHu6NZRDDWl4p4iEnFHC3gRRX3dVzDIDnBzfWwO_v5dbO4JerLsO5UHP6d2cQgxYKcEiO5XJhv-NEabff HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/admin/lockers?_csrf=6qh2z0IJtfEkYi3vCXAnYHS753EUOuvHswXjPJnOOeeEuInb2s1H-HI-gcQJAUjcMF0TAxLYykgtWNLq0WfaDvuvD9biibG5 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 22
 Host: localhost:8080
@@ -4808,7 +4833,7 @@ Content-Length: 548
     "deviceId" : 10,
     "lockerId" : 1,
     "available" : true,
-    "activatedAt" : "2025-06-08T23:20:34.2566373",
+    "activatedAt" : "2025-06-09T02:50:57.1239447",
     "device" : {
       "deviceId" : 10,
       "university" : "U2",
@@ -4818,7 +4843,7 @@ Content-Length: 548
     "deviceId" : 10,
     "lockerId" : 2,
     "available" : false,
-    "activatedAt" : "2025-06-08T23:20:34.2566373",
+    "activatedAt" : "2025-06-09T02:50:57.1239447",
     "device" : {
       "deviceId" : 10,
       "university" : "U2",
@@ -4887,7 +4912,7 @@ DAMAGE    // 파손 신고</code></pre>
 <h4 id="_http_요청_36"><a class="link" href="#_http_요청_36">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries?_csrf=IM4KqavwcbvU5I1kK--gj-O7NwsQdoB0rGeQ9Nnjni09CMEYF6g_kZ3AEIr5hu9RHMKUtoWDGmkhErlZylWlwbjU-B4LavIq HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries?_csrf=G-uhnGFzY7NWJ-6WHz6p2YuUG5uTqFiUeNHnRVZN4_Gdgo9CLN7DqVVKAYF7Q4yneROd7ur1NqOgyju5SeKDd2J90Jeq4Lt3 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 74
 Host: localhost:8080
@@ -5005,7 +5030,7 @@ Content-Length: 58
 <h4 id="_http_요청_37"><a class="link" href="#_http_요청_37">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries/damage?_csrf=_6VHXStsQE-PeKlc_k7pmy6QMrZeBCiz8lSZ8U2AuNALHA2ym5x_ZBhUciqiQMhrz2PdqBipH9c6MxCexDKgxCi0jbQzfziL HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/inquiries/damage?_csrf=2zzL_sW2AJyBzoIQeqFrmVkRFf6zGIVncJK9YSYqtCNz94Hg7Fr6mvWGMPms_uMkSIxfrGkjOJ-DLbNKFKuMAhcbgxdGwuTV HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 142
 Host: localhost:8080
@@ -5131,7 +5156,7 @@ Content-Length: 59
 <h4 id="_http_요청_38"><a class="link" href="#_http_요청_38">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/inquiries/77/answer?_csrf=L0a4kO4Drgj5ZF69W9coLnsjdDGtvfvvGMjdu0iksRdSstjSTnOOo99lnm3UUWaOafocGE4aWQiZjJ7CfvvvjX-QhCM2hLvk HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/inquiries/77/answer?_csrf=J3TP3Lg_jyJosQt_M2SzBbEiQaNrgDRd3CjIoJk7TdOlT6YBExWr7IgOukNFhTIdA0mHNIgQbJpfswJw6k3xwaAPK-OcLJQ2 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 37
 Host: localhost:8080
@@ -5338,7 +5363,7 @@ Content-Length: 293
     "content" : "c",
     "images" : null,
     "processed" : false,
-    "createdAt" : "2025-06-08T23:20:28.6439033",
+    "createdAt" : "2025-06-09T02:50:50.8911582",
     "answer" : ""
   },
   "message" : ""
@@ -5590,7 +5615,7 @@ Content-Length: 293
     "content" : "c",
     "images" : null,
     "processed" : false,
-    "createdAt" : "2025-06-08T23:20:28.0504787",
+    "createdAt" : "2025-06-09T02:50:50.2761756",
     "answer" : ""
   },
   "message" : ""
@@ -5705,7 +5730,7 @@ Content-Length: 888
       "content" : "CONTENT",
       "images" : null,
       "processed" : true,
-      "createdAt" : "2025-06-08T23:20:28.4896223",
+      "createdAt" : "2025-06-09T02:50:50.7664712",
       "answer" : "답변 내용"
     } ],
     "pageable" : {
@@ -5713,25 +5738,25 @@ Content-Length: 888
       "pageSize" : 5,
       "sort" : {
         "empty" : false,
-        "sorted" : true,
-        "unsorted" : false
+        "unsorted" : false,
+        "sorted" : true
       },
       "offset" : 0,
-      "unpaged" : false,
-      "paged" : true
+      "paged" : true,
+      "unpaged" : false
     },
     "totalElements" : 1,
-    "totalPages" : 1,
     "last" : true,
+    "totalPages" : 1,
     "size" : 5,
     "number" : 0,
     "sort" : {
       "empty" : false,
-      "sorted" : true,
-      "unsorted" : false
+      "unsorted" : false,
+      "sorted" : true
     },
-    "numberOfElements" : 1,
     "first" : true,
+    "numberOfElements" : 1,
     "empty" : false
   },
   "message" : ""
@@ -5741,7 +5766,7 @@ Content-Length: 888
 </div>
 </div>
 <div class="sect2">
-<h3 id="_관리자용_문의_처리"><a class="link" href="#_관리자용_문의_처리">관리자용 문의 처리</a></h3>
+<h3 id="_관리자용_문의_응답"><a class="link" href="#_관리자용_문의_응답">관리자용 문의 응답</a></h3>
 <div class="paragraph">
 <p>PUT /api/v1/admin/inquiries/{id}/answer</p>
 </div>
@@ -5795,7 +5820,7 @@ Content-Length: 888
 <h4 id="_http_요청_43"><a class="link" href="#_http_요청_43">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/admin/inquiries/70/answer?_csrf=xpt3HPmrQUqDjhaapFxJfhKgEQMlUAcD74lGMxObS5ZOAzgj869DfpqYcCiu6iH7wHF9SCeSPDoWYDQujLF_USWjKfN2NlpB HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/v1/admin/inquiries/70/answer?_csrf=hFG3szfsflILsf5R2peeAhj-K9-RrsZ0h-UGMJr5y5u23qDf4DeP0lOPR2UmgstluLqqYCvGBr2oy6JZt4ZkBarI_KuB65Tr HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 37
 Host: localhost:8080
@@ -5864,7 +5889,7 @@ Content-Length: 61
 </div>
 </div>
 <div class="sect2">
-<h3 id="_관리자용_문의_처리_2"><a class="link" href="#_관리자용_문의_처리_2">관리자용 문의 처리</a></h3>
+<h3 id="_관리자용_문의_처리"><a class="link" href="#_관리자용_문의_처리">관리자용 문의 처리</a></h3>
 <div class="paragraph">
 <p>PUT /api/v1/admin/inquiries/{id}/processed</p>
 </div>
@@ -5899,7 +5924,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=QNhUDL9asX60ptRxhvUMmI8uxcOXVLIZAVm3_kV2ozXSacz3cO5laopphRiZxLJGt9g4-boW6PuhNoY0MTvWzidBkFGwX_jC</code></pre>
+_csrf=d-9Gi_sKu79YsJCIjYwaypd-oQugo6tXKBWUI-sSprD5xfmkEdh26J5u3t511PXr7qEurPNJjGnEkZh6HiDxFIhxwNbP88uT</code></pre>
 </div>
 </div>
 </div>
@@ -6030,7 +6055,7 @@ Content-Length: 61
 <h4 id="_http_요청_45"><a class="link" href="#_http_요청_45">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet?_csrf=ilAiFiUyBAowHVzMari1OG4c5vQ4wMHglt1ejPmKkG0WG5duumgTLhxQNWsdLT36WZWBDlspy8xc9PLN87w778C58l4jK6ZW HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet?_csrf=JePjSVV-BnudA-Zis0u8BrngxtBXXwoNrS5xkTV0HF-JxLx4RofbeTcdMEiwM9ABhWaIZImG67Fham8glUpDolEXJW6_oI8a HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 90
 Host: localhost:8080
@@ -6109,7 +6134,7 @@ Content-Length: 60
 <h4 id="_http_요청_46"><a class="link" href="#_http_요청_46">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/wallet?_csrf=2pLeagDNN08qb6XI9pGSsSVkdYPBhB0CFEmqKIhr_tvg8SOXuKu4D2X8DnoHCZyrw7ym0ENQWOH3tHgvJ3nPSbwJnenUwUWk HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/wallet?_csrf=oy7bo4do9qAHqzGC_kiYlZWkViYrgLexvYGLEHQNdVv0Z6-_lR_rlbUNz8MqmVPhyWWspvade0cY5NacjLDqchE_TT7DX5uG HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -6241,7 +6266,7 @@ Content-Length: 218
 <h4 id="_http_요청_47"><a class="link" href="#_http_요청_47">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/top-up?_csrf=wMTuINZNvMFVRAV-zTKegr4jxRrC0XZNgWJ_L7UNtYqX8sQK8_zZE-8riPF4dGcb_R-qsdxA6CLw4UJgtQRIHtY90LzxwfU- HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/top-up?_csrf=6i5Sx_XY3zkNHr_QrTGWgOyhe9_PLMtFgw3yg_MY0O7qI4RXjB5k_sK-6AggKYromxyi5IqSVr6rFPpoumyU5sAv5dzaFLxi HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 45
 Host: localhost:8080
@@ -6348,7 +6373,7 @@ Content-Length: 58
 <h4 id="_http_요청_48"><a class="link" href="#_http_요청_48">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/withdraw?_csrf=Gnc5r2mcpm0lvfQGwEhuDQ7UfUiw_EZMfAx6NEam29eOTnxnf0cLyQipxVoIjMI-92VaOzrmUCqJniJhTWoYA3aS7-62LUhU HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/wallet/withdraw?_csrf=n17B1MelNO-n6JHOBX4kxjLOQihbQt5GnnQGRIfjsZ6HqcfiqT344aLEA9eKjaD6YFMQ8VOrbxA6dLtr_E0-IeSC16a3mPfb HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 45
 Host: localhost:8080
@@ -6546,7 +6571,7 @@ Content-Length: 325
     "type" : "RENTAL_FEE",
     "status" : "APPROVED",
     "amount" : 5000,
-    "createdAt" : "2025-06-08T23:20:43.2027139",
+    "createdAt" : "2025-06-09T02:51:06.5818375",
     "itemName" : "item_name",
     "ownerName" : "소유자이름",
     "renterName" : "대여자 이름"
@@ -6686,7 +6711,7 @@ Content-Length: 325
     "type" : "RENTAL_FEE",
     "status" : "APPROVED",
     "amount" : 5000,
-    "createdAt" : "2025-06-08T23:20:43.0819526",
+    "createdAt" : "2025-06-09T02:51:06.3747511",
     "itemName" : "item_name",
     "ownerName" : "소유자이름",
     "renterName" : "대여자 이름"
@@ -6755,7 +6780,7 @@ INQUIRY_RESPONSE</code></pre>
 <h4 id="_http_요청_51"><a class="link" href="#_http_요청_51">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/device-token?_csrf=2Jkbm-059Ve3gAG5zqY-YJ8l-ZdOyfNFxhWuL50t8z4YXzwG7vsi-olcljGa4zWMr4sKVP5A1K52_sFo9SLLHq8blV99aF4- HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/device-token?_csrf=jxIwuyfYQKkzDLUS3ZU-Hhvj_cQJPjBpAeX0A8JOnUqb6C9YuXYGghbgdZwebY1z6LgKLi7b0P05DQdEN9HFM_d_ryv53Bdo HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Content-Length: 29
 Host: localhost:8080
@@ -6861,7 +6886,7 @@ Content-Length: 61
 <h4 id="_http_요청_52"><a class="link" href="#_http_요청_52">HTTP 요청</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/notifications?page=0&amp;size=20&amp;sort=createdAt%2Cdesc&amp;_csrf=pgnvj38cKDd0se5CJxn6uHXVCH0uIAQRrUtSKovspzuwEER7lTzZ60csGgBZh4x7ETTO2kDgJR8bQTQ8zHNkGbuNkFrRdHEZ HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/v1/notifications?page=0&amp;size=20&amp;sort=createdAt%2Cdesc&amp;_csrf=DhOAvHVXRldrRjyZHnGpKfK4uBQcBqM85m2UKFkByiLYdm4DPifliRdgJG5GIlmgLFydGZfelSwqYpYRgFymTWln-hfpElky HTTP/1.1
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -6968,32 +6993,32 @@ Content-Length: 816
       "title" : "알림 제목",
       "body" : "알림 내용",
       "read" : false,
-      "createdAt" : "2025-06-08T23:20:40.5649011"
+      "createdAt" : "2025-06-09T02:51:04.2453946"
     } ],
     "pageable" : {
       "pageNumber" : 0,
       "pageSize" : 20,
       "sort" : {
         "empty" : false,
-        "sorted" : true,
-        "unsorted" : false
+        "unsorted" : false,
+        "sorted" : true
       },
       "offset" : 0,
-      "unpaged" : false,
-      "paged" : true
+      "paged" : true,
+      "unpaged" : false
     },
     "totalElements" : 1,
-    "totalPages" : 1,
     "last" : true,
+    "totalPages" : 1,
     "size" : 20,
     "number" : 0,
     "sort" : {
       "empty" : false,
-      "sorted" : true,
-      "unsorted" : false
+      "unsorted" : false,
+      "sorted" : true
     },
-    "numberOfElements" : 1,
     "first" : true,
+    "numberOfElements" : 1,
     "empty" : false
   },
   "message" : ""
@@ -7038,7 +7063,7 @@ Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
 Content-Length: 102
 
-_csrf=GwNyLH2gUE5RWRBypAIRIrP2JIK2Ev_ByVHx7wupiojfJqKsI2YXThzDY3l8bSdAwi8lGoPFCeCGd8vs_mCXjWqR6LG6EcbO</code></pre>
+_csrf=Eg7cl00Wq4jtSW-t50yMLYLFcKbwimI803emedNvFbhlCMYyJzzuonUlyOzAflfIhGG4S7L0XceUuAcR5E6WHLcKJ4kGMaUA</code></pre>
 </div>
 </div>
 </div>
@@ -7105,7 +7130,7 @@ Content-Length: 61
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2025-06-08 17:11:20 +0900
+Last updated 2025-06-08 23:22:55 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
