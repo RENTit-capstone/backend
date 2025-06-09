@@ -257,7 +257,7 @@ public class RentalService {
     }
 
     private void assertReturnState(Rental r) {
-        if(r.getStatus() != RentalStatusEnum.RETURNED_TO_LOCKER){
+        if(r.getStatus() != RentalStatusEnum.RETURNED_TO_LOCKER && r.getStatus() != RentalStatusEnum.COMPLETED){
             throw new ItemNotReturnedException("반납된 물품이 아닙니다.");
         }
     }
