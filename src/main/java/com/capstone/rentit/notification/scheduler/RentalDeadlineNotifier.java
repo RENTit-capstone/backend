@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Map;
 
 @Component
@@ -26,7 +27,7 @@ public class RentalDeadlineNotifier {
         LocalDate d3 = today.plusDays(3);
 
         // 대여 시작 3일 전 & 당일 → 소유자
-        rentalRepository.findByStartDate(d3)
+        rentalRepository.findByStartDateBetween(d3.atStartOfDay(), d3.atTime(LocalTime.MAX))
                 .forEach(r -> notificationService.notify(
                         r.getItem().getOwner(),
                         NotificationType.RENT_START_D_3,
@@ -35,7 +36,7 @@ public class RentalDeadlineNotifier {
                         Map.of("rentalId", r.getRentalId().toString())
                 ));
 
-        rentalRepository.findByStartDate(today)
+        rentalRepository.findByStartDateBetween(today.atStartOfDay(), today.atTime(LocalTime.MAX))
                 .forEach(r -> notificationService.notify(
                         r.getItem().getOwner(),
                         NotificationType.RENT_START_D_0,
@@ -45,7 +46,7 @@ public class RentalDeadlineNotifier {
                 ));
 
         // 대여 마감 3일 전 & 당일 → 대여자
-        rentalRepository.findByDueDate(d3)
+        rentalRepository.findByDueDateBetween(d3.atStartOfDay(), d3.atTime(LocalTime.MAX))
                 .forEach(r -> notificationService.notify(
                         r.getRenterMember(),
                         NotificationType.RENT_END_D_3,
@@ -54,7 +55,7 @@ public class RentalDeadlineNotifier {
                         Map.of("rentalId", r.getRentalId().toString())
                 ));
 
-        rentalRepository.findByDueDate(today)
+        rentalRepository.findByDueDateBetween(today.atStartOfDay(), today.atTime(LocalTime.MAX))
                 .forEach(r -> notificationService.notify(
                         r.getRenterMember(),
                         NotificationType.RENT_END_D_0,

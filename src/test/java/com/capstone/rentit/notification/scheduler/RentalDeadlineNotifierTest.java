@@ -10,29 +10,33 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalTime; // LocalTime import 추가
 import java.util.List;
-import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
-/**
- * {@link RentalDeadlineNotifier} 스케줄러 테스트
- */
 @ExtendWith(MockitoExtension.class)
 class RentalDeadlineNotifierTest {
 
     @Mock RentalRepository rentalRepository;
     @Mock NotificationService notificationService;
 
-    /** System Under Test */
+    // SUT(System Under Test)는 변경 없이 그대로 사용합니다.
     private RentalDeadlineNotifier sut() {
         return new RentalDeadlineNotifier(rentalRepository, notificationService);
     }
 
+    // 테스트 데이터 생성을 위한 헬퍼 메서드도 변경 없이 그대로 사용합니다.
     private Member member(Long id) {
         Member m = mock(Member.class);
         lenient().when(m.getMemberId()).thenReturn(id);
@@ -41,11 +45,15 @@ class RentalDeadlineNotifierTest {
 
     private Rental rental(Long id, Member owner, Member renter) {
         Rental r = mock(Rental.class);
-        when(r.getRentalId()).thenReturn(id);
+        // getRenterMember()에 대한 Mock 설정 추가
+        lenient().when(r.getRenterMember()).thenReturn(renter);
+        lenient().when(r.getRentalId()).thenReturn(id);
 
-        Item i = mock(com.capstone.rentit.item.domain.Item.class);
-        when(i.getName()).thenReturn("물품" + id);
-        when(r.getItem()).thenReturn(i);
+        Item i = mock(Item.class);
+        lenient().when(i.getName()).thenReturn("물품" + id);
+        // getItem().getOwner()에 대한 Mock 설정 추가
+        lenient().when(i.getOwner()).thenReturn(owner);
+        lenient().when(r.getItem()).thenReturn(i);
 
         return r;
     }
@@ -67,16 +75,17 @@ class RentalDeadlineNotifierTest {
             Rental endD3    = rental(3L, member(5L), member(6L));
             Rental endD0    = rental(4L, member(7L), member(8L));
 
-            // Repository 스텁 설정
-            when(rentalRepository.findByStartDate(d3)).thenReturn(List.of(startD3));
-            when(rentalRepository.findByStartDate(today)).thenReturn(List.of(startD0));
-            when(rentalRepository.findByDueDate(d3)).thenReturn(List.of(endD3));
-            when(rentalRepository.findByDueDate(today)).thenReturn(List.of(endD0));
+            // Repository 스텁 설정 (변경된 부분)
+            // findBy...Between 메서드가 LocalDateTime 범위로 호출될 것을 stubbing 합니다.
+            when(rentalRepository.findByStartDateBetween(d3.atStartOfDay(), d3.atTime(LocalTime.MAX))).thenReturn(List.of(startD3));
+            when(rentalRepository.findByStartDateBetween(today.atStartOfDay(), today.atTime(LocalTime.MAX))).thenReturn(List.of(startD0));
+            when(rentalRepository.findByDueDateBetween(d3.atStartOfDay(), d3.atTime(LocalTime.MAX))).thenReturn(List.of(endD3));
+            when(rentalRepository.findByDueDateBetween(today.atStartOfDay(), today.atTime(LocalTime.MAX))).thenReturn(List.of(endD0));
 
             // when
             sut().sendStartAndEndAlerts();
 
-            // then: 각 타입별 알림이 한 번씩
+            // then: 각 타입별 알림이 한 번씩 (검증 로직은 동일)
             verify(notificationService).notify(
                     eq(startD3.getItem().getOwner()),
                     eq(NotificationType.RENT_START_D_3),
@@ -108,11 +117,9 @@ class RentalDeadlineNotifierTest {
             LocalDate today = LocalDate.now();
             LocalDate d3    = today.plusDays(3);
 
-            // 모든 케이스 빈 리스트
-            when(rentalRepository.findByStartDate(today)).thenReturn(List.of());
-            when(rentalRepository.findByStartDate(d3)).thenReturn(List.of());
-            when(rentalRepository.findByDueDate(today)).thenReturn(List.of());
-            when(rentalRepository.findByDueDate(d3)).thenReturn(List.of());
+            // 모든 케이스 빈 리스트 반환 (변경된 부분)
+            when(rentalRepository.findByStartDateBetween(any(), any())).thenReturn(List.of());
+            when(rentalRepository.findByDueDateBetween(any(), any())).thenReturn(List.of());
 
             sut().sendStartAndEndAlerts();
 
