@@ -4,6 +4,7 @@ import com.capstone.rentit.notification.service.NotificationService;
 import com.capstone.rentit.notification.type.NotificationType;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +15,17 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RentalDeadlineNotifier {
 
     private final RentalRepository rentalRepository;
     private final NotificationService notificationService;
 
-    // 매일 새벽 0시(00:10)에 실행
     @Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
     @Transactional
     public void sendStartAndEndAlerts() {
+        log.info("Rental Deadline Notifier Start");
+
         LocalDate today = LocalDate.now();
         LocalDate d3 = today.plusDays(3);
 
