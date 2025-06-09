@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Order(7)
+@Order(6)
 public class InquiryDummyDataInitializer implements ApplicationRunner {
 
     private final InquiryRepository  inquiryRepository;
