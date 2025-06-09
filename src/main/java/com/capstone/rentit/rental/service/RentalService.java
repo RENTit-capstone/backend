@@ -183,7 +183,6 @@ public class RentalService {
 
         r.assignLocker(deviceId, lockerId);
         r.returnToLocker(LocalDateTime.now());
-
         notificationService.notifyItemReturned(rentalId, deviceId, lockerId);
     }
 
