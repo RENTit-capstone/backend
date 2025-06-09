@@ -91,14 +91,14 @@ public class InquiryService {
         assertTargetId(inquiry.getTargetMemberId(), responderId);
 
         inquiry.answerInquiry(form);
-//        notificationService.notifyItemDamagedResponse(inquiry);
+        notificationService.notifyItemDamagedResponse(inquiry);
     }
 
     public void answerInquiry(Long inquiryId, InquiryAnswerForm form){
         Inquiry inquiry = findInquiry(inquiryId);
         inquiry.answerInquiry(form);
 
-//        notificationService.notifyInquiryResponse(inquiry);
+        notificationService.notifyInquiryResponse(inquiry);
     }
 
     public void markProcessed(Long inquiryId) {
