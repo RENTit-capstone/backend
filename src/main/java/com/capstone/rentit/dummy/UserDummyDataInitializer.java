@@ -1,5 +1,6 @@
 package com.capstone.rentit.dummy;
 
+import com.capstone.rentit.inquiry.repository.InquiryRepository;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.locker.repository.LockerRepository;
@@ -38,9 +39,11 @@ public class UserDummyDataInitializer implements ApplicationRunner {
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
     private final NotificationRepository notificationRepository;
+    private final InquiryRepository inquiryRepository;
 
     @Override
     public void run(ApplicationArguments args) {
+        inquiryRepository.deleteAllInBatch();
         notificationRepository.deleteAllInBatch();
         paymentRepository.deleteAllInBatch();
         walletRepository.deleteAllInBatch();
