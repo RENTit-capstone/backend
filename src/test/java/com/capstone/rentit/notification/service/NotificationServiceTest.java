@@ -290,11 +290,11 @@ class NotificationServiceTest {
         @Test @DisplayName("notifyItemDamagedRequest 정상 호출")
         void request() {
             // given
-            long rentalId = 7L, ownerId = 16L;
-            Rental rental = stubRental(rentalId, ownerId, 26L);
-            Member owner = member(ownerId, "tokenG");
+            long rentalId = 7L, ownerId = 16L, renterId = 26L;
+            Rental rental = stubRental(rentalId, ownerId, renterId);
+            Member owner = member(renterId, "tokenG");
             when(rentalRepository.findByIdWithItem(rentalId)).thenReturn(Optional.of(rental));
-            when(memberRepository.findById(ownerId)).thenReturn(Optional.of(owner));
+            when(memberRepository.findById(renterId)).thenReturn(Optional.of(owner));
             when(notificationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
             var svc = new NotificationService(notificationRepository, memberRepository, rentalRepository, deviceRepository, fcmService);

@@ -39,11 +39,11 @@ public class InquiryService {
     public Long createDamageReport(Long memberId, DamageReportCreateForm form) {
 
         RentalDto rental = rentalService.getRental(form.rentalId(), memberId);
-        Inquiry inquiry = Inquiry.create(memberId, rental.getOwnerId(), form);
+        Inquiry inquiry = Inquiry.create(memberId, rental.getRenterId(), form);
 
         Inquiry saved = inquiryRepository.save(inquiry);
 
-//        notificationService.notifyItemDamagedRequest(rental.getRentalId());
+        notificationService.notifyItemDamagedRequest(rental.getRentalId());
 
         return saved.getInquiryId();
     }
