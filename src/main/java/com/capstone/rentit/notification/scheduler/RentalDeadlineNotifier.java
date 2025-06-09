@@ -19,7 +19,7 @@ public class RentalDeadlineNotifier {
     private final NotificationService notificationService;
 
     // 매일 새벽 0시(00:10)에 실행
-    @Scheduled(cron = "0 10 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
     @Transactional
     public void sendStartAndEndAlerts() {
         LocalDate today = LocalDate.now();
