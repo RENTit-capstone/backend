@@ -1,0 +1,76 @@
+spring:
+  application:
+    name: oauth2
+  datasource:
+    url: jdbc:h2:mem:test        # In-Memory Mode
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+        show_sql: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 10s
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dummyy
+    password: aaaa aaaa aaaa aaaa
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+mqtt:
+  broker: tcp://localhost:1883
+  username:
+  password:
+
+univcert:
+  api:
+    key: dummy
+
+jwt:
+  secret: abcdefghijklmnopqrstuvwxyzABCDEF
+  expiration: 3600000
+  refresh-ttl-min: 43200
+
+storage:
+  local:
+    upload-dir: dummy
+
+ncp:
+  object-storage:
+    endpoint: http://localhost
+    region: kr-standard
+    bucket-name: test-bucket
+    access-key: dummy
+    secret-key: dummy
+    presign-expire-minutes: 15
+
+nhapi:
+  base-url: dummy
+  iscd: dummy
+  fintech-aps-no: dummy
+  access-token: dummy
+  svc-codes:
+    drawing: dummy
+    deposit: dummy
