@@ -32,6 +32,11 @@ public class LockerService {
         return lockerRepository.save(Locker.createLocker(form, nextId)).getLockerId();
     }
 
+    public List<DeviceResponse> searchAll() {
+        return deviceRepository.findAll()
+                .stream().map(DeviceResponse::fromEntity).toList();
+    }
+
     public List<DeviceResponse> searchDevicesByUniversity(DeviceSearchForm form) {
         return deviceRepository.findByUniversity(form.getUniversity())
                 .stream().map(DeviceResponse::fromEntity).toList();
