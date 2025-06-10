@@ -96,12 +96,12 @@ class RentalServiceTest {
     @Test
     @DisplayName("requestRental: 물품이 OUT 상태면 ItemAlreadyRentedException")
     void requestRental_alreadyOut() {
-        Item outItem = Item.builder().itemId(100L).status(ItemStatusEnum.OUT).build();
+        Item outItem = Item.builder().itemId(100L).ownerId(10L).status(ItemStatusEnum.OUT).build();
         given(itemRepository.findById(100L)).willReturn(Optional.of(outItem));
 
         assertThatThrownBy(() -> rentalService.requestRental(baseForm))
                 .isInstanceOf(ItemAlreadyRentedException.class)
-                .hasMessageContaining("이미 대여된 물품입니다.");
+                .hasMessageContaining("다른 사람이 대여 중이거나 승인 대기 중인 물품입니다.");
     }
 
     @Test
