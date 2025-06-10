@@ -531,7 +531,7 @@ include::{snippets}/user-create-damage/response-fields.adoc[]
 include::{snippets}/user-create-damage/http-response.adoc[]
 
 === 사용자용 문의 응답
-POST /api/v1/inquiries/{id}/answer
+PUT /api/v1/inquiries/{id}/answer
 
 ==== 패스 파라미터
 include::{snippets}/user-answer-damage/path-parameters.adoc[]
