@@ -223,6 +223,8 @@ include::{snippets}/get-login-member/response-fields.adoc[]
 {
     AVAILABLE, //대여 가능 물품
     OUT, //이미 대여된 물품
+    REMOVED, //삭제된 물품
+    REQUESTED, //대여 신청 승인 대기중인 물품
 }
 ----
 === 물품 등록
@@ -529,7 +531,7 @@ include::{snippets}/user-create-damage/response-fields.adoc[]
 include::{snippets}/user-create-damage/http-response.adoc[]
 
 === 사용자용 문의 응답
-POST /api/v1/inquiries/{id}/answer
+PUT /api/v1/inquiries/{id}/answer
 
 ==== 패스 파라미터
 include::{snippets}/user-answer-damage/path-parameters.adoc[]
