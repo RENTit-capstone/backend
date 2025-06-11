@@ -1,5 +1,5 @@
 package com.capstone.rentit.item.status;
 
 public enum ItemStatusEnum {
-    OUT, AVAILABLE, REMOVED
+    OUT, AVAILABLE, REMOVED, REQUESTED
 }

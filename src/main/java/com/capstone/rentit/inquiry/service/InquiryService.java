@@ -39,11 +39,11 @@ public class InquiryService {
     public Long createDamageReport(Long memberId, DamageReportCreateForm form) {
 
         RentalDto rental = rentalService.getRental(form.rentalId(), memberId);
-        Inquiry inquiry = Inquiry.create(memberId, rental.getOwnerId(), form);
+        Inquiry inquiry = Inquiry.create(memberId, rental.getRenterId(), form);
 
         Inquiry saved = inquiryRepository.save(inquiry);
 
-//        notificationService.notifyItemDamagedRequest(rental.getRentalId());
+        notificationService.notifyItemDamagedRequest(rental.getRentalId());
 
         return saved.getInquiryId();
     }
@@ -91,14 +91,14 @@ public class InquiryService {
         assertTargetId(inquiry.getTargetMemberId(), responderId);
 
         inquiry.answerInquiry(form);
-//        notificationService.notifyItemDamagedResponse(inquiry);
+        notificationService.notifyItemDamagedResponse(inquiry);
     }
 
     public void answerInquiry(Long inquiryId, InquiryAnswerForm form){
         Inquiry inquiry = findInquiry(inquiryId);
         inquiry.answerInquiry(form);
 
-//        notificationService.notifyInquiryResponse(inquiry);
+        notificationService.notifyInquiryResponse(inquiry);
     }
 
     public void markProcessed(Long inquiryId) {

@@ -119,7 +119,7 @@ class LockerControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/v1/admin/devices")
+    @DisplayName("GET /api/v1/admin/devices/univ")
     class ListDevices {
         @Test
         @WithMockUser(roles = "ADMIN")
@@ -138,7 +138,7 @@ class LockerControllerTest {
             given(lockerService.searchDevicesByUniversity(any(DeviceSearchForm.class)))
                     .willReturn(List.of(a, b));
 
-            mockMvc.perform(get("/api/v1/admin/devices")
+            mockMvc.perform(get("/api/v1/admin/devices/univ")
                             .param("university", "U1"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))

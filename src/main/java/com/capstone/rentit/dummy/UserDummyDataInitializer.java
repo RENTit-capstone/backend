@@ -1,5 +1,6 @@
 package com.capstone.rentit.dummy;
 
+import com.capstone.rentit.inquiry.repository.InquiryRepository;
 import com.capstone.rentit.item.repository.ItemRepository;
 import com.capstone.rentit.locker.repository.DeviceRepository;
 import com.capstone.rentit.locker.repository.LockerRepository;
@@ -38,18 +39,20 @@ public class UserDummyDataInitializer implements ApplicationRunner {
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
     private final NotificationRepository notificationRepository;
+    private final InquiryRepository inquiryRepository;
 
     @Override
     public void run(ApplicationArguments args) {
-        notificationRepository.deleteAllInBatch();
-        paymentRepository.deleteAllInBatch();
-        walletRepository.deleteAllInBatch();
-        lockerRepository.deleteAllInBatch();
-        deviceRepository.deleteAllInBatch();
-        rentalRepository.deleteAllInBatch();
-        itemRepository.deleteAllInBatch();
-        memberRepository.deleteAllInBatch();
-//        if (memberRepository.count() > 0) {return;}
+//        inquiryRepository.deleteAllInBatch();
+//        notificationRepository.deleteAllInBatch();
+//        paymentRepository.deleteAllInBatch();
+//        walletRepository.deleteAllInBatch();
+//        lockerRepository.deleteAllInBatch();
+//        deviceRepository.deleteAllInBatch();
+//        rentalRepository.deleteAllInBatch();
+//        itemRepository.deleteAllInBatch();
+//        memberRepository.deleteAllInBatch();
+        if (memberRepository.count() > 0) {return;}
 
         final int STUDENT_COUNT = 5;
         final int COMPANY_COUNT = 2;

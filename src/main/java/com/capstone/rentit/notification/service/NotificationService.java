@@ -16,6 +16,7 @@ import com.capstone.rentit.rental.domain.Rental;
 import com.capstone.rentit.rental.exception.RentalNotFoundException;
 import com.capstone.rentit.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class NotificationService {
 
@@ -136,12 +138,12 @@ public class NotificationService {
 
     public void notifyItemDamagedRequest(Long rentalId){
         Rental rental = findRental(rentalId);
-        Member owner = findMember(rental.getOwnerId());
+        Member renter = findMember(rental.getRenterId());
         notify(
-                owner,
+                renter,
                 NotificationType.ITEM_DAMAGED_REQUEST,
                 "물품 파손 신고",
-                owner.getNickname() + "님, " + rental.getItem().getName() + "의 파손 신고가 들어왔어요.",
+                renter.getNickname() + "님, " + rental.getItem().getName() + "의 파손 신고가 들어왔어요.",
                 Map.of("rentalId", rentalId.toString())
         );
     }
@@ -188,6 +190,7 @@ public class NotificationService {
 
         // 2) FCM 전송
         if (target.getFcmToken() != null) {
+            log.info("sendToToken start");
             fcmService.sendToToken(target.getFcmToken(), title, body, data);
         }
     }

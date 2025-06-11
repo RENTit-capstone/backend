@@ -115,6 +115,9 @@ public class Item {
     public void updateAvailable(){
         status = ItemStatusEnum.AVAILABLE;
     }
+    public void updateRequested(){
+        status = ItemStatusEnum.REQUESTED;
+    }
 
     public void updateOut(){
         status = ItemStatusEnum.OUT;

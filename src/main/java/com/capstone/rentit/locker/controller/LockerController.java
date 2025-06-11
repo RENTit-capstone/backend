@@ -25,6 +25,12 @@ public class LockerController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/devices")
+    public CommonResponse<List<DeviceResponse>> listDevices() {
+        return CommonResponse.success(lockerService.searchAll());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/devices/univ")
     public CommonResponse<List<DeviceResponse>> listDevices(@ModelAttribute DeviceSearchForm form) {
         return CommonResponse.success(lockerService.searchDevicesByUniversity(form));
     }
