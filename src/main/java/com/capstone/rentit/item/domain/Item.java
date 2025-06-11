@@ -109,6 +109,10 @@ public class Item {
             this.damagedDescription = form.getDamagedDescription();
         if(form.getImageKeys() != null && !form.getImageKeys().isEmpty())
             this.imageKeys = form.getImageKeys();
+        if(form.getStartDate() != null)
+            this.startDate = form.getStartDate();
+        if(form.getEndDate() != null)
+            this.endDate = form.getEndDate();
         updatedAt = LocalDateTime.now();
     }
 
