@@ -24,7 +24,7 @@ public class RentalDeadlineNotifier {
 
     @Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
 //    @Scheduled(cron = "0 10 0 * * *", zone = "Asia/Seoul")
-    @Transactional(readOnly = true)
+    @Transactional
     public void sendStartAndEndAlerts() {
         log.info("Rental Deadline Notifier Start");
 
