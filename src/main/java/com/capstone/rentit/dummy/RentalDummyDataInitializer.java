@@ -29,7 +29,7 @@ public class RentalDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-//        if (rentalRepository.count() > 0) return;
+        if (rentalRepository.count() > 0) return;
 
         // STUDENT 역할의 회원만 필터링
         List<Member> members = memberRepository.findAll().stream()
