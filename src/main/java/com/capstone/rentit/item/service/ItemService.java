@@ -99,7 +99,7 @@ public class ItemService {
     }
 
     private void assertOut(Item item) {
-        if (item.getStatus().equals(ItemStatusEnum.OUT)) {
+        if (!item.getStatus().equals(ItemStatusEnum.AVAILABLE)) {
             throw new ItemUnauthorizedException("대여 중인 물품은 삭제할 수 없습니다.");
         }
     }
