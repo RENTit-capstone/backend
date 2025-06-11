@@ -26,9 +26,7 @@ public class DeviceLockerDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (deviceRepository.count() > 0) {
-            return;
-        }
+//        if (deviceRepository.count() > 0) return;
 
         // 더미 대학 및 위치 설명 맵
         List<String> universities = List.of("아주대학교", "아주대학교");

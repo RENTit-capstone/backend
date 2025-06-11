@@ -26,7 +26,7 @@ public class WalletDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if(walletRepository.count() > 0) return;
+//        if(walletRepository.count() > 0) return;
 
         List<Member> members = memberRepository.findAll();
 
