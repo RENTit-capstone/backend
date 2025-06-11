@@ -44,8 +44,8 @@ public class RentalService {
     /** 대여 요청 생성 */
     public Long requestRental(RentalRequestForm form) {
         Item item = findItem(form.getItemId());
-        assertItemAvailable(item);
         assertNotOwner(item, form.getRenterId());
+        assertItemAvailable(item);
         paymentService.assertCheckBalance(form.getRenterId(), item.getPrice());
 
         Rental rental = Rental.create(form);
@@ -54,6 +54,7 @@ public class RentalService {
         Long rentalId = rentalRepository.save(rental).getRentalId();
         paymentService.requestRentalFee(new RentalPaymentRequest(rental.getRenterId(), rental.getOwnerId(), item.getPrice()), rentalId);
 
+        item.updateRequested();
         notificationService.notifyRentRequest(rentalId);
         return rentalId;
     }
@@ -221,8 +222,8 @@ public class RentalService {
     }
 
     private void assertItemAvailable(Item item) {
-        if (item.getStatus() == ItemStatusEnum.OUT) {
-            throw new ItemAlreadyRentedException("이미 대여된 물품입니다.");
+        if (item.getStatus() == ItemStatusEnum.OUT || item.getStatus() == ItemStatusEnum.REQUESTED) {
+            throw new ItemAlreadyRentedException("다른 사람이 대여 중이거나 승인 대기 중인 물품입니다.");
         }
     }
 

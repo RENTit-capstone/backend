@@ -105,15 +105,22 @@ public class Item {
             this.returnPolicy = form.getReturnPolicy();
         if(form.getDescription() != null)
             this.description = form.getDescription();
-        if(form.getDescription() != null)
-            this.description = form.getDescription();
+        if(form.getDamagedDescription() != null)
+            this.damagedDescription = form.getDamagedDescription();
         if(form.getImageKeys() != null && !form.getImageKeys().isEmpty())
             this.imageKeys = form.getImageKeys();
+        if(form.getStartDate() != null)
+            this.startDate = form.getStartDate();
+        if(form.getEndDate() != null)
+            this.endDate = form.getEndDate();
         updatedAt = LocalDateTime.now();
     }
 
     public void updateAvailable(){
         status = ItemStatusEnum.AVAILABLE;
+    }
+    public void updateRequested(){
+        status = ItemStatusEnum.REQUESTED;
     }
 
     public void updateOut(){
