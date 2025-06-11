@@ -23,7 +23,7 @@ public class InquiryDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-//        if (inquiryRepository.count() > 0) return;
+        if (inquiryRepository.count() > 0) return;
 
         List<Member> members = memberRepository.findAll();
         if (members.size() < 2) {

@@ -34,7 +34,7 @@ public class PaymentDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-//        if(paymentRepository.count() > 0) return;;
+        if(paymentRepository.count() > 0) return;
 
         /* ─── 0. 지갑 준비 & 계좌 등록 ─── */
         List<Member> members = memberRepository.findAll();
