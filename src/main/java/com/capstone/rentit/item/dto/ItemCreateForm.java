@@ -1,8 +1,6 @@
 package com.capstone.rentit.item.dto;
 
 import com.capstone.rentit.item.status.ItemStatusEnum;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -19,8 +17,7 @@ public class ItemCreateForm {
     @NotEmpty private String name;
     @NotEmpty private String description;
     private String damagedDescription;
-    @NotNull @Max(1000000) @Min(0)
-    private Integer price;
+    @NotNull private Integer price;
     @NotNull private ItemStatusEnum status;
     @NotEmpty private String damagedPolicy;
     private String returnPolicy;

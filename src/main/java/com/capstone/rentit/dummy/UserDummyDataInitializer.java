@@ -43,16 +43,16 @@ public class UserDummyDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        inquiryRepository.deleteAllInBatch();
-        notificationRepository.deleteAllInBatch();
-        paymentRepository.deleteAllInBatch();
-        rentalRepository.deleteAllInBatch();
-        walletRepository.deleteAllInBatch();
-        lockerRepository.deleteAllInBatch();
-        itemRepository.deleteAllInBatch();
-        deviceRepository.deleteAllInBatch();
-        memberRepository.deleteAllInBatch();
-//        if (memberRepository.count() > 0) {return;}
+//        inquiryRepository.deleteAllInBatch();
+//        notificationRepository.deleteAllInBatch();
+//        paymentRepository.deleteAllInBatch();
+//        walletRepository.deleteAllInBatch();
+//        lockerRepository.deleteAllInBatch();
+//        deviceRepository.deleteAllInBatch();
+//        rentalRepository.deleteAllInBatch();
+//        itemRepository.deleteAllInBatch();
+//        memberRepository.deleteAllInBatch();
+        if (memberRepository.count() > 0) {return;}
 
         final int STUDENT_COUNT = 5;
         final int COMPANY_COUNT = 2;

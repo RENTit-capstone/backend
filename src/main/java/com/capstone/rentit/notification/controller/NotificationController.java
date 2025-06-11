@@ -6,8 +6,6 @@ import com.capstone.rentit.member.dto.MemberDto;
 import com.capstone.rentit.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,10 +16,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public CommonResponse<?> list(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable,
-            @Login MemberDto memberDto) {
+    public CommonResponse<?> list(Pageable pageable, @Login MemberDto memberDto) {
         return CommonResponse.success(notificationService.findByTarget(memberDto, pageable));
     }
 
