@@ -22,8 +22,8 @@ public class RentalDeadlineNotifier {
     private final RentalRepository rentalRepository;
     private final NotificationService notificationService;
 
-//    @Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
-    @Scheduled(cron = "0 10 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 10 0 * * *", zone = "Asia/Seoul")
     @Transactional(readOnly = true)
     public void sendStartAndEndAlerts() {
         log.info("Rental Deadline Notifier Start");
