@@ -52,6 +52,9 @@ public class UserDummyDataInitializer implements ApplicationRunner {
 //        itemRepository.deleteAllInBatch();
 //        deviceRepository.deleteAllInBatch();
 //        memberRepository.deleteAllInBatch();
+
+
+
         if (memberRepository.count() > 0) {return;}
 
         final int STUDENT_COUNT = 5;
